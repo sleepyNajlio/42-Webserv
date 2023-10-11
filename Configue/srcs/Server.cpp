@@ -48,7 +48,7 @@ int Server::count_servers(std::string const & filename)
 	return i;
 }
 
-void Server::parse_location(std::string line,Server &tmp)
+void Server::parse_location(std::string line,Location& test)
 {
     std::string key;
     std::string value;
@@ -56,59 +56,63 @@ void Server::parse_location(std::string line,Server &tmp)
     std::getline(temp, key,' ');
     temp >> value;
     if(key == "fastcgi_pass")
-        tmp.location.fastcgi_pass = value;
+        test.fastcgi_pass = value.substr(0,value.length() - 1);
     if(key == "root")
-        tmp.location.root = value;
+        test.root = value.substr(0,value.length() - 1);
     if(key == "expires")
-        tmp.location.expires = value; 
+        test.expires = value.substr(0,value.length() - 1); 
 }
 
-// void Server::parse_server(std::string line,Server &tmp)
-
+void Server::parse_server(std::string key, std::string value, Server &tmp)
+{
+    if(key == "listen")
+        tmp.set_port(stoi(value.substr(0,value.length() - 1)));
+    if(key == "server_name")
+        tmp.set_server_name(value.substr(0,value.length() - 1));
+    if(key == "root")
+        tmp.set_root(value.substr(0,value.length() - 1));
+}
 void Server::parse_configue(std::string const & filename) {
     
     std::ifstream file(filename.c_str());
     std::string line;
 	std::string key;
     std::string value;
-
     int i = 0;
 	
-    
     this->servers[this->number_of_servers];
     if (!file.is_open())
 		throw std::runtime_error("Error: could not open file.");
-    while (std::getline(file, line)) {
-         Server tmp;
-            if(line.find("server") != std::string::npos)
-            { 
-               while(std::getline(file, line) && line.find('}')  == std::string::npos )
-               {
-                    std::istringstream temp(skip_spaces(line));
-                    std::getline(temp, key,' ');
+    
+    while (std::getline(file, line))
+    {
+        Server tmp;
+        if(line.find("server") != std::string::npos)
+        { 
+            while(std::getline(file, line) && line.find('}')  == std::string::npos )
+            {
+                std::istringstream temp(skip_spaces(line));
+                std::getline(temp, key,' ');
             	    temp >> value;
-                    if(!skip_spaces(line).empty())
-                    {    
-                        if(key == "listen")
-                            tmp.set_port(stoi(value));
-                        if(key == "server_name")
-                            tmp.set_server_name(value);
-                        if(key == "root")
-                            tmp.set_root(value);
-                         if(key == "location")
-                         {
-                            tmp.location.path = value;
-                            while(std::getline(file, line) && line.find('}')  == std::string::npos ){ 
-                                parse_location(line,tmp);
-                            }
-                         }  
-                    } 
-            
-               }
-                servers.push_back(tmp);
-                std::cout << tmp << std::endl;
-                i++;
-            }
+             if(!skip_spaces(line).empty())
+             {    
+                  if(key == "location")
+                  {
+                    Location test;
+                     test.path = value;
+                     while(std::getline(file, line) && line.find('}')  == std::string::npos ){ 
+                         parse_location(line,test);
+                     }
+                     tmp.locations.push_back(test);
+                  }  
+                 parse_server(key, value,tmp);
+             }     
+        }
+        servers.push_back(tmp);
+        std::cout << "------------- Server " << i + 1 << " -------------" << std::endl;
+        std::cout << tmp << std::endl;
+        i++;
+        }
     }
 	file.close();
 }
@@ -153,17 +157,23 @@ void        Server::set_port(int value){
         this->port = value;
 }
 
-std::ostream&   operator<<( std::ostream& out,  Server& obj ) {
-    out << "------------- Server -------------" << std::endl;
-    out << "port : " << obj.get_port() << std::endl
-        << "server_name : " << obj.get_server_name() << std::endl
-        << "root : " << obj.get_root() << std::endl;
-        
-    out << "--------------- location -----------" << std::endl
-        << "path :"<<obj.get_path() << std::endl
-        << "cgi :" << obj.get_fastcgi_pass() << std::endl
-        << "root :" << obj.get_location_root() << std::endl
-        << "expires : " << obj.get_expires() << std::endl;
+std::vector <Location> Server::get_locations()
+{
+    return this->locations;
+}
 
+std::ostream&   operator<<( std::ostream& out,  Server& obj ) {
+    std::vector <Location> temp = obj.get_locations();
+    
+    out << "- port        : " << obj.get_port() << std::endl
+        << "- server_name : " << obj.get_server_name() << std::endl
+        << "- root        : " << obj.get_root() << std::endl << std::endl;
+    for (size_t i = 0; i < temp.size(); ++i) {
+        out << "+ location ["  << i+1 <<"]" << std::endl
+            << "    - path    : "    << temp[i].path << std::endl
+            << "    - cgi     : "     << temp[i].fastcgi_pass << std::endl
+            << "    - root    : "    << temp[i].root << std::endl
+            << "    - expires : " << temp[i].expires << std::endl;
+    }
     return out;
 }

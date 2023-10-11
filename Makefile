@@ -1,7 +1,7 @@
 NAME			= 	webserv
 CXX			=	c++
 CPPFLAGS		=	-Wall -Wextra -Werror
-SRC			=	Webserv.cpp srcs/Server.cpp
+SRC			=	Webserv.cpp Configue/srcs/Server.cpp
 OBJ			=	${SRC:%.cpp=%.o}
 
 all : $(NAME)
