@@ -48,6 +48,16 @@ int Server::count_servers(std::string const & filename)
 	return i;
 }
 
+int         Server::get_number_of_servers()
+{
+    return this->number_of_servers;
+}
+
+std::vector <Server> Server::get_servers()
+{
+    return this->servers;
+}
+
 void Server::parse_location(std::string line,Location& test)
 {
     std::string key;
@@ -109,8 +119,8 @@ void Server::parse_configue(std::string const & filename) {
              }     
         }
         servers.push_back(tmp);
-        std::cout << "------------- Server " << i + 1 << " -------------" << std::endl;
-        std::cout << tmp << std::endl;
+        // std::cout << "------------- Server " << i + 1 << " -------------" << std::endl;
+        // std::cout << tmp << std::endl;
         i++;
         }
     }

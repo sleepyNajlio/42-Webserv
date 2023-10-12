@@ -40,6 +40,8 @@ class Server {
                 //void                              parse_server(std::string line, Server tmp);
        
         std::string get_root();
+        int         get_number_of_servers();
+        std::vector <Server> get_servers();
         // std::string get_location();
         std::string get_server_name();
         int         get_port();
