@@ -12,15 +12,13 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include <cstdlib>
-#include "../../Conf/incs/parse_config/conf_parser.hpp"
-
 
 class Socket {
 public:
     Socket();
     ~Socket();
 
-    void setupServerSocket(std::vector < Server_storage > &_servers, std::vector <std::pair <Socket , Server_storage > > &serverList);
+    void setupServerSocket(int port);
     int get_fd() const;
     struct sockaddr_in get_address() const;
     bool get_already_bind() const;
