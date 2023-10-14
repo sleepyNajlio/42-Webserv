@@ -19,8 +19,9 @@ struct Location
 class Server {
 	private:
                 int             number_of_servers;
-	        std::vector     <Server> servers;
-                std::vector     <Location> locations;
+	        std::vector     < Server >      servers;
+                std::vector     < Location >    locations;
+              //  std::vector     < Client >      clients;
                 Location        location;
                 std::string     root;
                 int             port;
@@ -33,13 +34,18 @@ class Server {
 		~Server();
 		
 		int 		        count_servers(std::string const & filename);
-		void		        parse_configue(std::string const & filename);
+                void		        parse_configue(std::string const & filename);
 		std::string 		skip_spaces(std::string line);
+		void                    check_syntax(std::string const &filename);
                 void                    parse_location(std::string line,Location& test);
                 void                    parse_server(std::string key, std::string value, Server &tmp);
+                void                    check_brackets(std::string const & filename);
+
                 //void                              parse_server(std::string line, Server tmp);
        
         std::string get_root();
+        int         get_number_of_servers();
+        std::vector <Server> get_servers();
         // std::string get_location();
         std::string get_server_name();
         int         get_port();
