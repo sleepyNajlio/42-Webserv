@@ -1,11 +1,13 @@
 #include "Configue/includes/Server.hpp"
+#include "Configue/includes/Parser.hpp"
+#include "Configue/includes/Location.hpp"
 #include "Multiplexing/inc/Multiplexing.hpp"
 int	main(int ac, char **av)
 {
 	try {
 		if (ac != 2)
 			throw std::runtime_error("./webserv [filename.config]");
-		Server configue_file(av[1]);
+		Parser configue_file(av[1]);
 		Socket serverSocket;
 		int i = 1;
 
