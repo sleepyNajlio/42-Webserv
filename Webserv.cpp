@@ -7,24 +7,18 @@ int	main(int ac, char **av)
 	try {
 		if (ac != 2)
 			throw std::runtime_error("./webserv [filename.config]");
-		Parser configue_file(av[1]);
-		Socket serverSocket;
-		int i = 1;
-
-		std::vector <Server> it = configue_file.get_servers();
-		while(i < configue_file.get_number_of_servers())
-		{
-    		serverSocket.setupServerSocket(it[i].get_port());
-			i++;
-		}
-		//-------------------------print binded fds
-
-		std::vector <int> temp = serverSocket.get_sockets();
-		for (size_t i = 0; i < temp.size(); ++i){
-			std::cout << temp[i] << std::endl;}
+		Parser configue(av[1]);
+		//-------------------------PRINT SERVERS
+		std::cout << configue.get_servers() << std::endl;
 		
-		Multiplexing Multiplexing;
-    	Multiplexing.setupServer(serverSocket);
+		
+		std::vector <Server> it = configue.get_servers();
+		Socket serverSocket;
+   		serverSocket.setupServerSocket(it[0].get_port());
+
+   		Multiplexing Multiplexing;
+   		Multiplexing.setupServer(serverSocket);
+	
 	
 	} catch (std::exception &e) {
 		std::cout << e.what() << std::endl;

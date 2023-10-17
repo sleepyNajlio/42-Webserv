@@ -32,15 +32,6 @@ int Parser::count_servers(std::string const & filename)
 	return i;
 }
 
-int         Parser::get_number_of_servers()
-{
-    return this->number_of_servers;
-}
-
-std::vector <Server> Parser::get_servers()
-{
-    return this->servers;
-}
 
 void Parser::parse_location(std::string line,Location& test)
 {
@@ -50,11 +41,11 @@ void Parser::parse_location(std::string line,Location& test)
     std::getline(temp, key,' ');
     temp >> value;
     if(key == "fastcgi_pass")
-        test.fastcgi_pass = value.substr(0,value.length() - 1);
+        test.set_fastcgi_pass(value.substr(0,value.length() - 1)) ;
     if(key == "root")
-        test.root = value.substr(0,value.length() - 1);
+        test.set_location_root(value.substr(0,value.length() - 1));
     if(key == "expires")
-        test.expires = value.substr(0,value.length() - 1); 
+        test.set_expires(value.substr(0,value.length() - 1)); 
 }
 
 void Parser::parse_server(std::string key, std::string value, Server &tmp)
@@ -72,7 +63,7 @@ void Parser::parse_configue(std::string const & filename) {
     std::string line;
 	std::string key;
     std::string value;
-    int i = 0;
+  
 	
     this->servers[this->number_of_servers];
     if (!file.is_open())
@@ -93,7 +84,7 @@ void Parser::parse_configue(std::string const & filename) {
                   if(key == "location")
                   {
                     Location test;
-                     test.path = value;
+                     test.set_path(value);
                      while(std::getline(file, line) && line.find('}')  == std::string::npos ){ 
                          parse_location(line,test);
                      }
@@ -103,10 +94,26 @@ void Parser::parse_configue(std::string const & filename) {
              }     
         }
         servers.push_back(tmp);
-        std::cout << "------------- Server " << i + 1 << " -------------" << std::endl;
-        std::cout << tmp << std::endl;
-        i++;
         }
     }
 	file.close();
+}
+
+int         Parser::get_number_of_servers()
+{
+    return this->number_of_servers;
+}
+
+std::vector <Server> Parser::get_servers()
+{
+    return this->servers;
+}
+
+std::ostream&   operator<<( std::ostream& out, std::vector  <Server> servers){
+    
+    for (size_t i = 0; i < servers.size(); ++i) {
+        std::cout << "------------- Server " << i + 1 << " -------------" << std::endl;
+        std::cout << servers[i] << std::endl;
+    }
+    return out;
 }
