@@ -1,6 +1,6 @@
-#include "../includes/Server.hpp"
+#include "../includes/Parser.hpp"
 
-void    Server::check_brackets(std::string const & filename)
+void    Parser::check_brackets(std::string const & filename)
 {
      std::ifstream file(filename.c_str());
 	if (!file.is_open())
@@ -23,7 +23,7 @@ void    Server::check_brackets(std::string const & filename)
         throw std::runtime_error("Error: expected {");
 }
 
-void Server::check_syntax(std::string const & filename)
+void Parser::check_syntax(std::string const & filename)
 {
     check_brackets(filename);
     std::ifstream file(filename.c_str());

@@ -1,14 +1,7 @@
 #include "../includes/Server.hpp"
+#include "../includes/Parser.hpp"
 
 Server::Server() {}
-
-Server::~Server() {}
-
-Server::Server(std::string const & filename) {
-    check_syntax(filename);
-        this->number_of_servers = count_servers(filename);
-        this->parse_configue(filename);    
-}
 
 Server::Server(Server const & src) {
     *this = src;
@@ -18,20 +11,17 @@ Server & Server::operator=(Server const & obj) {
     if (this != &obj) {
         this->server_name = obj.server_name;
         this->root = obj.root;
-        this->location = obj.location;
+        this->locations = obj.locations;
         this->port = obj.port; 
     }
     return *this;
 }
 
-int         Server::get_number_of_servers()
-{
-    return this->number_of_servers;
-}
+Server::~Server() {}
 
-std::vector <Server> Server::get_servers()
-{
-    return this->servers;
+
+int    Server::get_port(){
+    return this->port;
 }
 
 std::string Server::get_root(){
@@ -42,24 +32,8 @@ std::string Server::get_server_name(){
     return this->server_name;
 }
 
-int    Server::get_port(){
-    return this->port;
-}
-
-std::string Server::get_path(){
-    return this->location.path;
-}
-
-std::string Server::get_fastcgi_pass(){
-    return this->location.fastcgi_pass;
-}
-
-std::string Server::get_location_root(){
-    return this->location.root;
-}
-
-std::string Server::get_expires(){
-    return this->location.expires;
+void        Server::set_port(int value){
+        this->port = value;
 }
 
 void        Server::set_root(std::string value){
@@ -70,8 +44,9 @@ void        Server::set_server_name(std::string value){
     this->server_name = value;
 }
 
-void        Server::set_port(int value){
-        this->port = value;
+void Server::set_locations(Location value)
+{
+    locations.push_back(value);
 }
 
 std::vector <Location> Server::get_locations()
@@ -86,11 +61,11 @@ std::ostream&   operator<<( std::ostream& out,  Server& obj ) {
         << "- server_name : " << obj.get_server_name() << std::endl
         << "- root        : " << obj.get_root() << std::endl << std::endl;
     for (size_t i = 0; i < temp.size(); ++i) {
-        out << "+ location ["  << i+1 <<"]" << std::endl
-            << "    - path    : "    << temp[i].path << std::endl
-            << "    - cgi     : "     << temp[i].fastcgi_pass << std::endl
-            << "    - root    : "    << temp[i].root << std::endl
-            << "    - expires : " << temp[i].expires << std::endl;
+        out << "+ location ["       << i+1 << "]" << std::endl
+            << "    - path    : "   << temp[i].get_path() << std::endl
+            << "    - cgi     : "   << temp[i].get_fastcgi_pass() << std::endl
+            << "    - root    : "   << temp[i].get_location_root() << std::endl
+            << "    - expires : "   << temp[i].get_expires() << std::endl;
     }
     return out;
 }
