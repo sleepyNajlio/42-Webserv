@@ -1,27 +1,56 @@
 #include    "request.hpp"
 
-void    request::setMethod(std::string methode){
+void    Request::setMethod(const std::string& methode){
         this->method = methode;
 }
-void    request::setUrl(std::string url){
+void    Request::setUrl(const std::string& url){
         this->url = url;
 }
-void    request::sethttpVersion(std::string httpVersion){
+void    Request::sethttpVersion(const std::string& httpVersion){
         this->httpVersion = httpVersion;
 }
-void    request::setPort(std::string port){
-        this->port = port;
-}
 
-std::string request::getMethod(){
+
+std::string Request::getMethod() const {
     return this->method;
 }
-std::string request::getUrl(){
+std::string Request::getUrl() const {
     return this->url;
 }
-std::string request::getPort(){
-    return this->port;
-}
-std::string request::gethttpVersion(){
+std::string Request::gethttpVersion() const {
     return this->httpVersion;
+}
+
+// ==============================================================
+
+void Request::setBody(const std::string& body){
+    this->body = body;
+}
+
+void Request::setServerName(const std::string& serverName){
+    this->serverName = serverName;
+}
+
+void Request::setLocationPath(const std::string& path){
+    this->locPath = path;
+}
+
+void Request::setRoot(const std::string& path){
+    this->root = path;
+}
+
+std::string Request::getBody() const{
+    return body;
+}
+
+std::string Request::getServerName() const{
+    return serverName;
+}
+
+std::string Request::getLocationPath() const{
+    return locPath;
+}
+
+std::string Request::getRoot() const{
+    return root;
 }

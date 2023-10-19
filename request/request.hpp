@@ -2,6 +2,7 @@
 #define REQUEST_HPP
 
 #include <iostream>
+#include <sstream>
 #include <map>
 
 class Request{
@@ -9,24 +10,31 @@ class Request{
             std::string method;
             std::string url;
             std::string httpVersion;
-            std::string port;
+
     public:
-            void setMethod(std::string methode);
-            void setUrl(std::string url);
-            void sethttpVersion(std::string httpVersion);
-            void setPort(std::string port);
+            void setMethod(const std::string& methode);
+            void setUrl(const std::string& url);
+            void sethttpVersion( const std::string& httpVersion);
+            
+            void setBody(const std::string& body);
+            void setLocationPath(const std::string& body);
+            void setRoot(const std::string& body);
+            void setServerName(const std::string& body);
 
-            std::string getMethod();
-            std::string getUrl();
-            std::string getPort();
-            std::string gethttpVersion();
+            std::string getMethod() const;
+            std::string getUrl() const;
+            std::string getBody() const;
+            std::string getRoot() const;
+            std::string gethttpVersion() const;
+            std::string getLocationPath() const;
+            std::string getServerName() const;
 
-            std::string _body;
-            std::string _serverName;
-            std::string _root;
-            std::string _locPath;
+            std::string body;
+            std::string serverName;
+            std::string root;
+            std::string locPath;
             std::map<std::string, std::string> headers;
-}
+};
 
-void parse_request(std::string buffer);
+Request parse_request(std::string buffer, Request req);
 #endif
