@@ -12,7 +12,6 @@
 #include "Socket.hpp"
 #include <fcntl.h>
 #include <sys/stat.h>
-// #include "request.hpp"
 #include "Client.hpp"
 
 class request;

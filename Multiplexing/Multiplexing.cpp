@@ -67,6 +67,7 @@ void Multiplexing::setupServer(Socket& serverSocket)
                 else {
                     buffer[bytesRead] = '\0';
                     // buffer is ready for parse here
+                    clients[i].req.parse_headers(buffer, bytesRead);
 
                     //==> I COMMENT THIS FOR COMPILATION SAKE
 
