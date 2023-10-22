@@ -8,16 +8,20 @@ int	main(int ac, char **av)
 		if (ac != 2)
 			throw std::runtime_error("./webserv [filename.config]");
 		Parser configue(av[1]);
-		//-------------------------PRINT SERVERS
+
+		//-------------PRINT SERVERS
 		std::cout << configue.get_servers() << std::endl;
 		
-		
+		//-------------BIND MULTIPORTS
 		std::vector <Server> it = configue.get_servers();
 		Socket serverSocket;
-   		serverSocket.setupServerSocket(it[0].get_port());
-
+   		for(size_t i = 0; i < it.size() ; i++){
+			serverSocket.setupServerSocket(it[i]);
+		}
+		
    		Multiplexing Multiplexing;
-   		Multiplexing.setupServer(serverSocket);
+   		Multiplexing.setupServer(serverSocket );
+
 	
 	
 	} catch (std::exception &e) {

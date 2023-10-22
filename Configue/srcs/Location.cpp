@@ -2,8 +2,6 @@
 #include "../includes/Parser.hpp"
 #include "../includes/Location.hpp"
 
-
-
 std::string Location::get_path(){
     return this->path;
 }

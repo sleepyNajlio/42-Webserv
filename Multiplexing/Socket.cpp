@@ -14,11 +14,11 @@ Socket::~Socket()
     close(socket_fd);
 }
 
-void Socket::setupServerSocket(int port)
+void Socket::setupServerSocket(Server server)
 {
     socket_address.sin_family = AF_INET;
     socket_address.sin_addr.s_addr = INADDR_ANY;
-    socket_address.sin_port = htons(port);
+    socket_address.sin_port = htons(server.get_port());
     memset(socket_address.sin_zero, '\0', sizeof(socket_address.sin_zero));
     
     int     on;

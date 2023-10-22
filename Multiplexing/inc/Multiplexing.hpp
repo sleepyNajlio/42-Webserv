@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include "Client.hpp"
+#include "../../Configue/includes/Server.hpp"
 
 class request;
 class Socket;
@@ -37,6 +38,6 @@ class Multiplexing {
 
         struct ioSets getIoSets() const;
         void setupServer(Socket& serverSocket);
-        void handleNewConnection(Socket& serverSocket);
+        void handleNewConnection(Socket& serverSocket,int i);
        
 };

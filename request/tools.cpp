@@ -4,7 +4,7 @@ Request::Request() {
     this->method = "";
     this->url = "";
     this->httpVersion = "";
-    this->headers = {};
+    //this->headers = {};
     this->serverName = "";
     this->locPath = "";
     this->root = "";
@@ -15,10 +15,12 @@ Request::Request() {
 }
 
 void    Request::setHeaderDone(bool done){
+       if(done)
         this->headerDone = true;
 }
 
 void    Request::setReadDone(bool done){
+       if(done)
         this->readDone = true;
 }
 
@@ -45,7 +47,7 @@ std::string Request::gethttpVersion() const {
 
 // ==============================================================
 
-void Request::setBody(const std::string& body){
+void Request::setBody(const int& body){
     this->body = body;
 }
 
@@ -61,7 +63,7 @@ void Request::setRoot(const std::string& path){
     this->root = path;
 }
 
-std::string Request::getBody() const{
+int Request::getBody() const{
     return body;
 }
 

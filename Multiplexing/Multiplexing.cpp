@@ -17,13 +17,28 @@ ioSets Multiplexing::getIoSets() const
     return io;
 }
 
+int max(std::vector <int> list)
+{
+	int i = 0;
+    int max = list[i];
+    for (size_t i = 0; i < list.size(); ++i){
+        if(list[i+1] > list[i])
+            max = list[i+1];
+    } 
+    return max;
+}
 
 void Multiplexing::setupServer(Socket& serverSocket)
 {
-    FD_SET(serverSocket.get_fd(), &io.readSockets);
-    maxFd = serverSocket.get_fd();
+    
+    //---------->ADDING SOME LOOPS
 
-    //==> I COMMENT THIS FOR COMPILATION SAKE
+   	std::vector <int> temp = serverSocket.get_sockets();
+	for (size_t i = 0; i < temp.size(); ++i){
+    FD_SET(temp[i], &io.readSockets);}
+     
+    maxFd = max(serverSocket.get_sockets()) ;
+
 
     //const char* responseHeader = "HTTP/1.1 200 OK\r\nContent-Type: video/mp4\r\nContent-Length: ";
    // const char* responseEnd = "\r\n\r\n";
@@ -38,10 +53,9 @@ void Multiplexing::setupServer(Socket& serverSocket)
             break;
         }
         // check for new connection
-        if (FD_ISSET(serverSocket.get_fd(), &io.tmpReadSockets))
-        {
-            handleNewConnection(serverSocket);
-        }
+         for (size_t i = 0; i < temp.size(); ++i){
+            if (FD_ISSET(temp[i], &io.tmpReadSockets)){
+                handleNewConnection(serverSocket,i);}}
         // loop through clients and check for events
         for (size_t i = 0; i < clients.size(); i++)
         {
@@ -66,17 +80,20 @@ void Multiplexing::setupServer(Socket& serverSocket)
                 }
                 else {
                     buffer[bytesRead] = '\0';
+                   
+                   //---------->CONVERT THE BUFFER TO STRING
+                    std::cout << buffer << std::endl;
+                    std::string str(reinterpret_cast<const char*>(buffer));
+                    
                     // buffer is ready for parse here
-                    clients[i].req.parse_headers(buffer, bytesRead);
+                    clients[i].request.parse_headers(str,bytesRead);
 
-                    //==> I COMMENT THIS FOR COMPILATION SAKE
-
-                    // check if request reading is done
-                    // if (clients[i].get_request().read_done)
-                    // {
-                    //     FD_CLR(clients[i].get_fd(), &io.readSockets);
-                    //     FD_SET(clients[i].get_fd(), &io.writeSockets);
-                    // }
+                   // check if request reading is done
+                    if (clients[i].request.isReadDone())
+                    {
+                        FD_CLR(clients[i].get_fd(), &io.readSockets);
+                        FD_SET(clients[i].get_fd(), &io.writeSockets);
+                    }
                 }
             }
             // check for write event
@@ -103,12 +120,16 @@ void Multiplexing::setupServer(Socket& serverSocket)
     close(serverSocket.get_fd());
 }
 
-void Multiplexing::handleNewConnection(Socket& serverSocket)
+void Multiplexing::handleNewConnection(Socket& serverSocket,int i)
 {
     Client client;
+
+    
+    std::vector <int> temp = serverSocket.get_sockets();
+
     struct sockaddr_in address = serverSocket.get_address();
     socklen_t clientAddrLen = sizeof(client.get_address());
-    int clientSocket = accept(serverSocket.get_fd(), (struct sockaddr *)&address, &clientAddrLen);
+    int clientSocket = accept(temp[i], (struct sockaddr *)&address, &clientAddrLen);
     client.set_fd(clientSocket);
     if (clientSocket == -1)
     {

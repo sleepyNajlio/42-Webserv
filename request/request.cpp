@@ -1,6 +1,6 @@
 #include "request.hpp"
 
-char* generateRandomString() {
+char* Request::generateRandomString() {
     const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     int length = 5 + std::rand() % (30 - 5 + 1);
 
@@ -19,7 +19,7 @@ char* generateRandomString() {
     return randomString;
 }
 
-bool pLine(std::istringstream& stream, Request& req) {
+bool Request::pLine(std::istringstream& stream, Request& req) {
     std::string line;
     std::string tmp_one;
     std::string tmp_two;
@@ -116,15 +116,16 @@ void Request::reader(unsigned char *buffer, ssize_t bytesRead)
         unsigned int len = bytesRead;
         if (frstprtbod)
             len = len - (newBuffer - buffer);
-        this->parse_body(newBuffer, frstprtbod, len);
+        this->parse_body(newBuffer, frstprtbod);
          
     }
     else if (this->headerDone == true && this->method != "POST")
         this->readDone = true;
 }
 
-void Request::parse_headers(std::string buffer) 
+  void Request::parse_headers(std::string buffer,ssize_t bytesRead)
 {
+    
     // we should check if the header is complete or not before doing this otherwise we should not cast the body to string
     std::istringstream stream(buffer);
     if (!pLine(stream, *this)) {
@@ -136,11 +137,13 @@ void Request::parse_headers(std::string buffer)
         std::cerr << "Error 400 bad request: Invalid request headers." <<  std::endl;
         return;
     }
- 
+    (void) bytesRead;
 }
 
 void Request::parse_body(unsigned char *buffer, int bytesRead) 
 {
+    unsigned char *newBuffer;
+    int  reqBodyFd = 25;
     if (this->headers.find("Content-Length") != this->headers.end())
     {
         if (buffer)
@@ -157,7 +160,7 @@ void Request::parse_body(unsigned char *buffer, int bytesRead)
     
     if (this->isChunked == true && memmem(newBuffer, bytesRead, "0\r\n\r\n", 5) != NULL)
     {
-        this->read_done = true;
+        this->readDone = true;
         close(reqBodyFd);
         std::cout << "done" << std::endl;
         //handle body
@@ -165,13 +168,13 @@ void Request::parse_body(unsigned char *buffer, int bytesRead)
     }
     else if (this->contentLength == this->bytesSent)
     {
-        this->read_done = true;
+        this->readDone = true;
         close(reqBodyFd);
         std::cout << "done" << std::endl;
         //handle body
     }   
     std::cout << "body: " << this->body << std::endl;
-    std::cout << "body size: " << this->body.size() << std::endl;
+    //std::cout << "body size: " << this->body.size() << std::endl;
     std::cout << "content length: " << this->contentLength << std::endl;
 
 }

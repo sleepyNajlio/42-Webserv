@@ -8,7 +8,9 @@ SRC			=	Webserv.cpp \
 				Configue/srcs/Syntax.cpp \
 				Multiplexing/Socket.cpp \
 				Multiplexing/Multiplexing.cpp \
-				Multiplexing/Client.cpp
+				Multiplexing/Client.cpp \
+				request/request.cpp \
+				request/tools.cpp
 
 OBJ				=	${SRC:%.cpp=%.o}
 

@@ -13,13 +13,14 @@
 #include <cstring>
 #include <cstdlib>
 #include <vector>
+#include "../../Configue/includes/Server.hpp"
 
 class Socket {
 public:
     Socket();
     ~Socket();
 
-    void setupServerSocket(int port);
+    void setupServerSocket(Server server);
     int get_fd() const;
     struct sockaddr_in get_address() const;
     bool get_already_bind() const;
