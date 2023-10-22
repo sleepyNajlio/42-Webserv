@@ -1,15 +1,28 @@
-NAME	= webserver
+NAME			= 	webserv
+CXX				=	c++
+CPPFLAGS		=	-Wall -Wextra -Werror
+SRC			=	Webserv.cpp \
+				Configue/srcs/Server.cpp \
+				Configue/srcs/Location.cpp \
+				Configue/srcs/Parser.cpp \
+				Configue/srcs/Syntax.cpp \
+				Multiplexing/Socket.cpp \
+				Multiplexing/Multiplexing.cpp \
+				Multiplexing/Client.cpp
 
-SRC		= main1.cpp Socket.cpp Multiplexing.cpp request.cpp Client.cpp
+OBJ				=	${SRC:%.cpp=%.o}
 
-all: $(NAME)
+all : $(NAME)
 
-$(NAME):
-	c++ -std=c++98 $(SRC) -o $(NAME)
+%.o : %.cpp
+		$(CXX) $(CPPFLAGS) -c $< -o $@
 
-clean:
-	rm -rf $(NAME)
+$(NAME) : $(OBJ)
+	$(CXX) $(CPPFLAGS)  $(SRC) -o $(NAME)
 
-fclean: clean
+clean :
+	rm -rf $(OBJ) 
 
-re: fclean all
+fclean : clean
+	rm -rf  $(NAME) 
+re : fclean all 

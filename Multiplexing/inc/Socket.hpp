@@ -12,6 +12,7 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include <cstdlib>
+#include <vector>
 
 class Socket {
 public:
@@ -22,9 +23,11 @@ public:
     int get_fd() const;
     struct sockaddr_in get_address() const;
     bool get_already_bind() const;
+    std::vector <int> get_sockets();
 
 private:
     int socket_fd;
+    std::vector <int> sockets;
     struct sockaddr_in socket_address;
     bool already_bind;
     

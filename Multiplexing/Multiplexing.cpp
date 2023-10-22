@@ -23,8 +23,10 @@ void Multiplexing::setupServer(Socket& serverSocket)
     FD_SET(serverSocket.get_fd(), &io.readSockets);
     maxFd = serverSocket.get_fd();
 
-    const char* responseHeader = "HTTP/1.1 200 OK\r\nContent-Type: video/mp4\r\nContent-Length: ";
-    const char* responseEnd = "\r\n\r\n";
+    //==> I COMMENT THIS FOR COMPILATION SAKE
+
+    //const char* responseHeader = "HTTP/1.1 200 OK\r\nContent-Type: video/mp4\r\nContent-Length: ";
+   // const char* responseEnd = "\r\n\r\n";
 
     while (true)
     {
@@ -41,7 +43,7 @@ void Multiplexing::setupServer(Socket& serverSocket)
             handleNewConnection(serverSocket);
         }
         // loop through clients and check for events
-        for (int i = 0; i < clients.size(); i++)
+        for (size_t i = 0; i < clients.size(); i++)
         {
             // check for read event
             if (FD_ISSET(clients[i].get_fd(), &io.tmpReadSockets))
@@ -65,13 +67,16 @@ void Multiplexing::setupServer(Socket& serverSocket)
                 else {
                     buffer[bytesRead] = '\0';
                     // buffer is ready for parse here
+                    clients[i].req.reader(buffer, bytesRead);
+
+                    //==> I COMMENT THIS FOR COMPILATION SAKE
 
                     // check if request reading is done
-                    if (clients[i].get_request().read_done)
-                    {
-                        FD_CLR(clients[i].get_fd(), &io.readSockets);
-                        FD_SET(clients[i].get_fd(), &io.writeSockets);
-                    }
+                    // if (clients[i].get_request().read_done)
+                    // {
+                    //     FD_CLR(clients[i].get_fd(), &io.readSockets);
+                    //     FD_SET(clients[i].get_fd(), &io.writeSockets);
+                    // }
                 }
             }
             // check for write event
