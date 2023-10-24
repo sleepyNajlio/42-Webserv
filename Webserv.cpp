@@ -9,7 +9,7 @@ int	main(int ac, char **av)
 			throw std::runtime_error("./webserv [filename.config]");
 		Parser configue(av[1]);
 		//-------------------------PRINT SERVERS
-		std::cout << configue.get_servers() << std::endl;
+		// std::cout << configue.get_servers() << std::endl;
 		
 		
 		std::vector <Server> it = configue.get_servers();

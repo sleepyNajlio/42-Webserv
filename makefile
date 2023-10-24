@@ -8,17 +8,19 @@ SRC			=	Webserv.cpp \
 				Configue/srcs/Syntax.cpp \
 				Multiplexing/Socket.cpp \
 				Multiplexing/Multiplexing.cpp \
-				Multiplexing/Client.cpp
+				Multiplexing/Client.cpp \
+				Request/request.cpp \
+				Request/tools.cpp \
 
 OBJ				=	${SRC:%.cpp=%.o}
 
-all : $(NAME)
+all : $(NAME) clean
 
 %.o : %.cpp
-		$(CXX) $(CPPFLAGS) -c $< -o $@
+		$(CXX) -c $< -o $@
 
 $(NAME) : $(OBJ)
-	$(CXX) $(CPPFLAGS)  $(SRC) -o $(NAME)
+	$(CXX)   $(SRC) -o $(NAME)
 
 clean :
 	rm -rf $(OBJ) 

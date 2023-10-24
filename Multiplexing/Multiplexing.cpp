@@ -67,16 +67,18 @@ void Multiplexing::setupServer(Socket& serverSocket)
                 else {
                     buffer[bytesRead] = '\0';
                     // buffer is ready for parse here
+                    std::cout << "read" << std::endl;
                     clients[i].req.reader(buffer, bytesRead);
+
 
                     //==> I COMMENT THIS FOR COMPILATION SAKE
 
                     // check if request reading is done
-                    // if (clients[i].get_request().read_done)
-                    // {
-                    //     FD_CLR(clients[i].get_fd(), &io.readSockets);
-                    //     FD_SET(clients[i].get_fd(), &io.writeSockets);
-                    // }
+                    if (clients[i].req.isReadDone())
+                    {
+                        FD_CLR(clients[i].get_fd(), &io.readSockets);
+                        FD_SET(clients[i].get_fd(), &io.writeSockets);
+                    }
                 }
             }
             // check for write event
@@ -107,7 +109,7 @@ void Multiplexing::handleNewConnection(Socket& serverSocket)
 {
     Client client;
     struct sockaddr_in address = serverSocket.get_address();
-    socklen_t clientAddrLen = sizeof(client.get_address());
+    socklen_t clientAddrLen = sizeof(address);
     int clientSocket = accept(serverSocket.get_fd(), (struct sockaddr *)&address, &clientAddrLen);
     client.set_fd(clientSocket);
     if (clientSocket == -1)

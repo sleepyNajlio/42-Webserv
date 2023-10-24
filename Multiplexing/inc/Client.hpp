@@ -1,7 +1,7 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include "../../request/request.hpp"
+#include "../../Request/request.hpp"
 
 class Request;
 
@@ -14,7 +14,7 @@ class Client {
         ~Client();
         int get_fd() const;
         struct sockaddr_in get_address() const;
-        request get_request() const;
+        Request get_request() const;
         void set_fd(int fd);
         Request req;
 
