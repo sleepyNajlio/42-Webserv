@@ -29,14 +29,14 @@ class Multiplexing {
     private:
         ioSets io;
         int maxFd;
-        std::vector< Client > clients;
+        std::vector<std::pair < Client, Server_storage > > clients;
         
     public:
         Multiplexing();
         ~Multiplexing();
 
         struct ioSets getIoSets() const;
-        void setupServer(Socket& serverSocket);
-        void handleNewConnection(Socket& serverSocket);
+        void setupServer(std::vector <std::pair <Socket , Server_storage > > _server);
+        void handleNewConnection(Socket& serverSocket, Server_storage server);
        
 };

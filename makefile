@@ -1,15 +1,10 @@
 NAME	= webserver
 
 SRC		= 		Webserv.cpp \
-				Configue/srcs/Server.cpp \
-				Configue/srcs/Location.cpp \
-				Configue/srcs/Parser.cpp \
-				Configue/srcs/Syntax.cpp \
-				Multiplexing/Socket.cpp \
-				Multiplexing/Multiplexing.cpp \
-				Multiplexing/Client.cpp \
-				Request/request.cpp \
-				Request/tools.cpp \
+				Conf/conf_parser.cpp Conf/conf_reader.cpp Conf/tools.cpp Conf/tools1.cpp \Conf/location_storage.cpp Conf/server_storage.cpp \
+				Multiplexing/Socket.cpp Multiplexing/Multiplexing.cpp Multiplexing/Client.cpp \
+				Request/request.cpp Request/tools.cpp 
+
 				
 all: $(NAME)
 
