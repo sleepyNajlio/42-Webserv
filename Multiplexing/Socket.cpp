@@ -11,7 +11,7 @@ Socket::Socket()
 
 Socket::~Socket() 
 {
-    close(socket_fd);
+    // close(socket_fd);
 }
 
 void Socket::setupServerSocket(int port)

@@ -17,7 +17,7 @@ int	main(int ac, char **av)
    		serverSocket.setupServerSocket(it[0].get_port());
 
    		Multiplexing Multiplexing;
-   		Multiplexing.setupServer(serverSocket);
+   		Multiplexing.setupServer(serverSocket, configue);
 	
 	
 	} catch (std::exception &e) {

@@ -67,6 +67,7 @@ void Multiplexing::setupServer(Socket& serverSocket)
                 else {
                     buffer[bytesRead] = '\0';
                     // buffer is ready for parse here
+                    std::cout <<"buffer mult: " << buffer << std::endl;
                     std::cout << "read" << std::endl;
                     clients[i].req.reader(buffer, bytesRead);
 
@@ -108,6 +109,7 @@ void Multiplexing::setupServer(Socket& serverSocket)
 void Multiplexing::handleNewConnection(Socket& serverSocket)
 {
     Client client;
+    // std::cout << client.req.getChunkSize() << std::endl;
     struct sockaddr_in address = serverSocket.get_address();
     socklen_t clientAddrLen = sizeof(address);
     int clientSocket = accept(serverSocket.get_fd(), (struct sockaddr *)&address, &clientAddrLen);

@@ -36,6 +36,13 @@ void    Request::sethttpVersion(const std::string& httpVersion){
         this->httpVersion = httpVersion;
 }
 
+void Request::setChunkSize(const int chunkSize){
+    this->chunkSize = chunkSize;
+}
+
+int Request::getChunkSize() const{
+    return chunkSize;
+}
 
 std::string Request::getMethod() const {
     return this->method;

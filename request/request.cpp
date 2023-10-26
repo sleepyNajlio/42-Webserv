@@ -105,10 +105,10 @@ void Request::pHeaders(std::stringstream& stream)
     this->headers.end() || this->headers.find("Transfer-Encoding") != this->headers.end()))
         throw std::invalid_argument("400 6");
 
-    for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
-    {
-        std::cout << it->first << ": " << it->second << std::endl;
-    }
+    // for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
+    // {
+    //     std::cout << it->first << ": " << it->second << std::endl;
+    // }
 }
 
 void Request::parse_headers(std::string buffer) 
@@ -121,7 +121,7 @@ void Request::parse_headers(std::string buffer)
     pHeaders(stream);
 }
 
-void Request::reader(unsigned char *buffer, ssize_t bytesRead)
+void Request::reader(unsigned char *buffer, size_t bytesRead)
 {
     unsigned char *newBuffer;
     newBuffer = buffer;
@@ -169,7 +169,7 @@ void Request::reader(unsigned char *buffer, ssize_t bytesRead)
 }
 
 
-void Request::parse_body(unsigned char *buffer, int bytesRead) 
+void Request::parse_body(unsigned char *buffer, size_t bytesRead) 
 {
     if (this->headers.find("Content-Length") != this->headers.end())
     {
@@ -233,51 +233,110 @@ void Request::parse_body(unsigned char *buffer, int bytesRead)
 
 }
 
-
-bool Request::handleChunked(unsigned char *buffer, int bytesRead)
+void test_chunk(unsigned char *buffer, size_t bytesRead, bool &readDone, int body)
 {
-
-    if (bytesRead < chunkSize && chunkSize > 0)
+    if (memmem(buffer, bytesRead, "0\r\n\r\n", 5) == NULL)
     {
-        std::cout << "here chunkSize: " << chunkSize << std::endl;
-        if (write(this->body, buffer, bytesRead) != -1 )
-            throw std::runtime_error("Writing to file failed");
-        this->bytesSent += bytesRead;
-        chunkSize -= bytesRead;
+        if (write(body, buffer, bytesRead) == -1 )
+            throw std::runtime_error("Writing to file failed 3");
     }
-    std::string firstLine(reinterpret_cast<char*>(buffer));
-    std::size_t pos = firstLine.find("\r\n");
-    bool isHex = true;
-    size_t size = bytesRead;
-    std::cout << "here2" << std::endl;
+    else
+    {
+        std::cout << "akhir buffer" << std::endl;
+        if (write(body, buffer, bytesRead) == -1 )
+            throw std::runtime_error("Writing to file failed 4");
+        std::cout << "done" << std::endl;
+        readDone = true;
+    }
+    // std::cout << "buffer: " << buffer << std::endl;
+}
+
+bool Request::handleChunked(unsigned char *buffer, size_t bytesRead)
+{
+    std::ofstream file("terminal");
+    file <<"buffer handleChunked: " << buffer << std::endl;
+    // std::cout << "here 1 chunkSize: " << chunkSize << std::endl;
+    test_chunk(buffer, bytesRead, readDone, body);
+    // return readDone;
+    // size_t size;
+    // std::cout << "here 1 chunkSize: " << chunkSize << std::endl;
+    // if (chunkSize > 0)
+    // {
+    //     if (chunkSize < static_cast<int> (bytesRead))
+    //         bytesRead = chunkSize;
+    //     std::cout << "here chunkSize: " << chunkSize << std::endl;
+    //     std::cout << "here bytesRead: " << bytesRead << std::endl;
+    //     if (write(this->body, buffer, bytesRead) == -1 )
+    //         throw std::runtime_error("Writing to file failed 1");
+    //     this->bytesSent += bytesRead;
+    //     chunkSize -= bytesRead;
+    //     return false;
+    // }
+    // if (chunkSize == 0)
+    // {
+    //     if (memmem(buffer, bytesRead, "0\r\n\r\n", 5) != NULL)
+    //     {
+    //         std::cout << "done" << std::endl;
+    //         this->readDone = true;
+    //         return true;
+    //     }
+    //     else
+    //     {
+    //         std::cout << "not done" << std::endl;
+    //         chunkSize = -1;
+    //         return false;
+    //     }
+    // }
+    // if (chunkSize == -1)
+    // {
+    //     std::cout << "buffer: " << buffer << std::endl;
+    //     std::string firstLine(reinterpret_cast<char*>(buffer));
+    //     bool isHex = true;
+    //     std::size_t pos = firstLine.find("\r\n");
+    //     std::string hexNum = firstLine.substr(0, pos);
+    //     size = bytesRead;
+    //     if (pos != std::string::npos) 
+    //     {
+    //     std::cout << "hexNum: " << hexNum << std::endl;
+    //     size -= pos + 2;
+    //     for (std::string::iterator it = hexNum.begin(); it != hexNum.end(); ++it) {
+    //         if (!std::isxdigit(*it)) {
+    //             isHex = false;
+    //             break;
+    //         }
+    //     }
+    //     if (isHex) {
+    //         // Convert the hexadecimal number to decimal
+    //         std::stringstream ss;
+    //         ss << std::hex << hexNum;
+    //         ss >> chunkSize;
+
+    //         // chunkSize = std::stoi(hexNum, 0, 16);
+    //     }
+    //     unsigned char *newBuffer = &buffer[pos + 2];
+    //     int rw = write(this->body, newBuffer, size);
+    //     if (rw < 0)
+    //         throw std::runtime_error("Writing to file failed 2");
+    //     chunkSize -= size;
+    // }
+
+    // }
+    // std::cout << "buffer: " << buffer << std::endl;
+    // std::cout << "firstLine: " << firstLine << std::endl;
+    // std::cout << "pos: " << pos << std::endl;
+    // std::cout << "here2" << std::endl;
     // covert chunk size to hex
-    std::string hexNum = firstLine.substr(0, pos);
-    if (pos != std::string::npos) {
-        std::cout << "hexNum: " << hexNum << std::endl;
-        size -= pos + 2;
-        for (std::string::iterator it = hexNum.begin(); it != hexNum.end(); ++it) {
-            if (!std::isxdigit(*it)) {
-                isHex = false;
-                break;
-            }
-        }
-        if (isHex)
-        // Convert the hexadecimal number to decimal
-            chunkSize = std::stoi(hexNum, 0, 16);
-    }
+
     
-        if (chunkSize < size)
-            size = chunkSize;
-        unsigned char *newBuffer = &buffer[pos + 2];
-        int rw = write(this->body, newBuffer, size);
-        std::cout << "chunkSize: " << chunkSize << std::endl;
-        if (rw < 0)
-            throw std::runtime_error("Writing to file failed");
-        this->bytesSent += size;
-        chunkSize -= size;
-        // std::cout << "new buffer " << buffer << std::endl;
-    if (chunkSize == 0)
-        return true;
+    // if (chunkSize < static_cast<int> (bytesRead))
+    //     size = chunkSize + 2;
+    
+    // std::cout 
+    // std::cout << "chunkSize: " << chunkSize << std::endl;
+    // std::cout << "rw: " << rw << std::endl;
+    // std::cout << "size: " << size << std::endl;
+    // this->bytesSent += size;
+    // std::cout << "new buffer " << buffer << std::endl;
     return false;
     // newBuffer = someFunction(buffer, len);
     // if (write(newBuffer))
