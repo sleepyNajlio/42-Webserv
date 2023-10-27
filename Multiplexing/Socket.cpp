@@ -52,10 +52,6 @@ int Socket::get_fd() const
     return socket_fd;
 }
 
-// std::vector <int> Socket::get_sockets()
-// {
-//     return this->sockets;
-// }
 struct sockaddr_in Socket::get_address() const
 {
     return socket_address;
