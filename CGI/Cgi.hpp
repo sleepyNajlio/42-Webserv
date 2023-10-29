@@ -4,7 +4,6 @@
 #include <string>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "../request/request.hpp"
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -15,17 +14,20 @@
 #include <stdio.h>
 #include <signal.h>
 
+#include "../request/request.hpp"
+
+
 class Cgi
 {
     private :
-        Request                             request;
+        Request                             req;
 		const std::string 					path;
         std::map<std::string, std::string>  env;
         int                                 status;
         std::string                       response;
 
     public :
-        Cgi(Request request, const std::string path);
+        Cgi(Request req, const std::string path);
 //         int                 execute_cgi(std::string filename);
         char                **getEnv();
         char                **env_to_char (std::map<std::string, std::string>& env);
