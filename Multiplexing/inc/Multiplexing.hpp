@@ -30,7 +30,7 @@ class Multiplexing {
         ioSets io;
         int maxFd;
         std::vector<std::pair < Client, Server_storage > > clients;
-        
+
     public:
         Multiplexing();
         ~Multiplexing();
@@ -40,3 +40,5 @@ class Multiplexing {
         void handleNewConnection(Socket& serverSocket, Server_storage server);
        
 };
+
+StringToInt(const std::string& str);

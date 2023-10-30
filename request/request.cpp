@@ -34,7 +34,7 @@ void Request::pLine(std::string line)
         throw std::invalid_argument("400 Bad Request 1");
     stream >> chk;
     if (!chk.empty())
-        throw std::invalid_argument("400 Bad Request 1");
+        throw std::invalid_argument("400");
     if (method != "GET" && method != "POST" && method != "DELETE")
         throw std::invalid_argument("501 Not Implemented");
     // request path should only include these "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~:/?#[]@!$&'()*+,;=%" = 400 bad request

@@ -2,8 +2,10 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include "../../Request/request.hpp"
+#include "../../reponse/reponse.hpp"
 
 class Request;
+class Reponse;
 
 class Client {
     private:
@@ -17,5 +19,5 @@ class Client {
         Request get_request() const;
         void set_fd(int fd);
         Request req;
-
+        Response res;
 };

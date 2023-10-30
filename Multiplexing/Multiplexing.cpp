@@ -74,7 +74,13 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                 else {
                     buffer[bytesRead] = '\0';
                     // buffer is ready for parse here
-                    clients[i].first.req.reader(buffer, bytesRead);
+                    try{
+                        clients[i].first.req.reader(buffer, bytesRead);
+                    }
+                    catch (std::exception &exp){
+                        std::string exceptionMessage = exp.what();
+                        clients[i].first.res.set_status_code(StringToInt(exceptionMessage));
+                    }
                     // move from read to write sockets if request is done 
                     if (clients[i].first.req.isReadDone())
                     {
@@ -86,7 +92,8 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
             // check for write event
             if (FD_ISSET(clients[i].first.get_fd(), &io.tmpWriteSockets))
             {
-                std::cout << "write" << std::endl;
+                // clients[i].first.res.writer();
+                // std::cout << "write" << std::endl;
                 const char* responseHeader = "HTTP/1.1 204 No Content\r\n\r\n";
                 ssize_t bytesSent = send(clients[i].first.get_fd(), responseHeader, strlen(responseHeader), 0);
                 if (bytesSent == -1) {
@@ -95,7 +102,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                     close(clients[i].first.get_fd());
                     continue;
                 }
-                std::cout << "sent" << std::endl;
+                // std::cout << "sent" << std::endl;
                 FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
                 close(clients[i].first.get_fd());
                 clients.erase(clients.begin() + i);
