@@ -1,5 +1,31 @@
 #include    "request.hpp"
 
+Request::Request() {
+    this->method = "";
+    this->url = "";
+    this->httpVersion = "";
+    this->headerString = "";
+    this->headers.clear();
+    this->serverName = "";
+    this->locPath = "";
+    this->root = "";
+    this->bytesSent = 0;
+    this->chunkSize = -1;
+    this->headerDone = false;
+    this->readDone = false;
+    this->contentLength = 0;
+    this->isChunked = false;
+    this->body = -1;
+}
+
+void    Request::setHeaderDone(bool done){
+        this->headerDone = done;
+}
+
+void    Request::setReadDone(bool done){
+        this->readDone = done;
+}
+
 void    Request::setMethod(const std::string& methode){
         this->method = methode;
 }
@@ -10,6 +36,13 @@ void    Request::sethttpVersion(const std::string& httpVersion){
         this->httpVersion = httpVersion;
 }
 
+void Request::setChunkSize(const int chunkSize){
+    this->chunkSize = chunkSize;
+}
+
+int Request::getChunkSize() const{
+    return chunkSize;
+}
 
 std::string Request::getMethod() const {
     return this->method;
@@ -23,7 +56,7 @@ std::string Request::gethttpVersion() const {
 
 // ==============================================================
 
-void Request::setBody(const std::string& body){
+void Request::setBody(const int body){
     this->body = body;
 }
 
@@ -39,7 +72,7 @@ void Request::setRoot(const std::string& path){
     this->root = path;
 }
 
-std::string Request::getBody() const{
+int Request::getBody() const{
     return body;
 }
 
@@ -53,4 +86,12 @@ std::string Request::getLocationPath() const{
 
 std::string Request::getRoot() const{
     return root;
+}
+
+bool Request::isHeaderDone() const{
+    return headerDone;
+}
+
+bool Request::isReadDone() const{
+    return readDone;
 }
