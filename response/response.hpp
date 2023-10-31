@@ -6,10 +6,10 @@
 #include <iostream>
 #include <utility>
 
+#include "../request/request.hpp"
+#include "../Conf/incs/conf_parser.hpp"
 
 
-class Server_storage;
-class Request;
 
 class Response {
     private:

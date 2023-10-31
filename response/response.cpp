@@ -42,30 +42,32 @@ void Response::initStatusCodeMap()
     status_code_map[503] = "Service Unavailable";
 }
 
-void   init_response(Request request , Server_storage server)
+void   Response::init_response(Request request , Server_storage server)
 {
-    if (status_code != 0)
-    {
-        errPage();
-    }
-    else
-    {
-        try {
-            // location match
-            // check if method is allowed
-            if (client.first.req.getMethod() == "GET")
-                // handle Get
-            else if (client.first.req.getMethod() == "Post")
-                // handle Post
-            else
-                // handle other methods (delete)
-        }
-        catch(std::exception &e)
-        {
-            std::cout << e.what() << std::endl;
-        }
+    (void) request;
+    (void) server;
+    // if (status_code != 0)
+    // {
+    //     errPage();
+    // }
+    // else
+    // {
+    //     try {
+    //         // location match
+    //         // check if method is allowed
+    //         if (client.first.req.getMethod() == "GET")
+    //             // handle Get
+    //         else if (client.first.req.getMethod() == "Post")
+    //             // handle Post
+    //         else
+    //             // handle other methods (delete)
+    //     }
+    //     catch(std::exception &e)
+    //     {
+    //         std::cout << e.what() << std::endl;
+    //     }
 
-    }
+    // }
 }
 
             
