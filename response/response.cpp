@@ -42,7 +42,7 @@ void Response::initStatusCodeMap()
     status_code_map[503] = "Service Unavailable";
 }
 
-void Response::init_response(std::pair < Client, Server_storage > client)
+void   init_response(Request request , Server_storage server)
 {
     if (status_code != 0)
     {

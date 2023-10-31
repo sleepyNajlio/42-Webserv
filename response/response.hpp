@@ -6,11 +6,10 @@
 #include <iostream>
 #include <utility>
 
-// #include "../Multiplexing/inc/Client.hpp"
-// #include "../Conf/incs/conf_parser.hpp"
 
-class Client;
+
 class Server_storage;
+class Request;
 
 class Response {
     private:
@@ -24,7 +23,7 @@ class Response {
             void    initStatusCodeMap();
             void    writeResponse();
             void    errPage();
-            void   init_response(std::pair < Client, Server_storage > client);
+            void   init_response(Request request , Server_storage server);
 };
 
 
