@@ -93,8 +93,9 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
             // check for write event
             if (FD_ISSET(clients[i].first.get_fd(), &io.tmpWriteSockets))
             {
-                ft_response(clients[i].first, clients[i].second);
-                // std::cout << "write" << std::endl;
+                clients[i].first.res.init_response(clients[i]);
+                // ft_response(clients[i].first, clients[i].second);
+                std::cout << "write" << std::endl;
                 const char* responseHeader = "HTTP/1.1 204 No Content\r\n\r\n";
                 ssize_t bytesSent = send(clients[i].first.get_fd(), responseHeader, strlen(responseHeader), 0);
                 if (bytesSent == -1) {

@@ -8,7 +8,6 @@
 
 
 
-
 class Response {
     private:
             int status_code;
@@ -20,6 +19,8 @@ class Response {
             std::map<int, std::string> status_code_map;
             void    initStatusCodeMap();
             void    writeResponse();
+            void    errPage();
+            void   init_response(std::pair < Client, Server_storage > client);
 };
 
 

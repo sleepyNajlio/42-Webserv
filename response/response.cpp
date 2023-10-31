@@ -44,47 +44,73 @@ void Response::initStatusCodeMap()
     status_code_map[503] = "Service Unavailable";
 }
 
-            
-void   ft_response(Client client, Server_storage Serv)
+void Response::init_response(std::pair < Client, Server_storage > client)
 {
-    try {
-        if (Serv.getLocations().size() == 0)
-        return ;
-
-        // first step
-        // match locations ;
-        std::vector<Location_storage> locations = Serv.getLocations();
-        Request request = client.get_request();
-
-        std::string path = request.getLocationPath();
-        for (size_t i = 0; i < locations.size(); i++)
-        {
-            if (locations[i].getLocaPath() == path)
-            {
-                std::cout << "location found" << path << std::endl;
-                break ;
-            }
+    if (status_code != 0)
+    {
+        errPage();
+    }
+    else
+    {
+        try {
+            // location match
+            // check if method is allowed
+            if (client.first.req.getMethod() == "GET")
+                // handle Get
+            else if (client.first.req.getMethod() == "Post")
+                // handle Post
+            else
+                // handle other methods (delete)
         }
-        return ;}
-        catch (std::exception &e)
+        catch(std::exception &e)
         {
             std::cout << e.what() << std::endl;
         }
-            // first : if url match any locations
 
-        // second : keep removing slash until matching url with location path  /kapouet/pouic/toto/pouet
-        
-        // exp: /kapouet is rooted to /tmp/www, url /kapouet is
-       // /tmp/www/pouic/toto/pouet
-
-        // check which method or if any 
-
-        // check if autoindex is on or off 
-            //if on : responde with indexes incide the location 
-            //else : index not found 404
-
-            // if off : check if the url is dir or file
-            //if dir : list all files 
-            //if file : respond with file content
-
+    }
 }
+
+            
+// void   ft_response(Client client, Server_storage Serv)
+// {
+//     try {
+//         if (Serv.getLocations().size() == 0)
+//         return ;
+
+//         // first step
+//         // match locations ;
+//         std::vector<Location_storage> locations = Serv.getLocations();
+//         Request request = client.get_request();
+
+//         std::string path = request.getUrl();
+//         for (size_t i = 0; i < locations.size(); i++)
+//         {
+//             if (locations[i].getLocaPath() == path)
+//             {
+//                 std::cout << "location found" << path << std::endl;
+//                 break ;
+//             }
+//         }
+//         return ;}
+//         catch (std::exception &e)
+//         {
+//             std::cout << e.what() << std::endl;
+//         }
+//             // first : if url match any locations
+
+//         // second : keep removing slash until matching url with location path  /kapouet/pouic/toto/pouet
+        
+//         // exp: /kapouet is rooted to /tmp/www, url /kapouet is
+//        // /tmp/www/pouic/toto/pouet
+
+//         // check which method or if any 
+
+//         // check if autoindex is on or off 
+//             //if on : responde with indexes incide the location 
+//             //else : index not found 404
+
+//             // if off : check if the url is dir or file
+//             //if dir : list all files 
+//             //if file : respond with file content
+
+// }
