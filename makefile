@@ -9,7 +9,7 @@ SRC		= 		Webserv.cpp \
 all: $(NAME)
 
 $(NAME):
-	c++ -std=c++98 -Wall -Werror -Wextra $(SRC) -o $(NAME)
+	c++  -Wall -Werror -Wextra $(SRC) -o $(NAME)
 
 clean:
 	rm -rf $(NAME)

@@ -4,9 +4,13 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <utility>
 
+// #include "../Multiplexing/inc/Client.hpp"
+// #include "../Conf/incs/conf_parser.hpp"
 
-
+class Client;
+class Server_storage;
 
 class Response {
     private:

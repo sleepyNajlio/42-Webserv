@@ -7,6 +7,10 @@
 #include <map>
 #include <fcntl.h>
 #include <unistd.h>
+#include <time.h>
+#include <string.h>
+#include <string>
+#include <ctime>
 
 class Request{
     private:

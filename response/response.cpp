@@ -1,6 +1,4 @@
 #include "response.hpp"
-#include "../Multiplexing/inc/Client.hpp"
-#include "../Conf/incs/conf_parser.hpp"
 
 
 Response::Response() 
