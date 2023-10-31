@@ -85,6 +85,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                     // move from read to write sockets if request is done 
                     if (clients[i].first.req.isReadDone())
                     {
+                        
                         FD_CLR(clients[i].first.get_fd(), &io.readSockets);
                         FD_SET(clients[i].first.get_fd(), &io.writeSockets);
                     }
@@ -93,17 +94,18 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
             // check for write event
             if (FD_ISSET(clients[i].first.get_fd(), &io.tmpWriteSockets))
             {
+                std::cout << "socket "<<clients[i].first.get_fd() << std::endl;
                 clients[i].first.res.init_response(clients[i].first.req , clients[i].second);
                 // ft_response(clients[i].first, clients[i].second);
-                std::cout << "write" << std::endl;
-                const char* responseHeader = "HTTP/1.1 204 No Content\r\n\r\n";
-                ssize_t bytesSent = send(clients[i].first.get_fd(), responseHeader, strlen(responseHeader), 0);
-                if (bytesSent == -1) {
-                    perror("Sending response header failed");
-                    FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
-                    close(clients[i].first.get_fd());
-                    continue;
-                }
+                // std::cout << "write" << std::endl;
+                // const char* responseHeader = "HTTP/1.1 204 No Content\r\n\r\n";
+                // ssize_t bytesSent = send(clients[i].first.get_fd(), responseHeader, strlen(responseHeader), 0);
+                // if (bytesSent == -1) {
+                //     perror("Sending response header failed");
+                //     FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
+                //     close(clients[i].first.get_fd());
+                //     continue;
+                // }
                 // std::cout << "sent" << std::endl;
                 FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
                 close(clients[i].first.get_fd());

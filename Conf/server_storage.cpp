@@ -165,8 +165,9 @@ void Server_storage::setErrorPages(std::vector<std::string> &str)
 {
 	if (str.empty())
 		return;
-	if (str.size() % 2 != 0)
-		throw ExceptionMsg ("Error initializer failed");
+	std::cout << str [0] << std::endl;
+	// if (str.size() % 2 != 0)
+	// 	throw ExceptionMsg ("Error initializer failed");
 	for (size_t i = 0; i < str.size() - 1; i++)
 	{
 		for (size_t j = 0; j < str[i].size(); j++) {
@@ -182,6 +183,7 @@ void Server_storage::setErrorPages(std::vector<std::string> &str)
 		// ----------------------//
 		i++;
 		std::string path = str[i];
+	//		std::cout << "never get here !" << std::endl;
 		removeDelim(path);
 		if (Conf_reader::identifyPath(path) != 2)
 		{
