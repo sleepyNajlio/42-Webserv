@@ -46,26 +46,11 @@ std::string Response::initStatusCodeMap(int code)
 }
 
 
-std::string Response::set_head()
-{
-	std::string head = "";
-	
-    head += "HTTP/1.1 404 KO\r\n Content-Type: text/html\r\n";        
-	head += "Content-Length: " + std::to_string(this->content_length) + "\r\n";
-	head += "Cache-Control: no-cache\r\n";
-	head += "Accept: */*\r\n";
-	head += "Date: dima \r\n";
-	head += "Accept-Encoding: gzip, deflate, br\r\n";	
-	return (head);
-}
 void Response::errPage(Server_storage server ,int code, int fd)
 {
     const std::map<int, std::string>& errors = server.getErrorPages();
 	std::string name;
     std::string head;
-     for (const auto& pair : errors) {
-        std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
-    }
     std::ifstream 			file;
 
 
@@ -83,22 +68,21 @@ void Response::errPage(Server_storage server ,int code, int fd)
 			file.read(&vec[0], (int)this->content_length);
 			std::string response(vec.begin(), vec.end());
    
-			std::string head= "HTTP/1.1 404 \r\nContent-Type: text/html\r\nContent-Length: " + std::to_string(this->content_length) + "\r\n\r\n" + response;
+			std::string head= "HTTP/1.1 " + std::to_string(code) +  "\r\nContent-Type: text/html\r\nContent-Length: " 
+            + std::to_string(this->content_length) + "\r\n\r\n" + response;
 	        this->response = head;
-             if (send(fd + 1 , head.c_str(), head.size(), 0) < 1)
-
+        if (send(fd + 1 , head.c_str(), head.size(), 0) < 1)
             this->response =  response;
 		}
       if (send(fd + 1 , this->response.c_str(), response.size(), 0) < 1)
         {
             std::cout << "Error sending response header" << std::endl;
+            file.close();
             return;
         }
-      file.close();
+            file.close();
 		return;
 	}
-            std::cout << "bey" << std::endl;
-            std::cout << response<< std::endl;
 }
 
 void   Response::init_response(Request request , Server_storage server)
@@ -107,9 +91,7 @@ void   Response::init_response(Request request , Server_storage server)
     (void) server;
     std::cout << "status code = "<<get_status_code() << std::endl;
   //  if (get_status_code())
-        errPage(server,404,server.getFd());
-            std::cout << "response = " << response<<  std::endl;
-        std::cout << server.getFd()<< std::endl;
+        errPage(server,500,server.getFd());
     // else
     // {
     //     try {

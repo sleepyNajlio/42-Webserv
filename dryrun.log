@@ -1,0 +1,16 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/goinfre/wlahyani/web'
+c++ -Wall -Wextra -Werror -c Webserv.cpp -o Webserv.o
+ 
+c++ -Wall -Wextra -Werror -c Configue/srcs/Server.cpp -o Configue/srcs/Server.o
+c++ -Wall -Wextra -Werror -c Configue/srcs/Location.cpp -o Configue/srcs/Location.o
+c++ -Wall -Wextra -Werror -c Configue/srcs/Parser.cpp -o Configue/srcs/Parser.o
+c++ -Wall -Wextra -Werror -c Configue/srcs/Syntax.cpp -o Configue/srcs/Syntax.o
+c++ -Wall -Wextra -Werror -c Multiplexing/Socket.cpp -o Multiplexing/Socket.o
+c++ -Wall -Wextra -Werror -c Multiplexing/Multiplexing.cpp -o Multiplexing/Multiplexing.o
+c++ -Wall -Wextra -Werror -c Multiplexing/Client.cpp -o Multiplexing/Client.o
+c++ -Wall -Wextra -Werror -c request/request.cpp -o request/request.o
+c++ -Wall -Wextra -Werror -c request/tools.cpp -o request/tools.o
+c++ -Wall -Wextra -Werror  Webserv.cpp Configue/srcs/Server.cpp Configue/srcs/Location.cpp Configue/srcs/Parser.cpp Configue/srcs/Syntax.cpp Multiplexing/Socket.cpp Multiplexing/Multiplexing.cpp Multiplexing/Client.cpp request/request.cpp request/tools.cpp -o webserv
+make: Leaving directory `/goinfre/wlahyani/web'
+ 

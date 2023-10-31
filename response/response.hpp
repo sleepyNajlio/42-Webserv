@@ -6,6 +6,8 @@
 #include <iostream>
 #include <utility>
 
+#include <string.h>
+#include <string>
 #include "../request/request.hpp"
 #include "../Conf/incs/conf_parser.hpp"
 
