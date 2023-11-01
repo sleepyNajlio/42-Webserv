@@ -8,6 +8,11 @@ Client::~Client()
 {
 }
 
+Request Client::get_request() const
+{
+    return this->req;
+}
+
 int Client::get_fd() const
 {
     return this->client_fd;
@@ -22,4 +27,3 @@ void Client::set_fd(int fd)
 {
     this->client_fd = fd;
 }
-   

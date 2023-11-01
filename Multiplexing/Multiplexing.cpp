@@ -17,28 +17,16 @@ ioSets Multiplexing::getIoSets() const
     return io;
 }
 
-int max(std::vector <int> list)
+
+void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage > > _server)
 {
-	int i = 0;
-    int max = list[i];
-    for (size_t i = 0; i < list.size(); ++i){
-        if(list[i+1] > list[i])
-            max = list[i+1];
-    } 
-    return max;
-}
+    for ( std::vector<std::pair <Socket , Server_storage > >::iterator it = _server.begin(); it != _server.end(); ++it)
+    {
+        FD_SET(it->second.getFd(), &io.readSockets);
+        maxFd = std::max( maxFd, it->second.getFd());
+    }
 
-void Multiplexing::setupServer(Socket& serverSocket)
-{
-    
-    //---------->ADDING SOME LOOPS
-
-   	std::vector <int> temp = serverSocket.get_sockets();
-	for (size_t i = 0; i < temp.size(); ++i){
-    FD_SET(temp[i], &io.readSockets);}
-     
-    maxFd = max(serverSocket.get_sockets()) ;
-
+    //==> I COMMENT THIS FOR COMPILATION SAKE
 
     //const char* responseHeader = "HTTP/1.1 200 OK\r\nContent-Type: video/mp4\r\nContent-Length: ";
    // const char* responseEnd = "\r\n\r\n";
@@ -53,83 +41,90 @@ void Multiplexing::setupServer(Socket& serverSocket)
             break;
         }
         // check for new connection
-         for (size_t i = 0; i < temp.size(); ++i){
-            if (FD_ISSET(temp[i], &io.tmpReadSockets)){
-                handleNewConnection(serverSocket,i);}}
+        for (std::vector <std::pair <Socket , Server_storage > >::iterator it = _server.begin(); it != _server.end(); ++it)
+        {
+            if (FD_ISSET(it->second.getFd(), &io.tmpReadSockets))
+            {
+                handleNewConnection(it->first, it->second);
+            }
+        }
         // loop through clients and check for events
         for (size_t i = 0; i < clients.size(); i++)
         {
             // check for read event
-            if (FD_ISSET(clients[i].get_fd(), &io.tmpReadSockets))
+            if (FD_ISSET(clients[i].first.get_fd(), &io.tmpReadSockets))
             {
                 
                 unsigned char buffer[2048];
                 bzero(buffer, 2048);
-                ssize_t bytesRead = recv(clients[i].get_fd(), buffer, sizeof(buffer), 0);
+                // std::cout << "buffer size " << sizeof(buffer) << std::endl;
+                ssize_t bytesRead = recv(clients[i].first.get_fd(), buffer, sizeof(buffer), 0);
                 if (bytesRead == -1) {
                     perror("Receiving data failed");
                     break;
                 }
                 else if (bytesRead == 0) {
                     std::cout << "Client closed connection" << std::endl;
-                    close(clients[i].get_fd());
-                    FD_CLR(clients[i].get_fd(), &io.readSockets);
-                    FD_CLR(clients[i].get_fd(), &io.writeSockets);
+                    close(clients[i].first.get_fd());
+                    FD_CLR(clients[i].first.get_fd(), &io.readSockets);
+                    FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
                     clients.erase(clients.begin() + i);
                     break;
                 }
                 else {
                     buffer[bytesRead] = '\0';
-                   
-                   //---------->CONVERT THE BUFFER TO STRING
-                    std::cout << buffer << std::endl;
-                    std::string str(reinterpret_cast<const char*>(buffer));
-                    
                     // buffer is ready for parse here
-                    clients[i].request.parse_headers(str,bytesRead);
-
-                   // check if request reading is done
-                    if (clients[i].request.isReadDone())
+                    try{
+                        clients[i].first.req.reader(buffer, bytesRead);
+                    }
+                    catch (std::exception &exp){
+                        std::string exceptionMessage = exp.what();
+                        clients[i].first.res.set_status_code(std::stoi(exceptionMessage));
+						// error page call !!
+                    }
+                    // move from read to write sockets if request is done 
+                    if (clients[i].first.req.isReadDone())
                     {
-                        FD_CLR(clients[i].get_fd(), &io.readSockets);
-                        FD_SET(clients[i].get_fd(), &io.writeSockets);
+                        
+                        FD_CLR(clients[i].first.get_fd(), &io.readSockets);
+                        FD_SET(clients[i].first.get_fd(), &io.writeSockets);
                     }
                 }
             }
             // check for write event
-            if (FD_ISSET(clients[i].get_fd(), &io.tmpWriteSockets))
+            if (FD_ISSET(clients[i].first.get_fd(), &io.tmpWriteSockets))
             {
-                std::cout << "write" << std::endl;
-                const char* responseHeader = "HTTP/1.1 204 No Content\r\n\r\n";
-                ssize_t bytesSent = send(clients[i].get_fd(), responseHeader, strlen(responseHeader), 0);
-                if (bytesSent == -1) {
-                    perror("Sending response header failed");
-                    FD_CLR(clients[i].get_fd(), &io.writeSockets);
-                    close(clients[i].get_fd());
-                    continue;
-                }
-                std::cout << "sent" << std::endl;
-                FD_CLR(clients[i].get_fd(), &io.writeSockets);
-                close(clients[i].get_fd());
+                // std::cout << "socket "<<clients[i].first.get_fd() << std::endl;
+                clients[i].first.res.init_response(clients[i].first.req , clients[i].second);
+                // ft_response(clients[i].first, clients[i].second);
+                // std::cout << "write" << std::endl;
+                // const char* responseHeader = "HTTP/1.1 204 No Content\r\n\r\n";
+                // ssize_t bytesSent = send(clients[i].first.get_fd(), responseHeader, strlen(responseHeader), 0);
+                // if (bytesSent == -1) {
+                //     perror("Sending response header failed");
+                //     FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
+                //     close(clients[i].first.get_fd());
+                //     continue;
+                // }
+                // std::cout << "sent" << std::endl;
+                FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
+                close(clients[i].first.get_fd());
                 clients.erase(clients.begin() + i);
                 i--;
             }
         }
-        
     }
-    close(serverSocket.get_fd());
+    for (std::vector <std::pair <Socket , Server_storage > >::iterator it = _server.begin(); it != _server.end(); ++it)
+        close(it->second.getFd());
 }
 
-void Multiplexing::handleNewConnection(Socket& serverSocket,int i)
+void Multiplexing::handleNewConnection(Socket& serverSocket, Server_storage server)
 {
     Client client;
-
-    
-    std::vector <int> temp = serverSocket.get_sockets();
-
+    // std::cout << client.req.getChunkSize() << std::endl;
     struct sockaddr_in address = serverSocket.get_address();
-    socklen_t clientAddrLen = sizeof(client.get_address());
-    int clientSocket = accept(temp[i], (struct sockaddr *)&address, &clientAddrLen);
+    socklen_t clientAddrLen = sizeof(address);
+    int clientSocket = accept(serverSocket.get_fd(), (struct sockaddr *)&address, &clientAddrLen);
     client.set_fd(clientSocket);
     if (clientSocket == -1)
     {
@@ -138,9 +133,11 @@ void Multiplexing::handleNewConnection(Socket& serverSocket,int i)
     else
     {
         FD_SET(clientSocket, &io.readSockets);
-        this->clients.push_back(client);
+        client.res.set_client_fd(clientSocket);
+        this->clients.push_back(std::make_pair(client, server));
         maxFd = std::max(maxFd, clientSocket);
         std::cout << "Accepted client connection from " << inet_ntoa(client.get_address().sin_addr) << std::endl;
         std::cout << clients.size() << std::endl;
     }
 }
+

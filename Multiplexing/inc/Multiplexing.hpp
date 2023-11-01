@@ -12,8 +12,13 @@
 #include "Socket.hpp"
 #include <fcntl.h>
 #include <sys/stat.h>
+#include "../../response/response.hpp"
 #include "Client.hpp"
-#include "../../Configue/includes/Server.hpp"
+#include "../../Conf/incs/server_storage.hpp"
+#include "../../Conf/incs/location_storage.hpp"
+
+
+
 
 class request;
 class Socket;
@@ -30,14 +35,16 @@ class Multiplexing {
     private:
         ioSets io;
         int maxFd;
-        std::vector< Client > clients;
-        
+        std::vector<std::pair < Client, Server_storage > > clients;
+
     public:
         Multiplexing();
         ~Multiplexing();
 
         struct ioSets getIoSets() const;
-        void setupServer(Socket& serverSocket);
-        void handleNewConnection(Socket& serverSocket,int i);
+        void setupServer(std::vector <std::pair <Socket , Server_storage > > _server);
+        void handleNewConnection(Socket& serverSocket, Server_storage server);
        
 };
+void    ft_response(Client client, Server_storage Serv);
+

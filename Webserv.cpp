@@ -1,32 +1,19 @@
-#include "Configue/includes/Server.hpp"
-#include "Configue/includes/Parser.hpp"
-#include "Configue/includes/Location.hpp"
 #include "Multiplexing/inc/Multiplexing.hpp"
+#include "Conf/incs/conf_parser.hpp"
+
 int	main(int ac, char **av)
 {
-	try {
-		if (ac != 2)
-			throw std::runtime_error("./webserv [filename.config]");
-		Parser configue(av[1]);
+	Conf_parser _parser;
+    Socket serverSocket;
+    std::vector < Server_storage > _servers;
+    std::vector <std::pair <Socket , Server_storage > > serverList;
+    Multiplexing Multiplexing;
+    
+    parseServer(ac, av, _parser);
 
-		//-------------PRINT SERVERS
-		std::cout << configue.get_servers() << std::endl;
-		
-		//-------------BIND MULTIPORTS
-		std::vector <Server> it = configue.get_servers();
-		Socket serverSocket;
-   		for(size_t i = 0; i < it.size() ; i++){
-			serverSocket.setupServerSocket(it[i]);
-		}
-		
-   		Multiplexing Multiplexing;
-   		Multiplexing.setupServer(serverSocket );
+    _servers = _parser.getServers();
 
-	
-	
-	} catch (std::exception &e) {
-		std::cout << e.what() << std::endl;
-		return (1);
-	}
+    serverSocket.setupServerSocket(_servers, serverList);
+    Multiplexing.setupServer(serverList);
 	return (0);
 }

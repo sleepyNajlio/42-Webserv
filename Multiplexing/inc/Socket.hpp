@@ -13,14 +13,15 @@
 #include <cstring>
 #include <cstdlib>
 #include <vector>
-#include "../../Configue/includes/Server.hpp"
+#include "../../Conf/incs/server_storage.hpp"
+
 
 class Socket {
 public:
     Socket();
     ~Socket();
 
-    void setupServerSocket(Server server);
+    void setupServerSocket(std::vector < Server_storage > &_servers, std::vector <std::pair <Socket , Server_storage > > &serverList);
     int get_fd() const;
     struct sockaddr_in get_address() const;
     bool get_already_bind() const;
@@ -28,7 +29,7 @@ public:
 
 private:
     int socket_fd;
-    std::vector <int> sockets;
+    // std::vector <int> sockets;
     struct sockaddr_in socket_address;
     bool already_bind;
     
