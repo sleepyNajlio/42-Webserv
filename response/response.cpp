@@ -100,7 +100,6 @@ void   Response::init_response(Request request , Server_storage server)
     (void) server;
     // std::cout << "status code = "<<get_status_code() << std::endl;
   //  if (get_status_code())
-  std::cout << "fd " << client_fd << std::endl;
         errPage(server,404);
     // else
     // {
