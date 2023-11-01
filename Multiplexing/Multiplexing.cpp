@@ -94,7 +94,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
             // check for write event
             if (FD_ISSET(clients[i].first.get_fd(), &io.tmpWriteSockets))
             {
-                std::cout << "socket "<<clients[i].first.get_fd() << std::endl;
+                // std::cout << "socket "<<clients[i].first.get_fd() << std::endl;
                 clients[i].first.res.init_response(clients[i].first.req , clients[i].second);
                 // ft_response(clients[i].first, clients[i].second);
                 // std::cout << "write" << std::endl;
@@ -133,6 +133,7 @@ void Multiplexing::handleNewConnection(Socket& serverSocket, Server_storage serv
     else
     {
         FD_SET(clientSocket, &io.readSockets);
+        client.res.set_client_fd(clientSocket);
         this->clients.push_back(std::make_pair(client, server));
         maxFd = std::max(maxFd, clientSocket);
         std::cout << "Accepted client connection from " << inet_ntoa(client.get_address().sin_addr) << std::endl;

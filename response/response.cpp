@@ -4,6 +4,7 @@
 Response::Response() 
 {
     this->status_code = 0;
+    this->client_fd = 0;
    // this->initStatusCodeMap(code);
 }
 
@@ -15,6 +16,16 @@ void Response::set_status_code(int status_code)
 int Response::get_status_code() const
 {
     return this->status_code;
+}
+
+void Response::set_client_fd(int client_fd)
+{
+    this->client_fd = client_fd;
+}
+
+int Response::get_client_fd() const
+{
+    return this->client_fd;
 }
 
 Response::~Response() {}
@@ -46,7 +57,7 @@ std::string Response::initStatusCodeMap(int code)
 }
 
 
-void Response::errPage(Server_storage server ,int code, int fd)
+void Response::errPage(Server_storage server ,int code)
 {
     const std::map<int, std::string>& errors = server.getErrorPages();
 	std::string name;
@@ -71,10 +82,10 @@ void Response::errPage(Server_storage server ,int code, int fd)
 			std::string head= "HTTP/1.1 " + std::to_string(code) +  "\r\nContent-Type: text/html\r\nContent-Length: " 
             + std::to_string(this->content_length) + "\r\n\r\n" + response;
 	        this->response = head;
-        if (send(fd + 1 , head.c_str(), head.size(), 0) < 1)
+        if (send(client_fd, head.c_str(), head.size(), 0) < 1)
             this->response =  response;
 		}
-      if (send(fd + 1 , this->response.c_str(), response.size(), 0) < 1)
+      if (send(client_fd, this->response.c_str(), response.size(), 0) < 1)
         {
             std::cout << "Error sending response header" << std::endl;
             file.close();
@@ -83,15 +94,17 @@ void Response::errPage(Server_storage server ,int code, int fd)
             file.close();
 		return;
 	}
+    // if the error page is not found we should generate one
 }
 
 void   Response::init_response(Request request , Server_storage server)
 {
     (void) request;
     (void) server;
-    std::cout << "status code = "<<get_status_code() << std::endl;
+    // std::cout << "status code = "<<get_status_code() << std::endl;
   //  if (get_status_code())
-        errPage(server,500,server.getFd());
+  std::cout << "fd " << client_fd << std::endl;
+        errPage(server,500);
     // else
     // {
     //     try {

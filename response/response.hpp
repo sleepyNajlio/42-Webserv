@@ -15,19 +15,24 @@
 
 class Response {
     private:
-            int status_code;
-                std::string response;
-    std::ifstream::pos_type content_length;
+        int client_fd;
+        int status_code;
+        std::string response;
+        std::ifstream::pos_type content_length;
 
     public:
             Response();
             ~Response();
+
+            void    set_client_fd(int client_fd);
             void    set_status_code(int status_code);
+
+            int     get_client_fd() const;
             int     get_status_code() const;
             std::map<int, std::string> status_code_map;
             void    initStatusCodeMap();
             void    writeResponse();
-            void    errPage(Server_storage server,int error_code, int fd);
+            void    errPage(Server_storage server,int error_code);
             std::string set_head();
             
                 std::string initStatusCodeMap(int code);

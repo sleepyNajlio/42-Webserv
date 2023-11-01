@@ -165,7 +165,7 @@ void Server_storage::setErrorPages(std::vector<std::string> &str)
 {
 	if (str.empty())
 		return;
-	std::cout << str [0] << std::endl;
+	// std::cout << str [0] << std::endl;
 	// if (str.size() % 2 != 0)
 	// 	throw ExceptionMsg ("Error initializer failed");
 	for (size_t i = 0; i < str.size() - 1; i++)
