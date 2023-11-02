@@ -94,18 +94,18 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
             // check for write event
             if (FD_ISSET(clients[i].first.get_fd(), &io.tmpWriteSockets))
             {
-                // std::cout << "socket "<<clients[i].first.get_fd() << std::endl;
                 clients[i].first.res.init_response(clients[i].first.req , clients[i].second);
                 // ft_response(clients[i].first, clients[i].second);
                 // std::cout << "write" << std::endl;
                 // const char* responseHeader = "HTTP/1.1 204 No Content\r\n\r\n";
-                // ssize_t bytesSent = send(clients[i].first.get_fd(), responseHeader, strlen(responseHeader), 0);
-                // if (bytesSent == -1) {
-                //     perror("Sending response header failed");
-                //     FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
-                //     close(clients[i].first.get_fd());
-                //     continue;
-                // }
+                std::string response = clients[i].first.res.get_response();
+                if (send(clients[i].first.get_fd(), response.c_str() , response.size(), 0) < 1 )
+                {
+                    perror("Sending response header failed");
+                    FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
+                    close(clients[i].first.get_fd());
+                    continue;
+                }
                 // std::cout << "sent" << std::endl;
                 FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
                 close(clients[i].first.get_fd());
@@ -133,7 +133,6 @@ void Multiplexing::handleNewConnection(Socket& serverSocket, Server_storage serv
     else
     {
         FD_SET(clientSocket, &io.readSockets);
-        client.res.set_client_fd(clientSocket);
         this->clients.push_back(std::make_pair(client, server));
         maxFd = std::max(maxFd, clientSocket);
         std::cout << "Accepted client connection from " << inet_ntoa(client.get_address().sin_addr) << std::endl;

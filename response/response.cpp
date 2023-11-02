@@ -4,7 +4,6 @@
 Response::Response() 
 {
     this->status_code = 0;
-    this->client_fd = 0;
    // this->initStatusCodeMap(code);
 }
 
@@ -18,14 +17,14 @@ int Response::get_status_code() const
     return this->status_code;
 }
 
-void Response::set_client_fd(int client_fd)
+std::string  Response::get_response()
 {
-    this->client_fd = client_fd;
+    return this->response;
 }
 
-int Response::get_client_fd() const
+void Response::set_response(std::string data)
 {
-    return this->client_fd;
+    this->response = data ;
 }
 
 Response::~Response() {}
@@ -62,6 +61,7 @@ void Response::errPage(Server_storage server ,int code)
 	std::string                         path;
     std::string                         head;
     std::ifstream                       file;
+    std::ifstream::pos_type             content_length;
     const std::map<int, std::string>&   errors = server.getErrorPages();
 
     if (errors.find(code) != errors.end())
@@ -70,23 +70,26 @@ void Response::errPage(Server_storage server ,int code)
 		file.open(path, std::ifstream::binary | std::ifstream::ate);
         if (file.is_open())
 		{
-			this->content_length = file.tellg();
+			content_length = file.tellg();
 			file.seekg(0, std::ios::beg);
-			std::vector<char> vec((int)this->content_length);
-			file.read(&vec[0], (int)this->content_length);
-			std::string response(vec.begin(), vec.end());
-			head = "HTTP/1.1 " + std::to_string(code) +  "\r\nContent-Type: text/html\r\nContent-Length: " 
-            + std::to_string(this->content_length) + "\r\n\r\n" + response;
+			std::vector<char> vec((int)content_length);
+			file.read(&vec[0], (int)content_length);
+			std::string body(vec.begin(), vec.end());
+            
+            this->response = "HTTP/1.1 " + std::to_string(code) +  "\r\nContent-Type: text/html\r\nContent-Length: " 
+            + std::to_string(content_length) + "\r\n\r\n" + body;
 
-            if (send(client_fd, head.c_str(), head.size(), 0) < 1)
-                std::cout << "Error sending response header" << std::endl;
+
+           // this->response = head + body; 
+            // if (send(client_fd, head.c_str(), head.size(), 0) < 1)
+            //     std::cout << "Error sending body header" << std::endl;
     
-            if (send(client_fd, response.c_str(), response.size(), 0) < 1)
-            {
-                std::cout << "Error sending response header" << std::endl;
-                file.close();
-                return;
-            }
+            // if (send(client_fd, body.c_str(), body.size(), 0) < 1)
+            // {
+            //     std::cout << "Error sending body header" << std::endl;
+            //     file.close();
+            //     return;
+            // }
         }
             file.close();
 		return;
@@ -100,7 +103,7 @@ void   Response::init_response(Request request , Server_storage server)
     (void) server;
     // std::cout << "status code = "<<get_status_code() << std::endl;
   //  if (get_status_code())
-        errPage(server,404);
+        errPage(server,0);
     // else
     // {
     //     try {

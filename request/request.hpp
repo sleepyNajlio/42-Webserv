@@ -23,6 +23,8 @@ class Request{
         bool isChunked;
         size_t bytesSent;
         size_t contentLength;
+        std::string ContentType;
+        std::string filename ;
         // std::string body;
         int body;
         int chunkSize;
