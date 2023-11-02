@@ -94,6 +94,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
             // check for write event
             if (FD_ISSET(clients[i].first.get_fd(), &io.tmpWriteSockets))
             {
+                clients[i].first.res.fd_sok = clients[i].first.get_fd();
                 clients[i].first.res.init_response(clients[i].first.req , clients[i].second);
                 // ft_response(clients[i].first, clients[i].second);
                 // std::cout << "write" << std::endl;

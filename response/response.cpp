@@ -157,19 +157,133 @@ static  std::vector<Location_storage>::const_iterator locationMatch(Server_stora
 	return (it);
 }
 
+static std::string delRepSlash(std::string file)
+{
+	int p;
+	while (1)
+	{
+		p = file.find("//");
+		if (p != -1)
+			file = file.substr(0, p) + file.substr(p + 1, file.length());
+		else
+			break;
+	}
+	return (file);
+}
+
+
 bool allowedMeth(storage_int& allowedMethods, std::string method)
 {
-    for (size_t i = 0; i < allowedMethods.size(); i++)
-    {
-        if (allowedMethods[i] == 1 && method == "GET")
-            return (true);
-        else if (allowedMethods[i] == 1 && method == "POST")
-            return (true);
-        else if (allowedMethods[i] == 1 && method == "DELETE")
-            return (true);
-    }
+
+    if (allowedMethods[0] == 1 && method == "GET")
+        return (true);
+    else if (allowedMethods[1] == 1 && method == "POST")
+        return (true);
+    else if (allowedMethods[2] == 1 && method == "DELETE")
+        return (true);
     return (false);
 }
+
+bool isDir(std::string path)
+{
+	struct stat buffer;
+	if (stat(path.c_str(), &buffer) == 0)
+	{
+		if (S_ISDIR(buffer.st_mode))
+		{
+			// std::cout << path << " is a directory" << std::endl;
+			return (1);
+		}
+	}
+	return (0);
+}
+
+void Response::listDir(std::string file, Request &request, Server_storage &server)
+{
+	std::string output;
+	output.append("<html><body><ul>");
+
+	DIR *dir;
+	struct dirent *ent;
+	if ((dir = opendir(file.c_str())) != NULL)
+	{
+		while ((ent = readdir(dir)) != NULL)
+		{
+			output.append("<li><a href=\"");
+			if (locIt->getLocaPath() == "/" && request.getUrl() == "/")
+				output.append(request.getUrl() + ent->d_name);
+			else
+				output.append(request.getUrl() + "/" + ent->d_name);
+			output.append("\">");
+			output.append(ent->d_name);
+			output.append("</a></li>");
+		}
+		closedir(dir);
+	output.append("</ul></body></html>");
+	std::string header = "HTTP/1.1 200 OK\r\n"
+					"Connection: close\r\n"
+					"Content-Type: "
+					"text/html\r\n"
+					"Content-Length: " +
+					ft_to_string(output.size()) +
+					"\r\n\r\n";
+		if (send(fd_sok, header.c_str(), header.size(), 0) <= 0)
+			return;
+		if (send(fd_sok, output.c_str(), output.length(), 0) <= 0)
+			return;
+	}
+	else
+	{
+        errPage(server,403);
+	}
+}
+
+void    Response::ft_Get(Request &request, Server_storage &server)
+{
+    std::string file;
+    (void) server;
+	file = request.getUrl();
+	// size_t i = 0;
+	if (locIt->getLocaPath() != "/")
+		file.replace(0, locIt->getLocaPath().length(), locIt->getLocaRoot());
+	else
+		file.replace(0, locIt->getLocaPath().length() - 1, locIt->getLocaRoot());
+    file = delRepSlash(file);
+    if (isDir(file))
+    {
+        if (locIt->getLocaAutoindex())
+        {
+            listDir(file, request, server);
+        }
+        else
+        {
+            std::cout << "index not found" << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << "file" << std::endl;
+       	// std::ifstream file1(file);
+		// if (!locIt->cgi_path.empty() && check_ext(file))
+		// {
+		// 	//exec_cgi(client, file);
+		// }
+		// else 
+        // if (file1.good())
+		// 	open_file(client, file);
+		// else if (access(file.c_str(), F_OK))
+		// 	errPage(server,404);
+            //statut_code(client, "404", "404 Not Found");
+		// else
+        //     errPage(server,403);
+			//statut_code(client,  "403", "403 Forbidden");
+    }
+}
+
+// void    open_file()
+// {
+    
+// }
 
 void   Response::init_response(Request &request , Server_storage &server)
 {
@@ -186,7 +300,7 @@ void   Response::init_response(Request &request , Server_storage &server)
     {
         if (request.getMethod() == "GET")
         {
-            std::cout << "GET" << std::endl;
+            ft_Get(request, server);
             // handle Get
         }
         else if (request.getMethod() == "POST")
