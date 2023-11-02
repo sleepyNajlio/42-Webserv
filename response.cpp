@@ -47,3 +47,32 @@ void Multiplexing::send_res(int fd)
         if (send(fd, temp.c_str(), file_size, 0) < 1)
              std::cout << "Error sending file" << std::endl;
 }
+
+
+// handle delete
+//	DIR 					*_dir;
+// #include <dirent.h>
+// void	Response::handle_delete(DIR *dir, std::string req)
+// {
+// 	if (access(req.c_str(), W_OK) == -1)
+// 		throw 403;
+// 	else if (dir)
+// 	{
+// 		struct dirent *reader;
+// 		std::string path;
+// 		while ((reader = readdir(dir)))
+// 		{
+// 			if (reader->d_name[0] == '.' && (reader->d_name[1] == '.' || !reader->d_name[1]))
+// 				continue;
+// 			path = req + "/" + reader->d_name;	
+// 			DIR *newdir = opendir(path.c_str());
+// 			handle_delete(newdir, path);
+// 		}
+// 		closedir(dir);
+// 		if (std::remove(req.c_str()))
+// 			throw 403;
+// 		return ;		
+// 	}
+// 	else if (std::remove(req.c_str()))
+// 		throw 403;				
+// }
