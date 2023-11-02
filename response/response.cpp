@@ -55,6 +55,27 @@ std::string Response::initStatusCodeMap(int code)
     return map.find(code)->second;
 }
 
+void Response::generateErrorPage(int code)
+{
+    std::string errorMessage = initStatusCodeMap(code);
+    std::string errorPageBody = "<!DOCTYPE html>\n";
+    errorPageBody += "<html>\n";
+    errorPageBody += "<head>\n";
+    errorPageBody += "<title>Error " + std::to_string(code) + ": " + errorMessage + "</title>\n";
+    errorPageBody += "<style>\n";
+    errorPageBody += "body {display: flex; justify-content: center; align-items:center; flex-direction: column; font-family: Arial, sans-serif; margin: 0; padding: 20px;}\n";
+    errorPageBody += "h1 {font-size: 24px;}\n";
+    errorPageBody += "p {font-size: 16px;}\n";
+    errorPageBody += "</style>\n";
+    errorPageBody += "</head>\n";
+    errorPageBody += "<body>\n";
+    errorPageBody += "<h1>Error " + std::to_string(code) + ": " + errorMessage + "</h1>\n";
+    errorPageBody += "<p>" + std::to_string(code) + "</p>\n";
+    errorPageBody += "</body>\n";
+    errorPageBody += "</html>";
+    this->response = "HTTP/1.1 " + std::to_string(code) +  "\r\nContent-Type: text/html\r\nContent-Length: " + std::to_string(errorPageBody.size()) + "\r\n\r\n" + errorPageBody;
+}
+
 
 void Response::errPage(Server_storage server ,int code)
 {
@@ -79,7 +100,6 @@ void Response::errPage(Server_storage server ,int code)
             this->response = "HTTP/1.1 " + std::to_string(code) +  "\r\nContent-Type: text/html\r\nContent-Length: " 
             + std::to_string(content_length) + "\r\n\r\n" + body;
 
-
            // this->response = head + body; 
             // if (send(client_fd, head.c_str(), head.size(), 0) < 1)
             //     std::cout << "Error sending body header" << std::endl;
@@ -91,9 +111,14 @@ void Response::errPage(Server_storage server ,int code)
             //     return;
             // }
         }
+        else
+            generateErrorPage(code);
             file.close();
 		return;
 	}
+    else
+        generateErrorPage(302);
+
     // if the error page is not found we should generate one
 }
 
