@@ -36,6 +36,7 @@ class Response {
             void    initStatusCodeMap();
             void    writeResponse();
             void    errPage(Server_storage server,int error_code);
+            void    generateErrorPage(int code);
             
             std::string initStatusCodeMap(int code);
             void   init_response(Request request , Server_storage server);
