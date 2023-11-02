@@ -97,13 +97,52 @@ void Response::errPage(Server_storage server ,int code)
     // if the error page is not found we should generate one
 }
 
-void   Response::init_response(Request request , Server_storage server)
+static std::string newpath(std::string path)
+{
+	size_t pos = -1;
+	while (path.find("/", pos + 1) != std::string::npos)
+		pos = path.find("/", pos + 1);
+	path = path.substr(0, pos);
+	if (path.empty())
+		return ("/");
+	return (path);
+}
+
+static  std::vector<Location_storage>::const_iterator locationMatch(Server_storage &serv, std::string path)
+{
+	std::vector<Location_storage>::const_iterator it;
+	while (1)
+	{
+		it = serv.getLocations().begin();
+		while (it != serv.getLocations().end())
+		{
+			if (it->getLocaPath() == path)
+            {
+				return (it);
+            }
+			it++;
+		}
+		if (path == "/")
+		{	
+            break;
+        }
+		path = newpath(path);
+	}
+
+	return (it);
+}
+
+
+void   Response::init_response(Request &request , Server_storage &server)
 {
     (void) request;
     (void) server;
     // std::cout << "status code = "<<get_status_code() << std::endl;
   //  if (get_status_code())
-        errPage(server,0);
+        // errPage(server,0);
+    locIt = locationMatch(server, request.getUrl());
+    if (locIt->getLocaPath() != "")
+        std::cout << locIt->getLocaPath() << std::endl;
     // else
     // {
     //     try {

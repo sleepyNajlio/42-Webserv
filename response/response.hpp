@@ -36,9 +36,9 @@ class Response {
             void    initStatusCodeMap();
             void    writeResponse();
             void    errPage(Server_storage server,int error_code);
-            
+            std::vector<Location_storage>::const_iterator locIt;
             std::string initStatusCodeMap(int code);
-            void   init_response(Request request , Server_storage server);
+            void   init_response(Request &request , Server_storage &server);
 };
 
 

@@ -20,6 +20,7 @@ class Client {
         struct sockaddr_in get_address() const;
         Request get_request() const;
         void set_fd(int fd);
+        std::vector<Location_storage>::const_iterator locIt;
         Response res;
         Request req;
 };
