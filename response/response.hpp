@@ -38,10 +38,9 @@ class Response {
             void    errPage(Server_storage server,int error_code);
             std::vector<Location_storage>::const_iterator locIt;
             void    generateErrorPage(int code);
-            
+            int fd_res;
             std::string initStatusCodeMap(int code);
             void   init_response(Request &request , Server_storage &server);
 };
-
 
 

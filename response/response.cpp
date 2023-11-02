@@ -157,17 +157,51 @@ static  std::vector<Location_storage>::const_iterator locationMatch(Server_stora
 	return (it);
 }
 
+bool allowedMeth(storage_int& allowedMethods, std::string method)
+{
+    for (size_t i = 0; i < allowedMethods.size(); i++)
+    {
+        if (allowedMethods[i] == 1 && method == "GET")
+            return (true);
+        else if (allowedMethods[i] == 1 && method == "POST")
+            return (true);
+        else if (allowedMethods[i] == 1 && method == "DELETE")
+            return (true);
+    }
+    return (false);
+}
 
 void   Response::init_response(Request &request , Server_storage &server)
 {
-    (void) request;
-    (void) server;
+    // (void) request;
+    // (void) server;
     // std::cout << "status code = "<<get_status_code() << std::endl;
   //  if (get_status_code())
         // errPage(server,0);
     locIt = locationMatch(server, request.getUrl());
     if (locIt->getLocaPath() != "")
         std::cout << locIt->getLocaPath() << std::endl;
+    storage_int allowedMethods = locIt->getLocaAllowedMethods();
+    if (allowedMeth(allowedMethods, request.getMethod()))
+    {
+        if (request.getMethod() == "GET")
+        {
+            std::cout << "GET" << std::endl;
+            // handle Get
+        }
+        else if (request.getMethod() == "POST")
+        {
+            std::cout << "POST" << std::endl;
+            // handle Post
+        }
+        else if (request.getMethod() == "DELETE")
+        {
+            std::cout << "DELETE" << std::endl;
+            // handle Delete
+        }
+    }
+    else
+        std::cout << "method not allowed" << std::endl;
     // else
     // {
     //     try {
