@@ -122,82 +122,6 @@ void Response::errPage(Server_storage server ,int code)
     // if the error page is not found we should generate one
 }
 
-static std::string newpath(std::string path)
-{
-	size_t pos = -1;
-	while (path.find("/", pos + 1) != std::string::npos)
-		pos = path.find("/", pos + 1);
-	path = path.substr(0, pos);
-	if (path.empty())
-		return ("/");
-	return (path);
-}
-
-static  std::vector<Location_storage>::const_iterator locationMatch(Server_storage &serv, std::string path)
-{
-	std::vector<Location_storage>::const_iterator it;
-	while (1)
-	{
-		it = serv.getLocations().begin();
-		while (it != serv.getLocations().end())
-		{
-			if (it->getLocaPath() == path)
-            {
-				return (it);
-            }
-			it++;
-		}
-		if (path == "/")
-		{	
-            break;
-        }
-		path = newpath(path);
-	}
-
-	return (it);
-}
-
-static std::string delRepSlash(std::string file)
-{
-	int p;
-	while (1)
-	{
-		p = file.find("//");
-		if (p != -1)
-			file = file.substr(0, p) + file.substr(p + 1, file.length());
-		else
-			break;
-	}
-	return (file);
-}
-
-
-bool allowedMeth(storage_int& allowedMethods, std::string method)
-{
-
-    if (allowedMethods[0] == 1 && method == "GET")
-        return (true);
-    else if (allowedMethods[1] == 1 && method == "POST")
-        return (true);
-    else if (allowedMethods[2] == 1 && method == "DELETE")
-        return (true);
-    return (false);
-}
-
-bool isDir(std::string path)
-{
-	struct stat buffer;
-	if (stat(path.c_str(), &buffer) == 0)
-	{
-		if (S_ISDIR(buffer.st_mode))
-		{
-			// std::cout << path << " is a directory" << std::endl;
-			return (1);
-		}
-	}
-	return (0);
-}
-
 void Response::listDir(std::string file, Request &request, Server_storage &server)
 {
 	std::string output;
@@ -231,11 +155,61 @@ void Response::listDir(std::string file, Request &request, Server_storage &serve
 			return;
 		if (send(fd_sok, output.c_str(), output.length(), 0) <= 0)
 			return;
+        clear_client = true;
 	}
 	else
 	{
         errPage(server,403);
 	}
+}
+
+void    Response::open_file(Server_storage &server, std::string file)
+{
+    size_t size;
+    std::string header;
+    this->fd_res_filename = file;
+        fd_res.open(file, std::ios::in | std::ios::binary | std::ios::ate);
+		fd_res.seekg(0, std::ios::end);
+		size = fd_res.tellg();
+		fd_res.seekg(0, std::ios::beg);
+      
+
+		if (!fd_res.is_open())
+        {
+            errPage(server, 403);
+            return;
+        }
+		header = "HTTP/1.1 200 OK\r\n"
+						"Connection: close\r\n"
+						"Content-Type: " +
+						get_content_type(file) + "\r\n"
+												 "Content-Length: " +
+						ft_to_string(size) + "\r\n\r\n";
+		if (send(fd_sok, header.c_str(), header.size(), 0) <= 0)
+		{
+			return;
+		}
+}
+
+void Response::ft_sendResponse()
+{
+    char response[2048];
+    fd_res.read(response, 2048);
+    if (fd_res.gcount())
+    {
+        if (send(fd_sok, response, fd_res.gcount(), 0) <= 0)
+        {
+            clear_client = true;
+            return;
+        }
+        bzero(response, 2048);
+
+    }
+    else
+    {
+        clear_client = true;
+    }
+
 }
 
 void    Response::ft_Get(Request &request, Server_storage &server)
@@ -249,6 +223,7 @@ void    Response::ft_Get(Request &request, Server_storage &server)
 	else
 		file.replace(0, locIt->getLocaPath().length() - 1, locIt->getLocaRoot());
     file = delRepSlash(file);
+
     if (isDir(file))
     {
         if (locIt->getLocaAutoindex())
@@ -262,28 +237,35 @@ void    Response::ft_Get(Request &request, Server_storage &server)
     }
     else
     {
-        std::cout << "file" << std::endl;
-       	// std::ifstream file1(file);
+        std::cout << "file :::"<< file << std::endl;
+        std::ifstream file1(file);
 		// if (!locIt->cgi_path.empty() && check_ext(file))
 		// {
 		// 	//exec_cgi(client, file);
 		// }
-		// else 
-        // if (file1.good())
-		// 	open_file(client, file);
-		// else if (access(file.c_str(), F_OK))
-		// 	errPage(server,404);
-            //statut_code(client, "404", "404 Not Found");
 		// else
-        //     errPage(server,403);
-			//statut_code(client,  "403", "403 Forbidden");
+        if (file1.good())
+        {
+			open_file(server,  file);
+            std::cout << "file found"<< file << std::endl;
+        }
+		else if (access(file.c_str(), F_OK))
+        {
+            std::cout << "file not found"<< file << std::endl;
+			errPage(server,404);
+             clear_client = true;
+
+        }
+		else
+        {
+            std::cout << "file forbiden"<< file << std::endl;
+            errPage(server,403);
+            clear_client = true;
+
+        }
     }
 }
 
-// void    open_file()
-// {
-    
-// }
 
 void   Response::init_response(Request &request , Server_storage &server)
 {
@@ -293,8 +275,8 @@ void   Response::init_response(Request &request , Server_storage &server)
   //  if (get_status_code())
         // errPage(server,0);
     locIt = locationMatch(server, request.getUrl());
-    if (locIt->getLocaPath() != "")
-        std::cout << locIt->getLocaPath() << std::endl;
+    // if (locIt->getLocaPath() != "")
+    //     std::cout << "------>> "<< locIt->getLocaPath() << std::endl;
     storage_int allowedMethods = locIt->getLocaAllowedMethods();
     if (allowedMeth(allowedMethods, request.getMethod()))
     {
@@ -335,48 +317,3 @@ void   Response::init_response(Request &request , Server_storage &server)
 
     // }
 }
-
-            
-// void   ft_response(Client client, Server_storage Serv)
-// {
-//     try {
-//         if (Serv.getLocations().size() == 0)
-//         return ;
-
-//         // first step
-//         // match locations ;
-//         std::vector<Location_storage> locations = Serv.getLocations();
-//         Request request = client.get_request();
-
-//         std::string path = request.getUrl();
-//         for (size_t i = 0; i < locations.size(); i++)
-//         {
-//             if (locations[i].getLocaPath() == path)
-//             {
-//                 std::cout << "location found" << path << std::endl;
-//                 break ;
-//             }
-//         }
-//         return ;}
-//         catch (std::exception &e)
-//         {
-//             std::cout << e.what() << std::endl;
-//         }
-//             // first : if url match any locations
-
-//         // second : keep removing slash until matching url with location path  /kapouet/pouic/toto/pouet
-        
-//         // exp: /kapouet is rooted to /tmp/www, url /kapouet is
-//        // /tmp/www/pouic/toto/pouet
-
-//         // check which method or if any 
-
-//         // check if autoindex is on or off 
-//             //if on : responde with indexes incide the location 
-//             //else : index not found 404
-
-//             // if off : check if the url is dir or file
-//             //if dir : list all files 
-//             //if file : respond with file content
-
-// }
