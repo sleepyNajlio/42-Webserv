@@ -1,23 +1,23 @@
 #include "request.hpp"
 
-// char* generateRandomString() {
-//     const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-//     int length = 5 + std::rand() % (30 - 5 + 1);
+char* generateRandomString() {
+    const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    int length = 5 + std::rand() % (30 - 5 + 1);
 
-//     // Seed the random number generator with the current time
-//     std::srand(static_cast<unsigned int>(std::time(NULL)));
+    // Seed the random number generator with the current time
+    std::srand(static_cast<unsigned int>(std::time(NULL)));
 
-//     char* randomString = new char[length + 1]; // +1 for the null terminator
+    char* randomString = new char[length + 1]; // +1 for the null terminator
 
-//     for (int i = 0; i < length; ++i) {
-//         int randomIndex = std::rand() % (sizeof(charset) - 1);
-//         randomString[i] = charset[randomIndex];
-//     }
+    for (int i = 0; i < length; ++i) {
+        int randomIndex = std::rand() % (sizeof(charset) - 1);
+        randomString[i] = charset[randomIndex];
+    }
 
-//     randomString[length] = '\0'; // Null-terminate the string
+    randomString[length] = '\0'; // Null-terminate the string
 
-//     return randomString;
-// }
+    return randomString;
+}
 
 void Request::pLine(std::string line) 
 {
@@ -47,9 +47,8 @@ void Request::pLine(std::string line)
      // open THE POSTED FILE and write the body in it
     if (this->method == "POST")
     {
-        std::string name = "./uploads" + this->url;
-        const char *tempFile = name.c_str();
-        this->body = open(tempFile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        this->filename = generateRandomString();
+        this->body = open(this->filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (this->body == -1)
             throw std::invalid_argument("Unable to open file ");
         else
