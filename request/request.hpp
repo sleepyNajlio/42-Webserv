@@ -25,6 +25,7 @@ class Request{
         size_t contentLength;
         std::string ContentType;
         std::string filename ;
+        std::string randomstr;
         // std::string body;
         int body;
         int chunkSize;
@@ -52,7 +53,8 @@ class Request{
         std::string gethttpVersion() const;
         std::string getLocationPath() const;
         std::string getServerName() const;
-        int getChunkSize() const;
+        int         getChunkSize() const;
+        std::string getRandomStr() const;
 
 
         // int body;

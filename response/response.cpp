@@ -266,16 +266,15 @@ void    Response::ft_Get(Request &request, Server_storage &server)
     }
 }
 
-void    Response::ft_Post(Request &request)
+void Response::ft_Post(Request &request)
 {
-        std::string name = "./uploads" + this->url;
-        std::cout << request.filename.c_str()  << std::endl;
-        if (std::rename(request.filename.c_str(), name) != 0) {
+        std::string name = "./uploads" + request.getUrl();
+        std::cout << name << std::endl;
+        std::cout << "filename " << request.getRandomStr().c_str()  << std::endl;
+        if (std::rename(request.getRandomStr().c_str(), name.c_str()) != 0) {
         std::perror("Error renaming file");
-        return 1;
         }
 }
-
 void   Response::init_response(Request &request , Server_storage &server)
 {
     // (void) request;
@@ -286,7 +285,6 @@ void   Response::init_response(Request &request , Server_storage &server)
     locIt = locationMatch(server, request.getUrl());
     // if (locIt->getLocaPath() != "")
     //     std::cout << "------>> "<< locIt->getLocaPath() << std::endl;
-       std::cout << "location match out put !" <<locIt->getLocaPath() << std::endl;
     storage_int allowedMethods = locIt->getLocaAllowedMethods();
     if (allowedMeth(allowedMethods, request.getMethod()))
     {
@@ -297,6 +295,7 @@ void   Response::init_response(Request &request , Server_storage &server)
         }
         else if (request.getMethod() == "POST")
         {
+            std::cout << "POST" << std::endl;
             ft_Post(request);
             // handle Post
         }

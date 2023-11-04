@@ -88,6 +88,10 @@ std::string Request::getRoot() const{
     return root;
 }
 
+std::string Request::getRandomStr() const{
+    return randomstr;
+}
+
 bool Request::isHeaderDone() const{
     return headerDone;
 }

@@ -27,22 +27,20 @@ class Response {
 
     public:
 
-    bool                                            clear_client;
-    bool                                            check_res;
-    int                                             fd_sok;
-    int                                             i;
-    std::vector<Location_storage>::const_iterator   locIt;
-    std::fstream                                    fd_res;
-    std::map<int, std::string>                      status_code_map;
+    bool clear_client;
+    bool check_res;
+    int i ;
 
 
     Response();
     ~Response();
+
     // Copy constructor to handle copying the class correctly
     Response(const Response& other) {
         // Perform a deep copy of the class members
         *this = other;
     }
+
     // Copy assignment operator to handle assignment correctly
     Response& operator=(const Response& other) {
         if (this != &other) {
@@ -67,19 +65,25 @@ class Response {
             int         get_status_code() const;
             std::string get_response();
 
+            std::vector<Location_storage>::const_iterator locIt;
+            int fd_sok;
+            std::fstream fd_res;
+
+
 
             void        ft_Get(Request &request, Server_storage &server);
             void        ft_Post(Request &request);
-            
             void        listDir(std::string file, Request &request, Server_storage &server);
-            void        initStatusCodeMap();
-            void        writeResponse();
-            void        errPage(Server_storage server,int error_code);
-            void        generateErrorPage(int code);
+
+            std::map<int, std::string> status_code_map;
+            void    initStatusCodeMap();
+            void    writeResponse();
+            void    errPage(Server_storage server,int error_code);
+            void    generateErrorPage(int code);
             std::string initStatusCodeMap(int code);
-            void        init_response(Request &request , Server_storage &server);
-            void        open_file(Server_storage &server, std::string file);
-            void        ft_sendResponse();    
+            void   init_response(Request &request , Server_storage &server);
+            void    open_file(Server_storage &server, std::string file);
+            void  ft_sendResponse();    
 };
 
 

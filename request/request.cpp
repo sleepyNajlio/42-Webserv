@@ -47,8 +47,9 @@ void Request::pLine(std::string line)
      // open THE POSTED FILE and write the body in it
     if (this->method == "POST")
     {
-        this->filename = generateRandomString();
-        this->body = open(this->filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        this->randomstr = generateRandomString();
+        std::cout << randomstr << std::endl;
+        this->body = open(this->randomstr.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (this->body == -1)
             throw std::invalid_argument("Unable to open file ");
         else
