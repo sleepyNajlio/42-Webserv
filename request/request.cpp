@@ -1,6 +1,6 @@
 #include "request.hpp"
 
-char* generateRandomString() {
+std::string generateRandomString() {
     const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     int length = 5 + std::rand() % (30 - 5 + 1);
 
@@ -47,8 +47,7 @@ void Request::pLine(std::string line)
      // open THE POSTED FILE and write the body in it
     if (this->method == "POST")
     {
-        this->randomstr = generateRandomString();
-        std::cout << randomstr << std::endl;
+        this->randomstr = "./cash/" + generateRandomString();
         this->body = open(this->randomstr.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (this->body == -1)
             throw std::invalid_argument("Unable to open file ");

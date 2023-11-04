@@ -269,16 +269,13 @@ void    Response::ft_Get(Request &request, Server_storage &server)
 void Response::ft_Post(Request &request)
 {
         std::string name = "./uploads" + request.getUrl();
-        std::cout << name << std::endl;
-        std::cout << "filename " << request.getRandomStr().c_str()  << std::endl;
         if (std::rename(request.getRandomStr().c_str(), name.c_str()) != 0) {
         std::perror("Error renaming file");
         }
 }
 void   Response::init_response(Request &request , Server_storage &server)
 {
-    // (void) request;
-    // (void) server;
+   
     // std::cout << "status code = "<<get_status_code() << std::endl;
   //  if (get_status_code())
         // errPage(server,0);
@@ -288,22 +285,13 @@ void   Response::init_response(Request &request , Server_storage &server)
     storage_int allowedMethods = locIt->getLocaAllowedMethods();
     if (allowedMeth(allowedMethods, request.getMethod()))
     {
+        std::cout << request.getMethod() << std::endl;
         if (request.getMethod() == "GET")
-        {
             ft_Get(request, server);
-            // handle Get
-        }
         else if (request.getMethod() == "POST")
-        {
-            std::cout << "POST" << std::endl;
             ft_Post(request);
-            // handle Post
-        }
         else if (request.getMethod() == "DELETE")
-        {
             std::cout << "DELETE" << std::endl;
-            // handle Delete
-        }
     }
     else
         std::cout << "method not allowed" << std::endl;
