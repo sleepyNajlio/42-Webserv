@@ -18,6 +18,33 @@ Request::Request() {
     this->body = -1;
 }
 
+Request::Request(const Request& other) {
+    // Copy all the member variables from 'other' to 'this'
+    *this = other;
+}
+
+Request& Request::operator=(const Request& other) {
+    if (this == &other) {
+        // Self-assignment, no action needed
+        return *this;
+    }
+
+    // Copy all the member variables from 'other' to 'this'
+    method = other.method;
+    url = other.url;
+    body = other.body;
+    root = other.root;
+    httpVersion = other.httpVersion;
+    locPath = other.locPath;
+    serverName = other.serverName;
+    chunkSize = other.chunkSize;
+    headerDone = other.headerDone;
+    readDone = other.readDone;
+    headers = other.headers;
+
+    return *this;
+}
+
 void    Request::setHeaderDone(bool done){
         this->headerDone = done;
 }

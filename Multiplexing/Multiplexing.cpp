@@ -75,6 +75,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                 }
                 else {
                     buffer[bytesRead] = '\0';
+                    std::cout << "Received: " << buffer << std::endl;
                     // buffer is ready for parse here
                     try{
                         clients[i].first.req.reader(buffer, bytesRead);
@@ -117,13 +118,20 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                 // }
                 if(clients[i].first.res.clear_client)
                 {
-                    clients[i].first.res.clear_client = false;
-                    clients[i].first.res.check_res = false;
-                    
+                    for (size_t i = 0; i < clients.size(); i++)
+                    {
+                        std::cout << "url ::"<<clients[i].first.req.getUrl()<< "      clients :::: clear client :: "<< clients[i].first.res.check_res << std::endl;
+                    }
+                    std::cout << "clear client  url :::: "<< clients[i].first.req.getUrl() << std::endl;          
                     clients[i].first.res.fd_res.close();
                     FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
                     close(clients[i].first.get_fd());
                     clients.erase(clients.begin() + i);
+                    //print vector clients
+                     for (size_t i = 0; i < clients.size(); i++)
+                    {
+                        std::cout << "url ::"<<clients[i].first.req.getUrl()<<"    clients :::: clear client :: "<< clients[i].first.res.check_res << std::endl;
+                    }
                     i--;
                 }
             }
@@ -138,15 +146,15 @@ void Multiplexing::handleNewConnection(Socket& serverSocket, Server_storage serv
     Client client;
 
 
-    std::cout << "handleNewConnection" << client.get_fd()<<" "<< client.req.getUrl() << client.res.check_res << std::endl;
     client.res.clear_client = false;
     client.res.check_res = false;
-    client.res.i = 0;
+    //client.res.i = 0;
     // std::cout << client.req.getChunkSize() << std::endl;
     struct sockaddr_in address = serverSocket.get_address();
     socklen_t clientAddrLen = sizeof(address);
     int clientSocket = accept(serverSocket.get_fd(), (struct sockaddr *)&address, &clientAddrLen);
     client.set_fd(clientSocket);
+    std::cout << "handleNewConnection\n" << client.get_fd() << " ----->\n " << client.req.getUrl()<< "===>\n" << client.res.check_res << std::endl;
     if (clientSocket == -1)
     {
         perror("Accepting connection failed");

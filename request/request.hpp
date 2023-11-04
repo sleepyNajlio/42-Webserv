@@ -32,6 +32,8 @@ class Request{
 
     public:
         Request();
+        Request(const Request& other);
+        Request& operator=(const Request& other);
         void setHeaderDone(bool done);
         void setReadDone(bool done);
         void setMethod(const std::string& methode);

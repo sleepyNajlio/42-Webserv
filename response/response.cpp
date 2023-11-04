@@ -1,11 +1,13 @@
 #include "response.hpp"
 
 
-Response::Response() 
-{
-    this->status_code = 0;
-   // this->initStatusCodeMap(code);
-}
+Response::Response() : status_code(0), content_lenght(0), clear_client(false), check_res(false), i(0) {
+
+        response = "";
+        head = "";
+        body = "";
+        fd_res_filename = "";
+    }
 
 void Response::set_status_code(int status_code)
 {
@@ -88,32 +90,23 @@ void Response::errPage(Server_storage server ,int code)
     if (errors.find(code) != errors.end())
 	{
         path = errors.find(code)->second;
-		file.open(path, std::ifstream::binary | std::ifstream::ate);
-        if (file.is_open())
+          this->fd_res_filename = path;
+        std::cout << "path = " << path << std::endl;
+        fd_res.open(path, std::ios::in | std::ios::binary | std::ios::ate);
+        fd_res.seekg(0, std::ios::end);
+        content_length = fd_res.tellg();
+        fd_res.seekg(0, std::ios::beg);
+        if (fd_res.is_open())
 		{
-			content_length = file.tellg();
-			file.seekg(0, std::ios::beg);
-			std::vector<char> vec((int)content_length);
-			file.read(&vec[0], (int)content_length);
-			std::string body(vec.begin(), vec.end());
             
-            this->response = "HTTP/1.1 " + std::to_string(code) +  "\r\nContent-Type: text/html\r\nContent-Length: " 
-            + std::to_string(content_length) + "\r\n\r\n" + body;
+            this->head = "HTTP/1.1 " + std::to_string(code) +  "\r\nContent-Type: text/html\r\nContent-Length: " 
+            + std::to_string(content_length) + "\r\n\r\n" ;
+            
+            send(fd_sok, this->head.c_str() ,this->head.size(), 0);
 
-           // this->response = head + body; 
-            // if (send(client_fd, head.c_str(), head.size(), 0) < 1)
-            //     std::cout << "Error sending body header" << std::endl;
-    
-            // if (send(client_fd, body.c_str(), body.size(), 0) < 1)
-            // {
-            //     std::cout << "Error sending body header" << std::endl;
-            //     file.close();
-            //     return;
-            // }
         }
         else
             generateErrorPage(code);
-            file.close();
 		return;
 	}
     else
@@ -199,14 +192,15 @@ void Response::ft_sendResponse()
     {
         if (send(fd_sok, response, fd_res.gcount(), 0) <= 0)
         {
+            std::cout << "error send" << std::endl;
             clear_client = true;
             return;
         }
         bzero(response, 2048);
-
     }
-    else
+    if (fd_res.eof())
     {
+        std::cout << "end of file" << std::endl;
         clear_client = true;
     }
 
@@ -253,18 +247,15 @@ void    Response::ft_Get(Request &request, Server_storage &server)
         {
             std::cout << "file not found"<< file << std::endl;
 			errPage(server,404);
-             clear_client = true;
-
         }
 		else
         {
             std::cout << "file forbiden"<< file << std::endl;
             errPage(server,403);
-            clear_client = true;
-
         }
     }
 }
+
 
 void Response::ft_Post(Request &request)
 {
@@ -273,6 +264,7 @@ void Response::ft_Post(Request &request)
         std::perror("Error renaming file");
         }
 }
+
 void   Response::init_response(Request &request , Server_storage &server)
 {
    
@@ -294,7 +286,7 @@ void   Response::init_response(Request &request , Server_storage &server)
             std::cout << "DELETE" << std::endl;
     }
     else
-        std::cout << "method not allowed" << std::endl;
+        std::cout << " method not allowed " << std::endl;
     // else
     // {
     //     try {

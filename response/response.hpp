@@ -44,6 +44,10 @@ class Response {
     // Copy assignment operator to handle assignment correctly
     Response& operator=(const Response& other) {
         if (this != &other) {
+            check_res = other.check_res;
+            clear_client = other.clear_client;
+            i = other.i;
+            fd_sok = other.fd_sok;
             // Perform a deep copy of the class members
             status_code = other.status_code;
             response = other.response;
@@ -51,8 +55,7 @@ class Response {
             body = other.body;
             content_lenght = other.content_lenght;
 
-            // Handle the fstream object
-             fd_res_filename = other.fd_res_filename;
+            fd_res_filename = other.fd_res_filename;
             fd_res.open(other.fd_res_filename, std::ios::in | std::ios::binary | std::ios::ate);
             fd_res << other.fd_res.rdbuf();
         }

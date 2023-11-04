@@ -1,5 +1,6 @@
 #include "request.hpp"
 
+
 std::string generateRandomString() {
     const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     int length = 5 + std::rand() % (30 - 5 + 1);
