@@ -41,6 +41,13 @@ Request& Request::operator=(const Request& other) {
     headerDone = other.headerDone;
     readDone = other.readDone;
     headers = other.headers;
+    headerString = other.headerString;
+    bytesSent = other.bytesSent;
+    contentLength = other.contentLength;
+    isChunked = other.isChunked;
+    randomstr = other.randomstr;
+    filename = other.filename;
+
 
     return *this;
 }

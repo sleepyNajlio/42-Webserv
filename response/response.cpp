@@ -1,7 +1,7 @@
 #include "response.hpp"
 
 
-Response::Response() : status_code(0), content_lenght(0), clear_client(false), check_res(false), i(0) {
+Response::Response() : status_code(0), content_lenght(0), clear_client(false), check_res(false) {
 
         response = "";
         head = "";
@@ -166,7 +166,6 @@ void    Response::open_file(Server_storage &server, std::string file)
 		size = fd_res.tellg();
 		fd_res.seekg(0, std::ios::beg);
       
-
 		if (!fd_res.is_open())
         {
             errPage(server, 403);
@@ -200,6 +199,7 @@ void Response::ft_sendResponse()
     }
     if (fd_res.eof())
     {
+
         std::cout << "end of file" << std::endl;
         clear_client = true;
     }
@@ -271,7 +271,10 @@ void   Response::init_response(Request &request , Server_storage &server)
     // std::cout << "status code = "<<get_status_code() << std::endl;
   //  if (get_status_code())
         // errPage(server,0);
-    locIt = locationMatch(server, request.getUrl());
+    // if (check_res == false){
+    //     check_res = true;
+        locIt = locationMatch(server, request.getUrl());
+    // }
     // if (locIt->getLocaPath() != "")
     //     std::cout << "------>> "<< locIt->getLocaPath() << std::endl;
     storage_int allowedMethods = locIt->getLocaAllowedMethods();

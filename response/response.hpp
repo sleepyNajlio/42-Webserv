@@ -29,7 +29,6 @@ class Response {
 
     bool clear_client;
     bool check_res;
-    int i ;
 
 
     Response();
@@ -46,7 +45,6 @@ class Response {
         if (this != &other) {
             check_res = other.check_res;
             clear_client = other.clear_client;
-            i = other.i;
             fd_sok = other.fd_sok;
             // Perform a deep copy of the class members
             status_code = other.status_code;
@@ -54,7 +52,7 @@ class Response {
             head = other.head;
             body = other.body;
             content_lenght = other.content_lenght;
-
+            std::cout << "fd_res_filename: " << other.fd_res_filename << std::endl; 
             fd_res_filename = other.fd_res_filename;
             fd_res.open(other.fd_res_filename, std::ios::in | std::ios::binary | std::ios::ate);
             fd_res << other.fd_res.rdbuf();

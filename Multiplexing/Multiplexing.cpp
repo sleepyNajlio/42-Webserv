@@ -103,7 +103,6 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                     clients[i].first.res.check_res = true;
                     clients[i].first.res.init_response(clients[i].first.req , clients[i].second);
                 }
-
                 clients[i].first.res.ft_sendResponse();
                 // ft_response(clients[i].first, clients[i].second);
                 // std::cout << "write" << std::endl;
@@ -118,20 +117,12 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                 // }
                 if(clients[i].first.res.clear_client)
                 {
-                    for (size_t i = 0; i < clients.size(); i++)
-                    {
-                        std::cout << "url ::"<<clients[i].first.req.getUrl()<< "      clients :::: clear client :: "<< clients[i].first.res.check_res << std::endl;
-                    }
                     std::cout << "clear client  url :::: "<< clients[i].first.req.getUrl() << std::endl;          
                     clients[i].first.res.fd_res.close();
                     FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
                     close(clients[i].first.get_fd());
                     clients.erase(clients.begin() + i);
                     //print vector clients
-                     for (size_t i = 0; i < clients.size(); i++)
-                    {
-                        std::cout << "url ::"<<clients[i].first.req.getUrl()<<"    clients :::: clear client :: "<< clients[i].first.res.check_res << std::endl;
-                    }
                     i--;
                 }
             }
