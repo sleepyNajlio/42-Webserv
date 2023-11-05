@@ -205,6 +205,16 @@ void Response::ft_sendResponse()
     }
 
 }
+std::string get_ex(std::string path)
+{
+        std::istringstream temp(path);
+		std::string name;
+        std::string ex;
+
+		std::getline(temp, name, '.');
+		temp >> ex;
+        return ex;
+}
 
 void    Response::ft_Get(Request &request, Server_storage &server)
 {
@@ -233,12 +243,9 @@ void    Response::ft_Get(Request &request, Server_storage &server)
     {
         std::cout << "file :::"<< file << std::endl;
         std::ifstream file1(file);
-		// if (!locIt->cgi_path.empty() && check_ext(file))
-		// {
-		// 	//exec_cgi(client, file);
-		// }
-		// else
-        if (file1.good())
+		if(get_ex(request.getUrl()) == "py" || get_ex(request.getUrl()) == "php")
+            Cgi cgi(request , file);
+        else if (file1.good())
         {
 			open_file(server,  file);
             std::cout << "file found"<< file << std::endl;
@@ -256,6 +263,14 @@ void    Response::ft_Get(Request &request, Server_storage &server)
     }
 }
 
+void	Response::ft_delete(Request &request,Server_storage &server )
+{
+    std::string path = "." + request.getUrl();
+	if (access(path.c_str(), W_OK) == -1)
+		errPage(server,403);
+    else if (std::remove(path.c_str()))
+        errPage(server,403);
+}
 
 void Response::ft_Post(Request &request)
 {
@@ -286,7 +301,7 @@ void   Response::init_response(Request &request , Server_storage &server)
         else if (request.getMethod() == "POST")
             ft_Post(request);
         else if (request.getMethod() == "DELETE")
-            std::cout << "DELETE" << std::endl;
+            ft_delete(request , server);
     }
     else
         std::cout << " method not allowed " << std::endl;

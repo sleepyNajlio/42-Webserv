@@ -11,9 +11,10 @@
 #include <string>
 #include "../request/request.hpp"
 #include "../Conf/incs/conf_parser.hpp"
+#include "../CGI/Cgi.hpp"
 #include <dirent.h>
 
-
+class Cgi;
 class Response {
     private:
         int status_code;
@@ -74,6 +75,7 @@ class Response {
 
             void        ft_Get(Request &request, Server_storage &server);
             void        ft_Post(Request &request);
+            void	    ft_delete(Request &request,Server_storage &server );
             void        listDir(std::string file, Request &request, Server_storage &server);
 
             std::map<int, std::string> status_code_map;
