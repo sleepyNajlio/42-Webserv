@@ -53,10 +53,12 @@ class Response {
             head = other.head;
             body = other.body;
             content_lenght = other.content_lenght;
-            std::cout << "fd_res_filename: " << other.fd_res_filename << std::endl; 
             fd_res_filename = other.fd_res_filename;
+            std::cout << "fd_res_filename: " << other.fd_res_filename << std::endl;
             fd_res.open(other.fd_res_filename, std::ios::in | std::ios::binary | std::ios::ate);
             fd_res << other.fd_res.rdbuf();
+            j = other.j;
+            contentTrack = other.contentTrack;
         }
         return *this;
     }
@@ -70,7 +72,8 @@ class Response {
             std::vector<Location_storage>::const_iterator locIt;
             int fd_sok;
             std::fstream fd_res;
-
+            ssize_t contentTrack;
+            ssize_t j;
 
 
             void        ft_Get(Request &request, Server_storage &server);

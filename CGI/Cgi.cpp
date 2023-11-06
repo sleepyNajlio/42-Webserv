@@ -124,12 +124,12 @@ int Cgi::execute_cgi(std::string filename)
             }
             usleep(10000);
         }
-          char buff[1024];
+          char buff[2048];
         int rbytes = 1;
         
         while (rbytes != 0)
         {
-            memset(buff, 0, 1024); 
+            memset(buff, 0, 2048); 
             
             rbytes = read(fd[0], buff, 1023);
             buff[rbytes] = 0;

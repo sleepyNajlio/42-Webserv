@@ -17,7 +17,7 @@ void Location_storage::init_location()
 	loca_index = "";
 	loca_redirect = "";
 	loca_alias = "";
-	loca_client_max_body_size = 1024; // change it //
+	loca_client_max_body_size = 2048; // change it //
 	loca_allowed_methods.push_back(0);
 	loca_allowed_methods.push_back(0);
 	loca_allowed_methods.push_back(0);

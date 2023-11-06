@@ -165,7 +165,7 @@ void    Response::open_file(Server_storage &server, std::string file)
 		fd_res.seekg(0, std::ios::end);
 		size = fd_res.tellg();
 		fd_res.seekg(0, std::ios::beg);
-      
+        contentTrack = size;
 		if (!fd_res.is_open())
         {
             errPage(server, 403);
@@ -187,19 +187,25 @@ void Response::ft_sendResponse()
 {
     char response[2048];
     fd_res.read(response, 2048);
-    if (fd_res.gcount())
+    size_t byt = fd_res.gcount();
+        std::cout << "I'm here -- jjj " << j << "----contentTrack>>>>>>" << contentTrack << std::endl;
+
+    if (byt)
     {
-        if (send(fd_sok, response, fd_res.gcount(), 0) <= 0)
+        std::cout << fd_res.gcount() << std::endl; 
+        // std::cout << "I'm heree before" << fd_res_filename << std::endl;
+        j += send(fd_sok, response, fd_res.gcount(), 0);
+        if (j <= 0 )
         {
             std::cout << "error send" << std::endl;
             clear_client = true;
             return;
         }
+        // std::cout << "I'm heree after" << fd_res_filename << std::endl;
         bzero(response, 2048);
     }
-    if (fd_res.eof())
+    if (j == contentTrack)
     {
-
         std::cout << "end of file" << std::endl;
         clear_client = true;
     }

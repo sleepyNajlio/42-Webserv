@@ -97,13 +97,15 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
             // check for write event
             if (FD_ISSET(clients[i].first.get_fd(), &io.tmpWriteSockets))
             {
+
                 clients[i].first.res.fd_sok = clients[i].first.get_fd();
                 if(!clients[i].first.res.check_res)
                 {
                     clients[i].first.res.check_res = true;
                     clients[i].first.res.init_response(clients[i].first.req , clients[i].second);
                 }
-                clients[i].first.res.ft_sendResponse();
+                if (!clients[i].first.res.clear_client)
+                    clients[i].first.res.ft_sendResponse();
                 // ft_response(clients[i].first, clients[i].second);
                 // std::cout << "write" << std::endl;
                 // const char* responseHeader = "HTTP/1.1 204 No Content\r\n\r\n";
@@ -115,14 +117,29 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                 //     close(clients[i].first.get_fd()); 
                 //     continue;
                 // }
+
                 if(clients[i].first.res.clear_client)
                 {
+                     for (size_t i = 0; i < clients.size(); i++)
+                    {
+                        std::cout << "-->" << clients[i].first.res.fd_res.width() << std::endl;
+                        std::cout << "clients[" << i << "].first.get_fd() = " << clients[i].first.get_fd() << std::endl;
+                    }
                     std::cout << "clear client  url :::: "<< clients[i].first.req.getUrl() << std::endl;          
                     clients[i].first.res.fd_res.close();
                     FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
                     close(clients[i].first.get_fd());
                     clients.erase(clients.begin() + i);
                     //print vector clients
+                   for (size_t i = 0; i < clients.size(); i++)
+                    {
+                        std::cout << "**-->" << clients[i].first.res.fd_res.width() << std::endl;
+                        std::cout << "clients[" << i << "].first.get_fd() = " << clients[i].first.get_fd() << std::endl;
+                        std::cout << "clients[" << i << "].first.get_fd() ===== PATH " << clients[i].first.req.getUrl()
+                         << std::endl;
+
+                    }
+
                     i--;
                 }
             }
