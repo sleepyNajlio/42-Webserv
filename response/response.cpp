@@ -186,44 +186,53 @@ void    Response::open_file(Server_storage &server, std::string file)
 		// }
 }
 
+void Response::ft_sendHeader()
+{
+    bytes_sent += send(fd_sok, this->head.c_str(), this->head.size(), 0);
+    this->head = "";
+    if (bytes_sent <= 0 )
+    {
+        std::cout << "error send" << std::endl;
+        clear_client = true;
+        return;
+    }
+}
 void Response::ft_sendResponse()
 {
-    char response[2048];
-    fd_res.read(response, 2048);
-    size_t byt = fd_res.gcount();
+     if(this->head.size() != 0)
+        ft_sendHeader();
+    
+    char buffer[2048];
+    fd_res.read(buffer, 2048);
+    size_t buffer_size = fd_res.gcount();
 
-    if (byt)
+    if (buffer_size)
     {
-        std::cout << "I'm here -- jjj " << j << "----contentTrack>>>>>>" << contentTrack  << std::endl;
-        // std::cout << "I'm heree before" << fd_res_filename << std::endl;
-        if(this->head.size() != 0)
+        std::cout << "---------->>>>>>bytes_sent = " << bytes_sent << "----contentTrack = " << contentTrack  << std::endl;
+        if(this->response.size() != 0)
         {
-             j += send(fd_sok, this->head.c_str(), this->head.size(), 0);
-             this->head = "";
-                std::cout << "sending head !" << std::endl;
-        }
-        else if(this->response.size() != 0)
-        {    j += send(fd_sok, this->response.c_str(), this->response.size(), 0);
-                this->response = "";
-                std::cout << " sending response  !" << std::endl;
-
+            bytes_sent += send(fd_sok, this->response.c_str(), this->response.size(), 0);
+            if (bytes_sent <= 0 )
+            {
+                std::cout << "error send" << std::endl;
+                clear_client = true;
+                return;
+            }
+            this->response = "";
         }
         else
-        {   j += send(fd_sok, response, fd_res.gcount(), 0);
-                std::cout << "sending response with fd" << std::endl;
-
-        }
-        std::cout << j << std::endl;
-        if (j < 0 )
         {
-            std::cout << "error send" << std::endl;
-            clear_client = true;
-            return;
+            bytes_sent += send(fd_sok, buffer, fd_res.gcount(), 0);
+            if (bytes_sent <= 0 )
+            {
+                std::cout << "error send" << std::endl;
+                clear_client = true;
+                return;
+            }
         }
-        // std::cout << "I'm heree after" << fd_res_filename << std::endl;
-        bzero(response, 2048);
+        bzero((buffer), 2048);
     }
-    if (j == contentTrack)
+    if (bytes_sent == contentTrack)
     {
         std::cout << "end of file" << std::endl;
         clear_client = true;
