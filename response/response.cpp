@@ -1,12 +1,14 @@
 #include "response.hpp"
 
 
-Response::Response() : status_code(0), content_lenght(0), clear_client(false), check_res(false) {
+Response::Response() : status_code(0), content_length(0), clear_client(false), check_res(false), j(0), contentTrack(0) {
 
         response = "";
         head = "";
         body = "";
         fd_res_filename = "";
+        writeDone = false;
+        fileIsOpen = false;
     }
 
 void Response::set_status_code(int status_code)
@@ -27,6 +29,74 @@ std::string  Response::get_response()
 void Response::set_response(std::string data)
 {
     this->response = data ;
+}
+
+
+bool Response::isWriteDone()
+{
+    return writeDone;
+}
+
+void Response::setWriteDone(bool writeDone)
+{
+    this->writeDone = writeDone;
+}
+
+void Response::setFd_res_filename(std::string filename)
+{
+    this->fd_res_filename = filename;
+}
+
+std::string Response::getFd_res_filename() const
+{
+    return this->fd_res_filename;
+}
+
+
+bool Response::isWriteDone()
+{
+    return writeDone;
+}
+
+void Response::setWriteDone(bool writeDone)
+{
+    this->writeDone = writeDone;
+}
+
+void Response::setFileIsOpen(bool fileIsOpen)
+{
+    this->fileIsOpen = fileIsOpen;
+}
+
+bool Response::getFileIsOpen() const
+{
+    return this->fileIsOpen;
+}
+
+void Response::setContentType(std::string file)
+{
+    this->contentType = get_content_type(file);
+}
+
+// void Response::setResFd(int fd)
+// {
+//     this->res_fd = fd;
+// }
+
+// int Response::getResFd() const
+// {
+//     return this->res_fd;
+// }
+
+void Response::setHead()
+{
+    this->head = "HTTP/1.1 " + std::to_string(get_status_code()) +  "\r\nContent-Type: " + getContentType() + "\r\nContent-Length: " 
+            + std::to_string(content_length) + "\r\n\r\n" ;
+}
+
+std::string Response::getHead() const
+{
+    return this->head;
 }
 
 Response::~Response() {}
@@ -163,6 +233,7 @@ void    Response::open_file(Server_storage &server, std::string file)
     this->fd_res_filename = file;
         fd_res.open(file, std::ios::in | std::ios::binary | std::ios::ate);
 		fd_res.seekg(0, std::ios::end);
+        setContentLength(fd_res.tellg());
 		size = fd_res.tellg();
 		fd_res.seekg(0, std::ios::beg);
         contentTrack = size;
@@ -171,16 +242,22 @@ void    Response::open_file(Server_storage &server, std::string file)
             errPage(server, 403);
             return;
         }
-		header = "HTTP/1.1 200 OK\r\n"
-						"Connection: close\r\n"
-						"Content-Type: " +
-						get_content_type(file) + "\r\n"
-												 "Content-Length: " +
-						ft_to_string(size) + "\r\n\r\n";
-		if (send(fd_sok, header.c_str(), header.size(), 0) <= 0)
-		{
-			return;
-		}
+        set_status_code(200);
+        setContentType(file);
+        setHead();
+        std::cout << "head = " << head << std::endl;
+        std::cout << "content_length = " << content_length << std::endl;
+        setFileIsOpen(true);
+		// header = "HTTP/1.1 200 OK\r\n"
+		// 				"Connection: close\r\n"
+		// 				"Content-Type: " +
+		// 				get_content_type(file) + "\r\n"
+		// 										 "Content-Length: " +
+		// 				ft_to_string(size) + "\r\n\r\n";
+		// if (send(fd_sok, header.c_str(), header.size(), 0) <= 0)
+		// {
+		// 	return;
+		// }
 }
 
 void Response::ft_sendResponse()
@@ -188,13 +265,16 @@ void Response::ft_sendResponse()
     char response[2048];
     fd_res.read(response, 2048);
     size_t byt = fd_res.gcount();
-        std::cout << "I'm here -- jjj " << j << "----contentTrack>>>>>>" << contentTrack << std::endl;
-
-    if (byt)
+    std::cout << "byt " << byt << std::endl;
+    size_t btsRead = send(fd_sok, response, fd_res.gcount(), 0);
+        // std::cout << "I'm here -- jjj " << j << "----contentTrack>>>>>>" << contentTrack << std::endl;
+    std::cout << "send() : " << btsRead << std::endl;
+    if (btsRead)
     {
         std::cout << fd_res.gcount() << std::endl; 
         // std::cout << "I'm heree before" << fd_res_filename << std::endl;
-        j += send(fd_sok, response, fd_res.gcount(), 0);
+        j += btsRead;
+        std::cout << " jjjj : " << j < 
         if (j <= 0 )
         {
             std::cout << "error send" << std::endl;
@@ -204,7 +284,7 @@ void Response::ft_sendResponse()
         // std::cout << "I'm heree after" << fd_res_filename << std::endl;
         bzero(response, 2048);
     }
-    if (j == contentTrack)
+    else
     {
         std::cout << "end of file" << std::endl;
         clear_client = true;
@@ -253,6 +333,7 @@ void    Response::ft_Get(Request &request, Server_storage &server)
             Cgi cgi(request , file);
         else if (file1.good())
         {
+            setFd_res_filename(file);
 			open_file(server,  file);
             std::cout << "file found"<< file << std::endl;
         }
@@ -330,3 +411,4 @@ void   Response::init_response(Request &request , Server_storage &server)
 
     // }
 }
+

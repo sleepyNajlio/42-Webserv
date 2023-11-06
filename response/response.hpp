@@ -21,9 +21,13 @@ class Response {
         std::string response;
         std::string head;
         std::string body;
-        size_t       content_lenght;
-    std::string fd_res_filename;  // To store the filename associated with fd_res
-    // std::fstream fd_res;
+        size_t       content_length;
+        std::string fd_res_filename;  // To store the filename associated with fd_res
+        // std::fstream fd_res;
+        std::string contentType;
+        bool writeDone;
+        bool fileIsOpen;
+        // int res_fd;
 
 
     public:
@@ -52,7 +56,7 @@ class Response {
             response = other.response;
             head = other.head;
             body = other.body;
-            content_lenght = other.content_lenght;
+            content_length = other.content_length;
             fd_res_filename = other.fd_res_filename;
             std::cout << "fd_res_filename: " << other.fd_res_filename << std::endl;
             fd_res.open(other.fd_res_filename, std::ios::in | std::ios::binary | std::ios::ate);
@@ -63,6 +67,26 @@ class Response {
         return *this;
     }
 
+            // void setResFd(int fd);
+            // int getResFd() const;
+            void       setContentType(std::string file);
+            std::string getContentType() const;
+
+            void        setContentLength(size_t content_length);
+            size_t      getContentLength() const;
+
+            void       setHead();
+            std::string getHead() const;
+
+            void       setFileIsOpen(bool fileIsOpen);
+            bool       getFileIsOpen() const;
+
+            void        setFd_res_filename(std::string filename);
+            std::string getFd_res_filename() const;
+
+            bool        isWriteDone();
+            void        setWriteDone(bool writeDone);
+
             void        set_status_code(int status_code);
             void        set_response(std::string data);
 
@@ -72,8 +96,8 @@ class Response {
             std::vector<Location_storage>::const_iterator locIt;
             int fd_sok;
             std::fstream fd_res;
-            ssize_t contentTrack;
-            ssize_t j;
+            size_t contentTrack;
+            size_t j;
 
 
             void        ft_Get(Request &request, Server_storage &server);

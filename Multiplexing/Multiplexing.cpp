@@ -17,10 +17,19 @@ ioSets Multiplexing::getIoSets() const
     return io;
 }
 
+void Multiplexing::WriteData(std::pair < Client , Server_storage > &client)
+{
+    char buffer[2048];
+    bzero(buffer, 2048);
+    if (!client.first.res.getFileIsOpen())
+    {
+        client.first.res.open_file(client.second, client.first.res.getFd_res_filename());
+    }
+
+}
 
 
-
-void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage > > _server)
+void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage > > &_server)
 {
     for ( std::vector<std::pair <Socket , Server_storage > >::iterator it = _server.begin(); it != _server.end(); ++it)
     {
@@ -98,14 +107,27 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
             if (FD_ISSET(clients[i].first.get_fd(), &io.tmpWriteSockets))
             {
 
-                clients[i].first.res.fd_sok = clients[i].first.get_fd();
-                if(!clients[i].first.res.check_res)
-                {
-                    clients[i].first.res.check_res = true;
+                if (clients[i].first.res.get_status_code() == 0)
                     clients[i].first.res.init_response(clients[i].first.req , clients[i].second);
+                WriteData(&clients[i]);
+                if (clients[i].first.res.isWriteDone())
+                {
+                    std::cout << "write done" << std::endl;
+                    FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
+                    // if (clients[i].first.res.get_fd() > 0)
+                    //     close(clients[i].first.res.get_fd());
+                    clients.erase(clients.begin() + i);
+                    i--;
                 }
-                if (!clients[i].first.res.clear_client)
-                    clients[i].first.res.ft_sendResponse();
+
+                // clients[i].first.res.fd_sok = clients[i].first.get_fd();
+                // if(!clients[i].first.res.check_res)
+                // {
+                //     clients[i].first.res.check_res = true;
+                //     clients[i].first.res.init_response(clients[i].first.req , clients[i].second);
+                // }
+                // if (!clients[i].first.res.clear_client)
+                //     clients[i].first.res.ft_sendResponse();
                 // ft_response(clients[i].first, clients[i].second);
                 // std::cout << "write" << std::endl;
                 // const char* responseHeader = "HTTP/1.1 204 No Content\r\n\r\n";
