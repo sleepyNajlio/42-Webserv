@@ -22,6 +22,7 @@ class Cgi
     private :
         Request                             req;
 		const std::string 					path;
+        std::string                         name;
         std::map<std::string, std::string>  env;
         int                                 status;
         std::string                       response;

@@ -21,10 +21,8 @@ void parseServer(int argc, char **argv, Conf_parser &_parser)
 
             _file = _config.read_conf();
 
-            // std::cout << "File: " << _file << std::endl;
             if (_file.empty())
                 throw Conf_reader::InvalidFileException();
-            // Conf_parser _parser;
             _parser.store_server(_file);
             // now we have our servers block stored in block_conf storage //
             return;

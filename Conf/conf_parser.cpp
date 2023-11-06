@@ -247,8 +247,8 @@ void Conf_parser::Server_creator(std::string &config, Server_storage &server)
 		server.setHost("localhost;");
 	if (server.getIndex().empty())
 		server.setIndex("index.html;");
-	// if (Conf_reader::permValidFile(server.getRoot(), server.getIndex()))
-	// 	throw Server_storage::ExceptionMsg("Invalid configuration file index");
+	if (Conf_reader::permValidFile(server.getRoot(), server.getIndex()))
+		throw Server_storage::ExceptionMsg("Invalid configuration file index");
 	if (server.isLocaDup())
 		throw Server_storage::ExceptionMsg("Duplicated location");
 	if (!server.getPort())

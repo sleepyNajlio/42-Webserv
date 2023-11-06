@@ -9,7 +9,7 @@ std::string    getValue(std::map<std::string, std::string>& headers, const std::
 
 Cgi::Cgi(Request req, const std::string path) : req(req), path(path), status(0)
 {
-    
+    getEnv();
     execute_cgi(path);
 }
 
@@ -56,12 +56,25 @@ char    **Cgi::getEnv()
 
 }
 
+std::string get_name(std::string filename)
+{
+    std::istringstream temp(filename);
+    std::string name;
+
+    while(std::getline(temp, name, '/'))
+    {
+        std::cout << name << std::endl;
+    }
+    return name;
+}
 int Cgi::execute_cgi(std::string filename)
 {
     int pid;
     int fd[2];
 
-    std::cout << filename << std::endl;;
+    std::cout << " filename = " <<  filename << std::endl;
+    this->name = get_name(filename);
+    //std::cout << this->filename << std::endl;
     if (pipe(fd) == -1)
     {
         std::cerr << "failed piping" << std::endl;
@@ -77,7 +90,8 @@ int Cgi::execute_cgi(std::string filename)
         char    **env = getEnv();
         int fdin = open(filename.c_str(), O_RDONLY);
        const char *t = "python-cgi";
-       const char *to = "/goinfre/wlahyani/Webserv/root/hello.py";
+       //std::string tmp = 
+       const char *to = filename.c_str(); //"/goinfre/wlahyani/Webserv/root/hello.py";
         
         char const *cmd[] = {  t , to  ,(char *)0  } ;
        
@@ -87,7 +101,7 @@ int Cgi::execute_cgi(std::string filename)
 		dup2(fdin, 0);
         dup2(fd[1], 1);
         close(fd[1]);
-        execve("/Users/wlahyani/goinfre/Webserv/cgi-bin/python-cgi",(char *const *) cmd, env);
+        execve("./cgi-bin/python-cgi",(char *const *) cmd, env);
         std::cerr << strerror(errno) << std::endl;
         exit(EXIT_FAILURE);
        
@@ -110,12 +124,12 @@ int Cgi::execute_cgi(std::string filename)
             }
             usleep(10000);
         }
-          char buff[1024];
+          char buff[2048];
         int rbytes = 1;
         
         while (rbytes != 0)
         {
-            memset(buff, 0, 1024); 
+            memset(buff, 0, 2048); 
             
             rbytes = read(fd[0], buff, 1023);
             buff[rbytes] = 0;
@@ -130,4 +144,4 @@ int Cgi::execute_cgi(std::string filename)
 }
 
 
-const std::string& Cgi::getCgiResponse() const { return response; }
+//const std::string& Cgi::getCgiResponse() const { return response; }

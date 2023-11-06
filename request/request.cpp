@@ -1,6 +1,7 @@
 #include "request.hpp"
 
-char* generateRandomString() {
+
+std::string generateRandomString() {
     const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     int length = 5 + std::rand() % (30 - 5 + 1);
 
@@ -34,7 +35,7 @@ void Request::pLine(std::string line)
         throw std::invalid_argument("400 Bad Request 1");
     stream >> chk;
     if (!chk.empty())
-        throw std::invalid_argument("400 Bad Request 1");
+        throw std::invalid_argument("400");
     if (method != "GET" && method != "POST" && method != "DELETE")
         throw std::invalid_argument("501 Not Implemented");
     // request path should only include these "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~:/?#[]@!$&'()*+,;=%" = 400 bad request
@@ -44,15 +45,17 @@ void Request::pLine(std::string line)
         throw std::invalid_argument("414 Request-URI Too Long");
     else if (httpVersion != "HTTP/1.1")
         throw std::invalid_argument("505 HTTP Version Not Supported");
-     // open a random file and write the body in it
+     // open THE POSTED FILE and write the body in it
     if (this->method == "POST")
     {
-        std::cout << "post" << std::endl;
-        char *tempFile = generateRandomString();
-        this->body= open(tempFile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        this->randomstr = "./cash/" + generateRandomString();
+        this->body = open(this->randomstr.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (this->body == -1)
             throw std::invalid_argument("Unable to open file ");
+        else
+            std::cout << "file successfully uploaded!"<< std::endl;
     }
+
 }
 
 void searchThrow(std::string &out, std::string &line, std::string const &search)
@@ -62,9 +65,8 @@ void searchThrow(std::string &out, std::string &line, std::string const &search)
         out = line.substr(0, pos);
         line = line.substr(pos + search.length(), line.length() - 1);
     } else
-        throw std::invalid_argument("400 1");
+        throw std::invalid_argument("400");
 }
-
 
 void Request::pHeaders(std::stringstream& stream) 
 {
@@ -72,39 +74,43 @@ void Request::pHeaders(std::stringstream& stream)
     std::string line;
     std::string key;
     std::string value;
-    
+    bool        flag = true;
     while(std::getline(stream, line) && line != "\r")
     {
         key.clear();
         value.clear();
         searchThrow(key, line, ": ");
         searchThrow(value, line, "\r");
+        if(flag)
+        {
+            this->filename = value;
+            flag = false;
+        }
         if (key == "Content-Length") 
         {
             if (value.empty())
                 throw std::invalid_argument("411");
             if (value.find_first_not_of("0123456789") != std::string::npos)
-                throw std::invalid_argument("400 2");
+                throw std::invalid_argument("400");
         } else if (key == "Transfer-Encoding") {
             if (value.empty())
-                throw std::invalid_argument("400 3");
+                throw std::invalid_argument("400");
             else if (value != "chunked") {
                 throw std::invalid_argument("501");
             }
         } else if (key == "Content-Type") {
             if (value.empty())
-                throw std::invalid_argument("400 4");
+                throw std::invalid_argument("400");
         }
         headers.insert(std::make_pair(key, value));
     }
     if (headers.find("Host") == this->headers.end())
-        throw std::invalid_argument("400 5");
-    // if (method == "POST" && (this->headers.find("Content-Length") == this->headers.end() && this->headers.find("Transfer-Encoding") == this->headers.end()))
-    //         throw std::invalid_argument("411");
+        throw std::invalid_argument("400");
+    if (method == "POST" && (this->headers.find("Content-Length") == this->headers.end() && this->headers.find("Transfer-Encoding") == this->headers.end()))
+            throw std::invalid_argument("411");
 
-    // if (method == "GET" && (this->headers.find("Content-Length") !=
-    // this->headers.end() || this->headers.find("Transfer-Encoding") != this->headers.end()))
-    //     throw std::invalid_argument("400 6");
+    // if (method == "GET" && (this->headers.find("Content-Length") != this->headers.end() || this->headers.find("Transfer-Encoding") != this->headers.end()))
+    //     throw std::invalid_argument("400");
 
     // for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
     // {
@@ -137,7 +143,6 @@ void Request::reader(unsigned char *buffer, size_t bytesRead)
             // std::cout << buffer[newBuffer - buffer - 1] << std::endl;
             buffer[newBuffer - buffer - 1] = '\0';
             this->headerString += (char *)buffer;
-
         }
         else
         {
@@ -146,24 +151,25 @@ void Request::reader(unsigned char *buffer, size_t bytesRead)
         }
         this->headerString += "\n";
         this->parse_headers(this->headerString);
+
+        std::cout << "header done" << std::endl;
         if (newBuffer)
             frstprtbod = true;
         this->headerDone = true;
 
     }
-      
-    // if (this->headerDone == true && this->method == "POST")
-    // {
-    //     // get the beginning of the body
-
-    //     unsigned int len = bytesRead;
-    //     if (frstprtbod)
-    //         len = len - (newBuffer - buffer);
-    //     // std::cout << "starting body"<< std::endl;
-    //     this->parse_body(newBuffer, len);
+    if (this->headerDone == true && this->method == "POST")
+    {
+        // get the beginning of the body
+        unsigned int len = bytesRead;
+        if (frstprtbod)
+            len = len - (newBuffer - buffer);
+         std::cout << "starting body"<< std::endl;
+        this->parse_body(newBuffer, len);
+         std::cout << this->getBody() << std::endl;
          
-    // }
-    // else if (this->headerDone == true && this->method != "POST")
+    }
+    else if (this->headerDone == true && this->method != "POST")
     {
         this->readDone = true;
         std::cout << "done" << std::endl;
@@ -235,16 +241,58 @@ void Request::parse_body(unsigned char *buffer, size_t bytesRead)
 
 }
 
+bool verif_chunk(unsigned char *buffer)
+{
+    std::string firstLine(reinterpret_cast<char*>(buffer));
+    std::size_t pos = firstLine.find("\r\n");
+    std::string hexNum = firstLine.substr(0, pos);
+
+    if (pos != std::string::npos) 
+    {
+        for (std::string::iterator it = hexNum.begin(); it != hexNum.end(); ++it) {
+            if (!std::isxdigit(*it)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
 void test_chunk(unsigned char *buffer, size_t bytesRead, bool &readDone, int body)
 {
     if (memmem(buffer, bytesRead, "0\r\n\r\n", 5) == NULL)
     {
-        if (write(body, buffer, bytesRead) == -1 )
-            throw std::runtime_error("Writing to file failed 3");
+        if (memmem(buffer, bytesRead, "\r\n", 2) != NULL && verif_chunk((unsigned char *) memmem(buffer, bytesRead, "\r\n", 2) + 2))
+        {
+            std::cout << "here" << std::endl;
+            int first = (unsigned char *)memmem(buffer, bytesRead, "\r\n", 2) - buffer;
+            int second = bytesRead - first;
+            write(body, buffer, first);
+            buffer = (unsigned char *)memmem(buffer, bytesRead, "\r\n", 2) + 2;
+            second = second - ((unsigned char *)memmem(buffer, second, "\r\n", 2) + 2 - buffer);
+            // now buffer starts with the chunk size
+            buffer = (unsigned char *)memmem(buffer, second, "\r\n", 2) + 2;
+            // now buffer starts with the chunk
+            // int second = &buffer[bytesRead - 1] - buffer;
+            write(body, buffer, second - 2);
+
+        }
+        else
+        {
+            if (verif_chunk(buffer))
+            {
+                bytesRead = bytesRead - ((unsigned char *)memmem(buffer, bytesRead, "\r\n", 2) + 2 - buffer);
+                buffer = (unsigned char *)memmem(buffer, bytesRead, "\r\n", 2) + 2;
+            }   
+            if (write(body, buffer, bytesRead) == -1 )
+                throw std::runtime_error("Writing to file failed 3");
+        } 
     }
     else
     {
         std::cout << "akhir buffer" << std::endl;
+        bytesRead = bytesRead - sizeof("\r\n0\r\n\r\n") + 1;
         if (write(body, buffer, bytesRead) == -1 )
             throw std::runtime_error("Writing to file failed 4");
         std::cout << "done" << std::endl;
@@ -255,7 +303,7 @@ void test_chunk(unsigned char *buffer, size_t bytesRead, bool &readDone, int bod
 
 bool Request::handleChunked(unsigned char *buffer, size_t bytesRead)
 {
-    std::ofstream file("terminal");
+    std::ofstream file("terminal", std::ios::app);
     file <<"buffer handleChunked: " << buffer << std::endl;
     // std::cout << "here 1 chunkSize: " << chunkSize << std::endl;
     test_chunk(buffer, bytesRead, readDone, body);
