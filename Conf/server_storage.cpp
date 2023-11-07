@@ -6,7 +6,7 @@ Server_storage::Server_storage()
 	this->_host = 0;
 	this->_server_name = "";
 	this->_root = "";
-	this->_client_max_body_size = 1024; // to change it;
+	this->_client_max_body_size = 2048; // to change it;
 	this->_index = "";
 	this->_listen_fd = 0;
 	this->_autoindex = false;
@@ -103,8 +103,8 @@ void Server_storage::setRoot(std::string root_path)
 		this->_root = root_path;
 		return ;
 	}
-	char currentdir[1024];
-	getcwd(currentdir, 1024);
+	char currentdir[2048];
+	getcwd(currentdir, 2048);
 	std::string root = currentdir + root_path;
 	if (Conf_reader::identifyPath(root) != 2)
 		throw ExceptionMsg("Invalid root");

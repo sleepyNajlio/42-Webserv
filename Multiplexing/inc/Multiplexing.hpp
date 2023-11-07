@@ -40,11 +40,26 @@ class Multiplexing {
     public:
         Multiplexing();
         ~Multiplexing();
+        //copy constructor
+        Multiplexing(const Multiplexing& other) {
+            // Perform a deep copy of the class members
+            *this = other;
+        }
+        // Copy assignment operator to handle assignment correctly
+        Multiplexing& operator=(const Multiplexing& other) {
+            if (this != &other) {
+                // Perform a deep copy of the class members
+                io = other.io;
+                maxFd = other.maxFd;
+                clients = other.clients;
+            }
+            return *this;
+        }
 
         struct ioSets getIoSets() const;
         void setupServer(std::vector <std::pair <Socket , Server_storage > > _server);
         void handleNewConnection(Socket& serverSocket, Server_storage server);
        
 };
-void    ft_response(Client client, Server_storage Serv);
+
 

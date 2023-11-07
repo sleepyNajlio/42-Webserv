@@ -1,6 +1,7 @@
 #include "request.hpp"
 
-char* generateRandomString() {
+
+std::string generateRandomString() {
     const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     int length = 5 + std::rand() % (30 - 5 + 1);
 
@@ -44,15 +45,17 @@ void Request::pLine(std::string line)
         throw std::invalid_argument("414 Request-URI Too Long");
     else if (httpVersion != "HTTP/1.1")
         throw std::invalid_argument("505 HTTP Version Not Supported");
-     // open a random file and write the body in it
+     // open THE POSTED FILE and write the body in it
     if (this->method == "POST")
     {
-        std::cout << "post" << std::endl;
-        char *tempFile = generateRandomString();
-        this->body= open(tempFile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        this->randomstr = "./cash/" + generateRandomString();
+        this->body = open(this->randomstr.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (this->body == -1)
             throw std::invalid_argument("Unable to open file ");
+        else
+            std::cout << "file successfully uploaded!"<< std::endl;
     }
+
 }
 
 void searchThrow(std::string &out, std::string &line, std::string const &search)
@@ -71,13 +74,18 @@ void Request::pHeaders(std::stringstream& stream)
     std::string line;
     std::string key;
     std::string value;
-    
+    bool        flag = true;
     while(std::getline(stream, line) && line != "\r")
     {
         key.clear();
         value.clear();
         searchThrow(key, line, ": ");
         searchThrow(value, line, "\r");
+        if(flag)
+        {
+            this->filename = value;
+            flag = false;
+        }
         if (key == "Content-Length") 
         {
             if (value.empty())
@@ -135,7 +143,6 @@ void Request::reader(unsigned char *buffer, size_t bytesRead)
             // std::cout << buffer[newBuffer - buffer - 1] << std::endl;
             buffer[newBuffer - buffer - 1] = '\0';
             this->headerString += (char *)buffer;
-
         }
         else
         {
@@ -157,8 +164,9 @@ void Request::reader(unsigned char *buffer, size_t bytesRead)
         unsigned int len = bytesRead;
         if (frstprtbod)
             len = len - (newBuffer - buffer);
-        // std::cout << "starting body"<< std::endl;
+         std::cout << "starting body"<< std::endl;
         this->parse_body(newBuffer, len);
+         std::cout << this->getBody() << std::endl;
          
     }
     else if (this->headerDone == true && this->method != "POST")

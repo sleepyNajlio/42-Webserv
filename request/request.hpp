@@ -23,12 +23,17 @@ class Request{
         bool isChunked;
         size_t bytesSent;
         size_t contentLength;
+        std::string ContentType;
+        std::string filename ;
+        std::string randomstr;
         // std::string body;
         int body;
         int chunkSize;
 
     public:
         Request();
+        Request(const Request& other);
+        Request& operator=(const Request& other);
         void setHeaderDone(bool done);
         void setReadDone(bool done);
         void setMethod(const std::string& methode);
@@ -50,7 +55,8 @@ class Request{
         std::string gethttpVersion() const;
         std::string getLocationPath() const;
         std::string getServerName() const;
-        int getChunkSize() const;
+        int         getChunkSize() const;
+        std::string getRandomStr() const;
 
 
         // int body;

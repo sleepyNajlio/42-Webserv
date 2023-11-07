@@ -18,6 +18,8 @@ ioSets Multiplexing::getIoSets() const
 }
 
 
+
+
 void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage > > _server)
 {
     for ( std::vector<std::pair <Socket , Server_storage > >::iterator it = _server.begin(); it != _server.end(); ++it)
@@ -73,6 +75,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                 }
                 else {
                     buffer[bytesRead] = '\0';
+                    std::cout << "Received: " << buffer << std::endl;
                     // buffer is ready for parse here
                     try{
                         clients[i].first.req.reader(buffer, bytesRead);
@@ -94,23 +97,51 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
             // check for write event
             if (FD_ISSET(clients[i].first.get_fd(), &io.tmpWriteSockets))
             {
-                // std::cout << "socket "<<clients[i].first.get_fd() << std::endl;
-                clients[i].first.res.init_response(clients[i].first.req , clients[i].second);
+
+                clients[i].first.res.fd_sok = clients[i].first.get_fd();
+                if(!clients[i].first.res.check_res)
+                {
+                    clients[i].first.res.check_res = true;
+                    clients[i].first.res.init_response(clients[i].first.req , clients[i].second);
+                }
+                if (!clients[i].first.res.clear_client)
+                    clients[i].first.res.ft_sendResponse();
                 // ft_response(clients[i].first, clients[i].second);
                 // std::cout << "write" << std::endl;
                 // const char* responseHeader = "HTTP/1.1 204 No Content\r\n\r\n";
-                // ssize_t bytesSent = send(clients[i].first.get_fd(), responseHeader, strlen(responseHeader), 0);
-                // if (bytesSent == -1) {
+                // std::string response = clients[i].first.res.get_response();
+                // if (send(clients[i].first.get_fd(), response.c_str() , response.size(), 0) < 1 )
+                // {
                 //     perror("Sending response header failed");
                 //     FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
-                //     close(clients[i].first.get_fd());
+                //     close(clients[i].first.get_fd()); 
                 //     continue;
                 // }
-                // std::cout << "sent" << std::endl;
-                FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
-                close(clients[i].first.get_fd());
-                clients.erase(clients.begin() + i);
-                i--;
+
+                if(clients[i].first.res.clear_client)
+                {
+                    std::cout << "clear client  url :::: "<< clients[i].first.req.getUrl() << std::endl;          
+                     for (size_t i = 0; i < clients.size(); i++)
+                    {
+                        std::cout << "-->" << clients[i].first.res.fd_res.width() << std::endl;
+                        std::cout << "clients[" << i << "].first.get_fd() = " << clients[i].first.get_fd() << std::endl;
+                    }
+                    clients[i].first.res.fd_res.close();
+                    FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
+                    close(clients[i].first.get_fd());
+                    clients.erase(clients.begin() + i);
+                    //print vector clients
+                   for (size_t i = 0; i < clients.size(); i++)
+                    {
+                        std::cout << "**-->" << clients[i].first.res.fd_res.width() << std::endl;
+                        std::cout << "clients[" << i << "].first.get_fd() = " << clients[i].first.get_fd() << std::endl;
+                        std::cout << "clients[" << i << "].first.get_fd() ===== PATH " << clients[i].first.req.getUrl()
+                         << std::endl;
+
+                    }
+
+                    i--;
+                }
             }
         }
     }
@@ -121,11 +152,17 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
 void Multiplexing::handleNewConnection(Socket& serverSocket, Server_storage server)
 {
     Client client;
+
+
+    client.res.clear_client = false;
+    client.res.check_res = false;
+    //client.res.i = 0;
     // std::cout << client.req.getChunkSize() << std::endl;
     struct sockaddr_in address = serverSocket.get_address();
     socklen_t clientAddrLen = sizeof(address);
     int clientSocket = accept(serverSocket.get_fd(), (struct sockaddr *)&address, &clientAddrLen);
     client.set_fd(clientSocket);
+    std::cout << "handleNewConnection\n" << client.get_fd() << " ----->\n " << client.req.getUrl()<< "===>\n" << client.res.check_res << std::endl;
     if (clientSocket == -1)
     {
         perror("Accepting connection failed");
@@ -133,11 +170,10 @@ void Multiplexing::handleNewConnection(Socket& serverSocket, Server_storage serv
     else
     {
         FD_SET(clientSocket, &io.readSockets);
-        client.res.set_client_fd(clientSocket);
         this->clients.push_back(std::make_pair(client, server));
         maxFd = std::max(maxFd, clientSocket);
-        std::cout << "Accepted client connection from " << inet_ntoa(client.get_address().sin_addr) << std::endl;
-        std::cout << clients.size() << std::endl;
+        // std::cout << "Accepted client connection from " << inet_ntoa(client.get_address().sin_addr) << std::endl;
+        // std::cout << clients.size() << std::endl;
     }
 }
 
