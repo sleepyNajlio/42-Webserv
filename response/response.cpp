@@ -4,8 +4,8 @@
 Response::Response() : status_code(0), content_lenght(0), clear_client(false), check_res(false) , contentTrack(0) , bytes_sent(0){
 
         response = "";
-        head = "";
-        body = "";
+        head    = "";
+        body    = "";
         fd_res_filename = "";
     }
 
@@ -90,7 +90,7 @@ void Response::errPage(Server_storage server ,int code)
     if (errors.find(code) != errors.end())
 	{
         path = errors.find(code)->second;
-          this->fd_res_filename = path;
+        this->fd_res_filename = path;
         std::cout << "path = " << path << std::endl;
         fd_res.open(path, std::ios::in | std::ios::binary | std::ios::ate);
         fd_res.seekg(0, std::ios::end);
@@ -98,12 +98,9 @@ void Response::errPage(Server_storage server ,int code)
         fd_res.seekg(0, std::ios::beg);
         if (fd_res.is_open())
 		{
-            
             this->head = "HTTP/1.1 " + std::to_string(code) +  "\r\nContent-Type: text/html\r\nContent-Length: " 
             + std::to_string(content_length) + "\r\n\r\n" ;
-            this->response = this->head;
-          //  send(fd_sok, this->head.c_str() ,this->head.size(), 0);
-
+            // this->response = this->head;
         }
         else
             generateErrorPage(code);
@@ -111,8 +108,6 @@ void Response::errPage(Server_storage server ,int code)
 	}
     else
         generateErrorPage(302);
-
-    // if the error page is not found we should generate one
 }
 
 void Response::listDir(std::string file, Request &request, Server_storage &server)
@@ -136,25 +131,19 @@ void Response::listDir(std::string file, Request &request, Server_storage &serve
 			output.append("</a></li>");
 		}
 		closedir(dir);
-	output.append("</ul></body></html>");
-	std::string header = "HTTP/1.1 200 OK\r\n"
-					"Connection: close\r\n"
-					"Content-Type: "
-					"text/html\r\n"
-					"Content-Length: " +
-					ft_to_string(output.size()) +
-					"\r\n\r\n";
+	    output.append("</ul></body></html>");
+	    std::string header = "HTTP/1.1 200 OK\r\n"
+					         "Connection: close\r\n"
+					         "Content-Type: "
+					         "text/html\r\n"
+					         "Content-Length: " +
+					         ft_to_string(output.size()) +
+					         "\r\n\r\n";
         this->response = header + output;  
-		// if (send(fd_sok, header.c_str(), header.size(), 0) <= 0)
-		// 	return;
-		// if (send(fd_sok, output.c_str(), output.length(), 0) <= 0)
-		// 	return;
         clear_client = true;
 	}
 	else
-	{
         errPage(server,403);
-	}
 }
 
 void    Response::open_file(Server_storage &server, std::string file)
@@ -162,93 +151,29 @@ void    Response::open_file(Server_storage &server, std::string file)
     size_t size;
     std::string header;
     this->fd_res_filename = file;
-        fd_res.open(file, std::ios::in | std::ios::binary | std::ios::ate);
-		fd_res.seekg(0, std::ios::end);
-		size = fd_res.tellg();
-        std::cout << "----->size = " << size << std::endl;
-		fd_res.seekg(0, std::ios::beg);
-     //   contentTrack = size;
-		if (!fd_res.is_open())
-        {
-            errPage(server, 403);
-            return;
-        }
-		this->head = "HTTP/1.1 200 OK\r\n"
-						"Connection: close\r\n"
-						"Content-Type: " +
-						get_content_type(file) + "\r\n"
-												 "Content-Length: " +
-						ft_to_string(size) + "\r\n\r\n";
-          contentTrack = size + this->head.size();
-        // if (send(fd_sok, header.c_str(), header.size(), 0) <= 0)
-		// {
-		// 	return;
-		// }
-}
-
-void Response::ft_sendHeader()
-{
-    bytes_sent += send(fd_sok, this->head.c_str(), this->head.size(), 0) ;
-    if(bytes_sent < 0)
+    fd_res.open(file, std::ios::in | std::ios::binary | std::ios::ate);
+	fd_res.seekg(0, std::ios::end);
+	size = fd_res.tellg();
+    std::cout << "----->size = " << size << std::endl;
+	fd_res.seekg(0, std::ios::beg);
+	if (!fd_res.is_open())
     {
-        std::cout << "error send" << std::endl;
-        clear_client = true;
+        errPage(server, 403);
         return;
     }
-    this->head = "";
+	this->head = "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: " +
+					get_content_type(file) + "\r\nContent-Length: " + ft_to_string(size) + "\r\n\r\n";
+    contentTrack = size + this->head.size();
 }
-void Response::ft_sendResponse()
-{
-     if(this->head.size() != 0)
-        ft_sendHeader();
-    
-    char buffer[2048];
-    fd_res.read(buffer, 2048);
-    size_t buffer_size = fd_res.gcount();
 
-    if (buffer_size)
-    {
-        std::cout << buffer_size <<std::endl;
-        if (!(this->response.size() != 0))
-        {
-            bytes_sent += send(fd_sok, buffer, fd_res.gcount(), 0);
-            if (bytes_sent <= 0 )
-            {
-                std::cout << "error send" << std::endl;
-                clear_client = true;
-                return;
-            }
-        }
-        else
-        {
-            bytes_sent += send(fd_sok, this->response.c_str(), this->response.size(), 0);
-            if (bytes_sent <= 0 )
-            {
-                std::cout << "error send" << std::endl;
-                clear_client = true;
-                return;
-            }
-        }
-            this->response = "";
-        bzero((buffer), 2048);
-        std::cout << "---------->>>>>>bytes_sent = " << bytes_sent << "----contentTrack = " << contentTrack  << std::endl;
-    }
-    if (bytes_sent == contentTrack)
-    {
-        std::cout << "end of file" << std::endl;
-        clear_client = true;
-    }
-
-}
 std::string get_ex(std::string path)
 {
-        std::istringstream temp(path);
-		std::string name;
-        std::string ex;
-
-		std::getline(temp, name, '.');
-		temp >> ex;
-        return ex;
+    std::istringstream temp(path);
+	std::string name;
+    std::string ex;
+	std::getline(temp, name, '.');
+	temp >> ex;
+    return ex;
 }
 
 void    Response::ft_Get(Request &request, Server_storage &server)
@@ -256,7 +181,6 @@ void    Response::ft_Get(Request &request, Server_storage &server)
     std::string file;
     (void) server;
 	file = request.getUrl();
-	// size_t i = 0;
 	if (locIt->getLocaPath() != "/")
 		file.replace(0, locIt->getLocaPath().length(), locIt->getLocaRoot());
 	else
@@ -319,16 +243,7 @@ void Response::ft_Post(Request &request)
 
 void   Response::init_response(Request &request , Server_storage &server)
 {
-   
-    // std::cout << "status code = "<<get_status_code() << std::endl;
-  //  if (get_status_code())
-        // errPage(server,0);
-    // if (check_res == false){
-    //     check_res = true;
-        locIt = locationMatch(server, request.getUrl());
-    // }
-    // if (locIt->getLocaPath() != "")
-    //     std::cout << "------>> "<< locIt->getLocaPath() << std::endl;
+    locIt = locationMatch(server, request.getUrl());
     storage_int allowedMethods = locIt->getLocaAllowedMethods();
     if (allowedMeth(allowedMethods, request.getMethod()))
     {
@@ -342,22 +257,4 @@ void   Response::init_response(Request &request , Server_storage &server)
     }
     else
         std::cout << " method not allowed " << std::endl;
-    // else
-    // {
-    //     try {
-    //         // location match
-    //         // check if method is allowed
-    //         if (client.first.req.getMethod() == "GET")
-    //             // handle Get
-    //         else if (client.first.req.getMethod() == "Post")
-    //             // handle Post
-    //         else
-    //             // handle other methods (delete)
-    //     }
-    //     catch(std::exception &e)
-    //     {
-    //         std::cout << e.what() << std::endl;
-    //     }
-
-    // }
 }

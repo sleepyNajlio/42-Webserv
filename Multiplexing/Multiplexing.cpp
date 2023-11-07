@@ -17,7 +17,72 @@ ioSets Multiplexing::getIoSets() const
     return io;
 }
 
+void sendresp(Response &resp)
+{
+    int rc;
+    if(resp.head.size() != 0)
+    {
+        std::cout << "head sent" << std::endl;
+        rc = send(resp.fd_sok, resp.head.c_str(), resp.head.size(), 0) ;
+        if(resp.bytes_sent < 0)
+        {
+            std::cout << "error send" << std::endl;
+            resp.clear_client = true;
+            return;
+        }
+        resp.bytes_sent += rc;
+        resp.head = "";
+    }
+    
+    char buffer[2048];
+    resp.fd_res.read(buffer, 2048);
+    size_t buffer_size = resp.fd_res.gcount();
 
+    if (buffer_size)
+    {
+        std::cout << "waaayli" << buffer_size <<std::endl;
+        if (resp.response.size() != 0)
+        {
+            
+            std::cout << "scd send" << std::endl;
+            
+            rc = send(resp.fd_sok, resp.response.c_str(), resp.response.size(), 0);
+            if (rc <= 0 )
+            {
+                std::cout << "error send" << std::endl;
+                resp.clear_client = true;
+                return;
+            }
+            resp.bytes_sent += rc;
+            resp.response = "";
+        }
+        else
+        {
+            std::cout << "frst send" << std::endl;
+
+            rc = send(resp.fd_sok, buffer, buffer_size, 0);
+            std::cout << "comment" << std::endl;
+
+            if (rc <= 0 )
+            {
+                std::cout << "error send" << std::endl;
+                resp.clear_client = true;
+                return;
+            }
+            resp.bytes_sent += rc;
+            
+        }
+        bzero((buffer), 2048);
+        std::cout << "---------->>>>>>resp.bytes_sent = " << resp.bytes_sent << "----contentTrack = " << resp.contentTrack  << std::endl;
+    }
+    if (resp.bytes_sent == resp.contentTrack)
+    {
+        std::cout << "end of file" << std::endl;
+        resp.clear_client = true;
+    }
+
+
+}
 
 
 void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage > > _server)
@@ -47,6 +112,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
         {
             if (FD_ISSET(it->second.getFd(), &io.tmpReadSockets))
             {
+                std::cout << "new client" << std::endl;
                 handleNewConnection(it->first, it->second);
             }
         }
@@ -105,7 +171,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                     clients[i].first.res.init_response(clients[i].first.req , clients[i].second);
                 }
                 if (!clients[i].first.res.clear_client)
-                    clients[i].first.res.ft_sendResponse();
+                    sendresp(clients[i].first.res);
                 // ft_response(clients[i].first, clients[i].second);
                 // std::cout << "write" << std::endl;
                 // const char* responseHeader = "HTTP/1.1 204 No Content\r\n\r\n";

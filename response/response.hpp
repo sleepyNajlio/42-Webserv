@@ -16,17 +16,15 @@
 
 class Cgi;
 class Response {
-    private:
-        int status_code;
-        std::string response;
-        std::string head;
-        std::string body;
-        size_t       content_lenght;
-    std::string fd_res_filename;  // To store the filename associated with fd_res
-    // std::fstream fd_res;
-
+    private:    
 
     public:
+        int             status_code;
+        std::string     response;
+        std::string     head;
+        std::string     body;
+        size_t          content_lenght;
+        std::string     fd_res_filename;  // To store the filename associated with fd_res
 
     bool                                            clear_client;
     bool                                            check_res;
