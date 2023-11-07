@@ -3,6 +3,7 @@
 
 int	main(int ac, char **av)
 {
+    signal(SIGPIPE, SIG_IGN);
 try {
     Conf_parser _parser;
     Socket serverSocket;

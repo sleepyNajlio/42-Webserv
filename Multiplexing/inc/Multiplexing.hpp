@@ -57,9 +57,8 @@ class Multiplexing {
         }
 
         struct ioSets getIoSets() const;
-        void setupServer(std::vector <std::pair <Socket , Server_storage > > &_server);
+        void setupServer(std::vector <std::pair <Socket , Server_storage > > _server);
         void handleNewConnection(Socket& serverSocket, Server_storage server);
-        void WriteData(std::pair < Client , Server_storage > &client);
        
 };
 
