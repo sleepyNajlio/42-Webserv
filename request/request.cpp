@@ -20,11 +20,23 @@ std::string generateRandomString() {
     return randomString;
 }
 
+
+
 void Request::pLine(std::string line) 
 {
     std::stringstream stream(line);
     std::string chk;
     stream >> method >> url >> httpVersion;
+    
+    
+    std::istringstream temp(this->getUrl());
+	std::string path;
+    std::string que;
+
+	std::getline(temp, path, '?');
+	temp >> this->query;
+    setUrl(path);
+
 
     // std::cout << "method: " << method << std::endl;
     // std::cout << "url: " << url << std::endl;

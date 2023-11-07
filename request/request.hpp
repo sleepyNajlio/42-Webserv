@@ -31,6 +31,8 @@ class Request{
         int chunkSize;
 
     public:
+        std::string query;
+       
         Request();
         Request(const Request& other);
         Request& operator=(const Request& other);
@@ -57,7 +59,6 @@ class Request{
         std::string getServerName() const;
         int         getChunkSize() const;
         std::string getRandomStr() const;
-
 
         // int body;
         std::string serverName;

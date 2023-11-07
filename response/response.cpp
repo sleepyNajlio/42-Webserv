@@ -205,7 +205,10 @@ void    Response::ft_Get(Request &request, Server_storage &server)
 
         //-------->CGI HANDLER
 		if(get_ex(request.getUrl()) == "py" || get_ex(request.getUrl()) == "php")
-            Cgi cgi(request , file);
+        {  Cgi cgi(request , file);
+            this->response = cgi.response;
+            this->head = "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: .py \r\nContent-Length: " + ft_to_string(this->response.size()) + "\r\n\r\n";
+        }
         else if (file1.good())
         {
 			open_file(server,  file);
@@ -233,12 +236,46 @@ void	Response::ft_delete(Request &request,Server_storage &server )
         errPage(server,403);
 }
 
-void Response::ft_Post(Request &request)
+void Response::ft_Post(Request &request, Server_storage &server)
 {
-        std::string name = "./uploads" + request.getUrl();
-        if (std::rename(request.getRandomStr().c_str(), name.c_str()) != 0) {
-        std::perror("Error renaming file");
+        (void)server;
+        // if (upload path is valid)
+        // {
+            std::string name = "./uploads" + request.getUrl();
+            if (std::rename(request.getRandomStr().c_str(), name.c_str()) != 0) {
+            std::perror("Error renaming file");
+            // respond with 201
+            }
+        // }
+        /*
+        else if (isDir(server.locations.getUpload()))
+        {
+            if (slashChecker(server.locations.getUpload()))
+            {
+                if (server.locations.getlocaIndex())
+                {
+                    if (get_ex(request.getUrl()) == "py" || get_ex(request.getUrl()) == "php")
+                        do it
+                    else
+                        403
+                }
+                else
+                    error 403
+            }
+            else
+            {
+                301 redirect
+            }
         }
+        else if (fi)
+        {
+            if (cgi_path)
+
+        }
+        else
+            error 404
+
+        */
 }
 
 void   Response::init_response(Request &request , Server_storage &server)
@@ -251,7 +288,7 @@ void   Response::init_response(Request &request , Server_storage &server)
         if (request.getMethod() == "GET")
             ft_Get(request, server);
         else if (request.getMethod() == "POST")
-            ft_Post(request);
+            ft_Post(request,server);
         else if (request.getMethod() == "DELETE")
             ft_delete(request , server);
     }

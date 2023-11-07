@@ -7,7 +7,7 @@ std::string    getValue(std::map<std::string, std::string>& headers, const std::
     return "";
 }
 
-Cgi::Cgi(Request req, const std::string path) : req(req), path(path), status(0)
+Cgi::Cgi(Request &req, const std::string path) : req(req), path(path), status(0)
 {
     getEnv();
     execute_cgi(path);
@@ -34,13 +34,12 @@ char    **Cgi::getEnv()
 {
     std::map<std::string, std::string>	headers = req.headers;
 
-
     env["SERVER_PROTOCOL"] = "HTTP/1.1";
 	env["req_METHOD"] = req.getMethod();
 	env["PATH_INFO"] = path;
 	env["PATH_TRANSLATED"] = path;
 	env["SCRIPT_NAME"] = path;
-	//env["QUERY_STRING"] = req.getQuery();
+	env["QUERY_STRING"] = req.query;
 	env["REMOTE_HOST"] = getValue(headers, "User-Agent");
 	env["REDIRECT_STATUS"] = "200";
     env["HTTP_ACCEPT_LANGUAGE"] = getValue(headers, "Accept-Language");
@@ -89,11 +88,8 @@ int Cgi::execute_cgi(std::string filename)
     {
         char    **env = getEnv();
         int fdin = open(filename.c_str(), O_RDONLY);
-       const char *t = "python-cgi";
-       //std::string tmp = 
-       const char *to = filename.c_str(); //"/goinfre/wlahyani/Webserv/root/hello.py";
         
-        char const *cmd[] = {  t , to  ,(char *)0  } ;
+        char const *cmd[] = {  "python-cgi" , filename.c_str() ,(char *)0  } ;
        
        
        
@@ -138,8 +134,6 @@ int Cgi::execute_cgi(std::string filename)
 
         close(fd[0]);
     }
-        std::cout << "-----------------cgi-----------------"<< std::endl;
-        std::cout << response << std::endl;
     return 200;
 }
 

@@ -12,7 +12,8 @@ typedef std::vector<std::string> storage;
 
 class Location_storage
 {
-    private:
+    // private:
+    public:
         std::string loca_path;
 		std::string loca_root;
 		bool loca_autoindex;
@@ -24,7 +25,6 @@ class Location_storage
 		// stotage	loca_cgi_extension;
 		unsigned long loca_client_max_body_size;
 
-    public:
         Location_storage();
         ~Location_storage();
 
@@ -90,6 +90,8 @@ class Location_storage
 					return ("Invalid maxsize");
 				}
 		};
+
 };
+
 
 #endif

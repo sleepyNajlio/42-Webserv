@@ -34,13 +34,6 @@ void sendresp(Response &resp)
         resp.head = "";
     }
     
-    char buffer[2048];
-    resp.fd_res.read(buffer, 2048);
-    size_t buffer_size = resp.fd_res.gcount();
-
-    if (buffer_size)
-    {
-        std::cout << "waaayli" << buffer_size <<std::endl;
         if (resp.response.size() != 0)
         {
             
@@ -56,8 +49,12 @@ void sendresp(Response &resp)
             resp.bytes_sent += rc;
             resp.response = "";
         }
-        else
-        {
+    char buffer[2048];
+    resp.fd_res.read(buffer, 2048);
+    size_t buffer_size = resp.fd_res.gcount();
+
+    if (buffer_size)
+    {
             std::cout << "frst send" << std::endl;
 
             rc = send(resp.fd_sok, buffer, buffer_size, 0);
@@ -70,8 +67,6 @@ void sendresp(Response &resp)
                 return;
             }
             resp.bytes_sent += rc;
-            
-        }
         bzero((buffer), 2048);
         std::cout << "---------->>>>>>resp.bytes_sent = " << resp.bytes_sent << "----contentTrack = " << resp.contentTrack  << std::endl;
     }
@@ -163,7 +158,6 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
             // check for write event
             if (FD_ISSET(clients[i].first.get_fd(), &io.tmpWriteSockets))
             {
-
                 clients[i].first.res.fd_sok = clients[i].first.get_fd();
                 if(!clients[i].first.res.check_res)
                 {
@@ -183,7 +177,6 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                 //     close(clients[i].first.get_fd()); 
                 //     continue;
                 // }
-
                 if(clients[i].first.res.clear_client)
                 {
                      for (size_t i = 0; i < clients.size(); i++)

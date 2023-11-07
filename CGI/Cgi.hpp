@@ -20,15 +20,15 @@
 class Cgi
 {
     private :
-        Request                             req;
+        Request                             &req;
 		const std::string 					path;
         std::string                         name;
         std::map<std::string, std::string>  env;
         int                                 status;
-        std::string                       response;
 
     public :
-        Cgi(Request req, const std::string path);
+        std::string                         response;
+        Cgi(Request &req, const std::string path);
 //         int                 execute_cgi(std::string filename);
         char                **getEnv();
         char                **env_to_char (std::map<std::string, std::string>& env);

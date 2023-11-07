@@ -46,6 +46,7 @@ Request& Request::operator=(const Request& other) {
     contentLength = other.contentLength;
     isChunked = other.isChunked;
     randomstr = other.randomstr;
+    query = other.query;
     filename = other.filename;
 
 

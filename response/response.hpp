@@ -70,7 +70,7 @@ class Response {
 
            //methods
             void        ft_Get(Request &request, Server_storage &server);
-            void        ft_Post(Request &request);
+            void        ft_Post(Request &request, Server_storage &server);
             void	    ft_delete(Request &request,Server_storage &server );
            
            //senders
