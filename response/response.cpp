@@ -1,7 +1,7 @@
 #include "response.hpp"
 
 
-Response::Response() : status_code(0), content_lenght(0), clear_client(false), check_res(false) {
+Response::Response() : status_code(0), content_lenght(0), clear_client(false), check_res(false) , contentTrack(0) , bytes_sent(0){
 
         response = "";
         head = "";
@@ -188,14 +188,14 @@ void    Response::open_file(Server_storage &server, std::string file)
 
 void Response::ft_sendHeader()
 {
-    bytes_sent += send(fd_sok, this->head.c_str(), this->head.size(), 0);
-    this->head = "";
-    if (bytes_sent <= 0 )
+    bytes_sent += send(fd_sok, this->head.c_str(), this->head.size(), 0) ;
+    if(bytes_sent < 0)
     {
         std::cout << "error send" << std::endl;
         clear_client = true;
         return;
     }
+    this->head = "";
 }
 void Response::ft_sendResponse()
 {
@@ -208,19 +208,8 @@ void Response::ft_sendResponse()
 
     if (buffer_size)
     {
-        std::cout << "---------->>>>>>bytes_sent = " << bytes_sent << "----contentTrack = " << contentTrack  << std::endl;
-        if(this->response.size() != 0)
-        {
-            bytes_sent += send(fd_sok, this->response.c_str(), this->response.size(), 0);
-            if (bytes_sent <= 0 )
-            {
-                std::cout << "error send" << std::endl;
-                clear_client = true;
-                return;
-            }
-            this->response = "";
-        }
-        else
+        std::cout << buffer_size <<std::endl;
+        if (!(this->response.size() != 0))
         {
             bytes_sent += send(fd_sok, buffer, fd_res.gcount(), 0);
             if (bytes_sent <= 0 )
@@ -230,7 +219,19 @@ void Response::ft_sendResponse()
                 return;
             }
         }
+        else
+        {
+            bytes_sent += send(fd_sok, this->response.c_str(), this->response.size(), 0);
+            if (bytes_sent <= 0 )
+            {
+                std::cout << "error send" << std::endl;
+                clear_client = true;
+                return;
+            }
+        }
+            this->response = "";
         bzero((buffer), 2048);
+        std::cout << "---------->>>>>>bytes_sent = " << bytes_sent << "----contentTrack = " << contentTrack  << std::endl;
     }
     if (bytes_sent == contentTrack)
     {
