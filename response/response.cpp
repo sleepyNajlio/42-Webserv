@@ -265,15 +265,12 @@ void Response::ft_Post(Request &request, Server_storage &server)
 
             std::cout << name << " to  " << request.getRandomStr().c_str() << std::endl;
             if (std::rename(request.randomstr.c_str(), name.c_str()) != 0) 
-            {
                 std::perror("Error renaming file");
-                head = ""; // 201
-            }
             else
             {
                 std::cout << "------------>lentgh = "<<request.contentLength <<"file uploaded" << std::endl;
                 head = "HTTP/1.1 201 Created \r\n Content-Type: " + get_content_type(request.getUrl()) + "\r\n"
-                + "Content-Length: " + ft_to_string(request.contentLength) + "\r\n\r\n";
+                + "Content-Length: 0\r\n\r\n";
 
             }
         }
