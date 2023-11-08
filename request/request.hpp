@@ -24,7 +24,6 @@ class Request{
         size_t bytesSent;
         std::string ContentType;
         std::string filename ;
-        std::string randomstr;
         // std::string body;
         int body;
         int chunkSize;
@@ -32,6 +31,7 @@ class Request{
     public:
         size_t contentLength;
         std::string query;
+        std::string randomstr;
        
         Request();
         Request(const Request& other);
