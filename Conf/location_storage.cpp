@@ -14,6 +14,7 @@ void Location_storage::init_location()
     loca_path = "";
 	loca_root = "";
 	loca_autoindex = false;
+	loca_upload = true;
 	loca_index = "";
 	loca_redirect = "";
 	loca_alias = "";

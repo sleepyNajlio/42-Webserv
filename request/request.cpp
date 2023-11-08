@@ -60,7 +60,7 @@ void Request::pLine(std::string line)
      // open THE POSTED FILE and write the body in it
     if (this->method == "POST")
     {
-        this->randomstr = "./cash/" + generateRandomString();
+        this->randomstr = "./cache/" + generateRandomString();
         this->body = open(this->randomstr.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (this->body == -1)
             throw std::invalid_argument("Unable to open file ");
@@ -149,6 +149,7 @@ void Request::reader(unsigned char *buffer, size_t bytesRead)
     if (this->headerDone == false)
     {
         // init request header
+        std::cout << "hanaa" << std::endl;
         if (memmem(buffer, bytesRead, "\r\n\r\n", 4) != NULL)
         {
             newBuffer = (unsigned char *) memmem(buffer, bytesRead, "\r\n\r\n", 4) + 4; //first part of the body

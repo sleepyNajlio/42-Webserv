@@ -73,4 +73,15 @@ class Request{
         bool handleChunked(unsigned char *buffer, size_t bytesRead);
 };
 
+// int ft_stoi(std::string str)
+// {
+//     int i;
+//     std::ostringstream o;
+//     o << str;
+//     o >> i;
+//     std::cout << i << std::endl;
+//     return i;
+// }
+
+
 #endif

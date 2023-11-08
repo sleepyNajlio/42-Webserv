@@ -16,12 +16,13 @@ class Location_storage
     public:
         std::string loca_path;
 		std::string loca_root;
-		bool loca_autoindex;
+		bool 		loca_autoindex;
 		std::string	loca_index;
 		storage_int loca_allowed_methods;
 		std::string	loca_redirect;
 		std::string	loca_alias;
-		storage	loca_cgi_path;
+		bool 		loca_upload;
+		storage		loca_cgi_path;
 		// stotage	loca_cgi_extension;
 		unsigned long loca_client_max_body_size;
 

@@ -236,20 +236,35 @@ void	Response::ft_delete(Request &request,Server_storage &server )
         errPage(server,403);
 }
 
+static bool slashChecker(std::string path)
+{
+    std::cout << path[path.size() - 1] << std::endl;
+    if (path[path.size() - 1] == '/')
+        return 1;
+    else
+        return 0;
+}
+
 void Response::ft_Post(Request &request, Server_storage &server)
 {
-        (void)server;
-        // if (upload path is valid)
-        // {
-            std::string name = "./uploads" + request.getUrl();
-            if (std::rename(request.getRandomStr().c_str(), name.c_str()) != 0) {
-            std::perror("Error renaming file");
-            // respond with 201
-            }
-        // }
-        /*
-        else if (isDir(server.locations.getUpload()))
+      (void)server;
+      std::cout << "***********************" << std::endl;
+            slashChecker(request.getUrl());
+        if (locIt->loca_upload)
         {
+            std::string name = "./uploads" + request.getUrl();
+            if (std::rename(request.getRandomStr().c_str(), name.c_str()) != 0) 
+            {
+                std::perror("Error renaming file");
+                head = ""; // 201
+            }
+        }
+        else if (isDir(request.getUrl()))
+        {
+            slashChecker(request.getUrl());
+        }
+
+            /*
             if (slashChecker(server.locations.getUpload()))
             {
                 if (server.locations.getlocaIndex())
@@ -267,7 +282,7 @@ void Response::ft_Post(Request &request, Server_storage &server)
                 301 redirect
             }
         }
-        else if (fi)
+        else if ()
         {
             if (cgi_path)
 
@@ -282,13 +297,16 @@ void   Response::init_response(Request &request , Server_storage &server)
 {
     locIt = locationMatch(server, request.getUrl());
     storage_int allowedMethods = locIt->getLocaAllowedMethods();
+            std::cout << "IM hereeee-------------" << std::cout;
     if (allowedMeth(allowedMethods, request.getMethod()))
     {
         std::cout << request.getMethod() << std::endl;
         if (request.getMethod() == "GET")
             ft_Get(request, server);
         else if (request.getMethod() == "POST")
-            ft_Post(request,server);
+         {
+            std::cout << "IM hereeee-------------" << std::cout;
+               ft_Post(request,server);}
         else if (request.getMethod() == "DELETE")
             ft_delete(request , server);
     }

@@ -143,13 +143,13 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                     }
                     catch (std::exception &exp){
                         std::string exceptionMessage = exp.what();
-                        clients[i].first.res.set_status_code(std::stoi(exceptionMessage));
+                        clients[i].first.res.set_status_code(std::atoi(exceptionMessage.c_str()));
 						// error page call !!
                     }
                     // move from read to write sockets if request is done 
                     if (clients[i].first.req.isReadDone())
                     {
-                        
+                        std::cout << "hanaa" << std::endl;
                         FD_CLR(clients[i].first.get_fd(), &io.readSockets);
                         FD_SET(clients[i].first.get_fd(), &io.writeSockets);
                     }
@@ -159,6 +159,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
             if (FD_ISSET(clients[i].first.get_fd(), &io.tmpWriteSockets))
             {
                 clients[i].first.res.fd_sok = clients[i].first.get_fd();
+                
                 if(!clients[i].first.res.check_res)
                 {
                     clients[i].first.res.check_res = true;

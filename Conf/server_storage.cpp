@@ -313,6 +313,17 @@ void Server_storage::setLocation(std::string path, std::vector<std::string> vec)
 			new_location.setLoca_client_max_body_size(vec[i]);
 			flag_max_size = true;
 		}
+		else if (vec[i] == "upload" && (i + 1) < vec.size())
+		{
+			removeDelim(vec[++i]);
+			std::cout << vec[i ] << std::endl;
+			if(vec[i] == "on")
+				new_location.loca_upload = true;
+			else if(vec[i ] == "off")
+				new_location.loca_upload = false;
+			else
+				throw ExceptionMsg("invalid upload ");
+		}
 		else if (i < vec.size())
 			throw ExceptionMsg("Invalid location directive");
 	}
