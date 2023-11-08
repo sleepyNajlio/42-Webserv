@@ -28,9 +28,10 @@ class Request{
         int chunkSize;
 
     public:
-        size_t contentLength;
+        size_t      contentLength;
         std::string query;
         std::string randomstr;
+        std::string ex;
        
         Request();
         Request(const Request& other);

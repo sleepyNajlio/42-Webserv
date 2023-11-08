@@ -1,5 +1,5 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+// if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     // save $_FILES['avatar'] to a inside a folder
     $avatar = $_FILES['avatar'];
@@ -37,14 +37,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo 'Not allowed';
         exit(1);
     }
-} else if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['logout'])) {
-    unset($_COOKIE['name']);
-    unset($_COOKIE['email']);
-    unset($_COOKIE['avatar']);
-    setcookie('name', '', time() - 3600);
-    setcookie('email', '', time() - 3600);
-    setcookie('avatar', '', time() - 3600);
-}
+// } else if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['logout'])) {
+//     unset($_COOKIE['name']);
+//     unset($_COOKIE['email']);
+//     unset($_COOKIE['avatar']);
+//     setcookie('name', '', time() - 3600);
+//     setcookie('email', '', time() - 3600);
+//     setcookie('avatar', '', time() - 3600);
+// }
 
 ?>
 <!DOCTYPE html>

@@ -28,10 +28,11 @@ class Cgi
     public :
         int                                 status;
         std::string                         response;
+        std::string                         head;
         Cgi(Request &req, const std::string path );
         char                **getEnv();
         char                **env_to_char (std::map<std::string, std::string>& env);
-        int                 execute_cgi(std::string filename);
+        int                 execute_cgi(std::string filename , std::string ex);
         const std::string&  getCgiResponse() const;
 };
 

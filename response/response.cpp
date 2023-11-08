@@ -197,15 +197,18 @@ void    Response::ft_Get(Request &request, Server_storage &server)
         std::ifstream file1(file);
 
         //-------->CGI HANDLER
-		if(get_ex(request.getUrl()) == "py" || get_ex(request.getUrl()) == "php")
+        request.ex = get_ex(request.getUrl());
+		if(request.ex == "py" || request.ex == "php")
         {
             Cgi cgi(request , file );
             if(cgi.status == 500)
                 errPage(server,500);
             else
             {
+                //this->head     = cgi.head;
                 this->response = cgi.response;
-                this->head = "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: .py \r\nContent-Length: " + ft_to_string(this->response.size()) + "\r\n\r\n";
+                
+                this->head = cgi.head + "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + ft_to_string(this->response.size()) + "\r\n\r\n";
             }
         }
         else if (file1.good())

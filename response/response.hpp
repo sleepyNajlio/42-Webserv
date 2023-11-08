@@ -37,6 +37,7 @@ class Response {
     std::string                                     method;
 
 
+
     Response();
     ~Response();
 

@@ -10,7 +10,7 @@ std::string    getValue(std::map<std::string, std::string>& headers, const std::
 Cgi::Cgi(Request &req, const std::string path  ) : req(req), path(path), status(0)
 {
     getEnv();
-    status = execute_cgi(path);
+    status = execute_cgi(path, req.ex);
 }
 
 char    **Cgi::env_to_char (std::map<std::string, std::string>& env)
@@ -63,7 +63,7 @@ std::string get_name(std::string filename)
     return name;
 }
 
-int Cgi::execute_cgi(std::string filename)
+int Cgi::execute_cgi(std::string filename , std::string ex)
 {
     int pid;
     int fd[2];
@@ -83,13 +83,27 @@ int Cgi::execute_cgi(std::string filename)
     {
         char    **env = getEnv();
         int fdin = open(filename.c_str(), O_RDONLY); 
-        char const *cmd[] = {  "python-cgi" , filename.c_str() ,(char *)0  } ;
-       
+        std::string cgi_path;
+        char const *cmd[3];
+        if (ex == "py")
+        {
+            cmd[0] = "python-cgi";
+            cmd[1] = filename.c_str();
+            cmd[2] = (char *)0;
+            cgi_path = "./cgi-bin/python-cgi";
+        } 
+        else
+        {
+            cmd[0] = "php-cgi";
+            cmd[1] = filename.c_str();
+            cmd[2] = (char *)0;
+            cgi_path = "./cgi-bin/php-cgi";
+        }
         close(fd[0]);
 		dup2(fdin, 0);
         dup2(fd[1], 1);
         close(fd[1]);
-        execve("./cgi-bin/python-cgi",(char *const *) cmd, env);
+        execve(cgi_path.c_str(),(char *const *) cmd, env);
         std::cerr << strerror(errno) << std::endl;
         exit(EXIT_FAILURE);
     }
@@ -99,7 +113,6 @@ int Cgi::execute_cgi(std::string filename)
         while (true)
         {
             pid_t result = waitpid(pid, &status, WNOHANG);
-            // std::cout << result << std::endl;
             if (result == -1)
                 return 500;
             else
@@ -113,10 +126,10 @@ int Cgi::execute_cgi(std::string filename)
         char buff[2048];
         int rbytes = 1;
         
-        while (rbytes != 0)
+        if (rbytes != 0)
         {
             memset(buff, 0, 2048);     
-            rbytes = read(fd[0], buff, 1023);
+            rbytes = read(fd[0], buff, 2048);
             buff[rbytes] = 0;
             response += buff;
         }
@@ -124,4 +137,3 @@ int Cgi::execute_cgi(std::string filename)
     }
     return 200;
 }
-
