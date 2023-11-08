@@ -17,9 +17,6 @@
 #include "../../Conf/incs/server_storage.hpp"
 #include "../../Conf/incs/location_storage.hpp"
 
-
-
-
 class request;
 class Socket;
 
@@ -30,7 +27,6 @@ typedef struct ioSets{
     fd_set tmpWriteSockets;
 }   ioSets;
 
-
 class Multiplexing {
     private:
         ioSets io;
@@ -40,15 +36,11 @@ class Multiplexing {
     public:
         Multiplexing();
         ~Multiplexing();
-        //copy constructor
         Multiplexing(const Multiplexing& other) {
-            // Perform a deep copy of the class members
             *this = other;
         }
-        // Copy assignment operator to handle assignment correctly
         Multiplexing& operator=(const Multiplexing& other) {
             if (this != &other) {
-                // Perform a deep copy of the class members
                 io = other.io;
                 maxFd = other.maxFd;
                 clients = other.clients;

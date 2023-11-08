@@ -8,9 +8,7 @@ Multiplexing::Multiplexing()
     FD_ZERO(&io.tmpWriteSockets);
 }
 
-Multiplexing::~Multiplexing()
-{
-}
+Multiplexing::~Multiplexing(){}
 
 ioSets Multiplexing::getIoSets() const
 {
@@ -20,56 +18,50 @@ ioSets Multiplexing::getIoSets() const
 void sendresp(Response &resp)
 {
     int rc;
+    //send header
     if(resp.head.size() != 0)
     {
-        std::cout << "head sent" << std::endl;
-
         rc = send(resp.fd_sok, resp.head.c_str(), resp.head.size(), 0) ;
         if(resp.bytes_sent < 0)
         {
-            std::cout << "error send" << std::endl;
             resp.clear_client = true;
             return;
         }
         resp.bytes_sent += rc;
         resp.head = "";
     }
+
+    //send the response stored in string 
     if (resp.response.size() != 0)
     {
-        
-        std::cout << "scd send" << std::endl;
-        
         rc = send(resp.fd_sok, resp.response.c_str(), resp.response.size(), 0);
         if (rc <= 0 )
         {
-            std::cout << "error send" << std::endl;
             resp.clear_client = true;
             return;
         }
         resp.bytes_sent += rc;
         resp.response = "";
     }
+
+    //send the response stored in file
     char buffer[2048];
     resp.fd_res.read(buffer, 2048);
     size_t buffer_size = resp.fd_res.gcount();
 
     if (buffer_size)
     {
-            // std::cout << "frst send" << std::endl;
-
             rc = send(resp.fd_sok, buffer, buffer_size, 0);
-            // std::cout << "comment" << std::endl;
-
             if (rc <= 0 )
             {
-                std::cout << "error send" << std::endl;
                 resp.clear_client = true;
                 return;
             }
             resp.bytes_sent += rc;
         bzero((buffer), 2048);
-        // std::cout << "---------->>>>>>resp.bytes_sent = " << resp.bytes_sent << "----contentTrack = " << resp.contentTrack  << std::endl;
     }
+    
+    //if sending response is done
     if (resp.bytes_sent == resp.contentTrack)
        resp.clear_client = true;
     if (resp.method != "GET" || !resp.contentTrack)

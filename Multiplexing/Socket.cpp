@@ -9,10 +9,7 @@ Socket::Socket()
     }
 }
 
-Socket::~Socket() 
-{
-    // close(socket_fd);
-}
+Socket::~Socket() {}
 
 void Socket::setupServerSocket(std::vector < Server_storage > &_servers, std::vector <std::pair <Socket , Server_storage > > &serverList)
 {

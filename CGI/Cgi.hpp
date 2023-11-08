@@ -13,10 +13,10 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <signal.h>
-
 #include "../request/request.hpp"
+#include "../Conf/incs/server_storage.hpp"
 
-
+class Server_storage;
 class Cgi
 {
     private :
@@ -24,16 +24,15 @@ class Cgi
 		const std::string 					path;
         std::string                         name;
         std::map<std::string, std::string>  env;
-        int                                 status;
 
     public :
+        int                                 status;
         std::string                         response;
-        Cgi(Request &req, const std::string path);
-//         int                 execute_cgi(std::string filename);
+        Cgi(Request &req, const std::string path );
         char                **getEnv();
         char                **env_to_char (std::map<std::string, std::string>& env);
         int                 execute_cgi(std::string filename);
-       const std::string&  getCgiResponse() const;
+        const std::string&  getCgiResponse() const;
 };
 
 #endif

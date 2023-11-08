@@ -15,23 +15,21 @@
 #include <vector>
 #include "../../Conf/incs/server_storage.hpp"
 
-
 class Socket {
-public:
-    Socket();
-    ~Socket();
+    public:
+        Socket();
+        ~Socket();
 
-    void setupServerSocket(std::vector < Server_storage > &_servers, std::vector <std::pair <Socket , Server_storage > > &serverList);
-    int get_fd() const;
-    struct sockaddr_in get_address() const;
-    bool get_already_bind() const;
-    std::vector <int> get_sockets();
+        void setupServerSocket(std::vector < Server_storage > &_servers, std::vector <std::pair <Socket , Server_storage > > &serverList);
+        int get_fd() const;
+        struct sockaddr_in get_address() const;
+        bool get_already_bind() const;
+        std::vector <int> get_sockets();
 
 private:
-    int socket_fd;
-    // std::vector <int> sockets;
-    struct sockaddr_in socket_address;
-    bool already_bind;
+        int socket_fd;
+        struct sockaddr_in socket_address;
+        bool already_bind;
     
 };
 

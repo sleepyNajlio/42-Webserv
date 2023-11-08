@@ -19,17 +19,13 @@ Request::Request() {
 }
 
 Request::Request(const Request& other) {
-    // Copy all the member variables from 'other' to 'this'
     *this = other;
 }
 
 Request& Request::operator=(const Request& other) {
-    if (this == &other) {
-        // Self-assignment, no action needed
-        return *this;
-    }
+    if (this == &other) 
+      return *this;
 
-    // Copy all the member variables from 'other' to 'this'
     method = other.method;
     url = other.url;
     body = other.body;

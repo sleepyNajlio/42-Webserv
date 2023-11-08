@@ -1,6 +1,5 @@
 #include "response.hpp"
 
-
 Response::Response() : status_code(0), content_lenght(0), clear_client(false), check_res(false) , contentTrack(0) , bytes_sent(0){
 
         response = "";
@@ -135,7 +134,6 @@ void Response::listDir(std::string file, Request &request, Server_storage &serve
 					         ft_to_string(output.size()) +
 					         "\r\n\r\n";
         this->response = header + output;  
-        // clear_client = true; // client mazal masiftnalo
 	}
 	else
         errPage(server,403);
@@ -192,37 +190,34 @@ void    Response::ft_Get(Request &request, Server_storage &server)
             listDir(file, request, server);
         }
         else
-        {
-            errPage(server,403);
-            std::cout << "index not found" << std::endl;
-        }
+            errPage(server,404);
     }
     else
     {
-        // std::cout << "file :::"<< file << std::endl;
         std::ifstream file1(file);
 
         //-------->CGI HANDLER
 		if(get_ex(request.getUrl()) == "py" || get_ex(request.getUrl()) == "php")
-        {  Cgi cgi(request , file);
-            this->response = cgi.response;
-            this->head = "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: .py \r\nContent-Length: " + ft_to_string(this->response.size()) + "\r\n\r\n";
+        {
+            Cgi cgi(request , file );
+            if(cgi.status == 500)
+                errPage(server,500);
+            else
+            {
+                this->response = cgi.response;
+                this->head = "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: .py \r\nContent-Length: " + ft_to_string(this->response.size()) + "\r\n\r\n";
+            }
         }
         else if (file1.good())
-        {
-			open_file(server,  file);
-            std::cout << "file found"<< file << std::endl;
-        }
+		{
+            std::cout << "evvvvv" << std::endl;
+            	open_file(server,  file);}
 		else if (access(file.c_str(), F_OK))
-        {
-            std::cout << "file not found"<< file << std::endl;
-			errPage(server,404);
-        }
+		{
+            std::cout << "evvvvv------------------" << std::endl;
+            	errPage(server,404);}
 		else
-        {
-            std::cout << "file forbiden"<< file << std::endl;
             errPage(server,403);
-        }
     }
 }
 

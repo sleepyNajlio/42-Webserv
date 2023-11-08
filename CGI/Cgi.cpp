@@ -7,16 +7,14 @@ std::string    getValue(std::map<std::string, std::string>& headers, const std::
     return "";
 }
 
-Cgi::Cgi(Request &req, const std::string path) : req(req), path(path), status(0)
+Cgi::Cgi(Request &req, const std::string path  ) : req(req), path(path), status(0)
 {
     getEnv();
-    execute_cgi(path);
+    status = execute_cgi(path);
 }
 
 char    **Cgi::env_to_char (std::map<std::string, std::string>& env)
-{
-
-    
+{  
     std::map<std::string, std::string>::iterator it;
 	char **t_env = new char*[env.size() + 1];
 	int i = 0;
@@ -30,6 +28,7 @@ char    **Cgi::env_to_char (std::map<std::string, std::string>& env)
 	t_env[i] = NULL;
     return t_env;
 }
+
 char    **Cgi::getEnv()
 {
     std::map<std::string, std::string>	headers = req.headers;
@@ -60,20 +59,16 @@ std::string get_name(std::string filename)
     std::istringstream temp(filename);
     std::string name;
 
-    while(std::getline(temp, name, '/'))
-    {
-        
-    }
+    while(std::getline(temp, name, '/')){}
     return name;
 }
+
 int Cgi::execute_cgi(std::string filename)
 {
     int pid;
     int fd[2];
 
-    // std::cout << " filename = " <<  filename << std::endl;
     this->name = get_name(filename);
-    //std::cout << this->filename << std::endl;
     if (pipe(fd) == -1)
     {
         std::cerr << "failed piping" << std::endl;
@@ -87,11 +82,8 @@ int Cgi::execute_cgi(std::string filename)
     else if (pid == 0)
     {
         char    **env = getEnv();
-        int fdin = open(filename.c_str(), O_RDONLY);
-        
+        int fdin = open(filename.c_str(), O_RDONLY); 
         char const *cmd[] = {  "python-cgi" , filename.c_str() ,(char *)0  } ;
-       
-       
        
         close(fd[0]);
 		dup2(fdin, 0);
@@ -100,11 +92,9 @@ int Cgi::execute_cgi(std::string filename)
         execve("./cgi-bin/python-cgi",(char *const *) cmd, env);
         std::cerr << strerror(errno) << std::endl;
         exit(EXIT_FAILURE);
-       
     }
     else
     {
-       
         close(fd[1]);
         while (true)
         {
@@ -120,22 +110,18 @@ int Cgi::execute_cgi(std::string filename)
             }
             usleep(10000);
         }
-          char buff[2048];
+        char buff[2048];
         int rbytes = 1;
         
         while (rbytes != 0)
         {
-            memset(buff, 0, 2048); 
-            
+            memset(buff, 0, 2048);     
             rbytes = read(fd[0], buff, 1023);
             buff[rbytes] = 0;
             response += buff;
         }
-
         close(fd[0]);
     }
     return 200;
 }
 
-
-//const std::string& Cgi::getCgiResponse() const { return response; }
