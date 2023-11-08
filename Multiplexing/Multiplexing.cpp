@@ -34,12 +34,6 @@ void sendresp(Response &resp)
         resp.bytes_sent += rc;
         resp.head = "";
     }
-    if (resp.method != "GET")
-    {
-        std::cout << "not get " << std::endl;
-        resp.clear_client = true;
-        return ;
-    }
     if (resp.response.size() != 0)
     {
         
@@ -77,12 +71,9 @@ void sendresp(Response &resp)
         // std::cout << "---------->>>>>>resp.bytes_sent = " << resp.bytes_sent << "----contentTrack = " << resp.contentTrack  << std::endl;
     }
     if (resp.bytes_sent == resp.contentTrack)
-    {
-        // std::cout << "end of file" << std::endl;
+       resp.clear_client = true;
+    if (resp.method != "GET" || !resp.contentTrack)
         resp.clear_client = true;
-    }
-
-
 
 }
 
@@ -94,12 +85,6 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
         FD_SET(it->second.getFd(), &io.readSockets);
         maxFd = std::max( maxFd, it->second.getFd());
     }
-
-    //==> I COMMENT THIS FOR COMPILATION SAKE
-
-    //const char* responseHeader = "HTTP/1.1 200 OK\r\nContent-Type: video/mp4\r\nContent-Length: ";
-   // const char* responseEnd = "\r\n\r\n";
-
     while (true)
     {
         io.tmpReadSockets = io.readSockets;
@@ -127,7 +112,6 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                 
                 unsigned char buffer[2048];
                 bzero(buffer, 2048);
-                // std::cout << "buffer size " << sizeof(buffer) << std::endl;
                 ssize_t bytesRead = recv(clients[i].first.get_fd(), buffer, sizeof(buffer), 0);
                 if (bytesRead == -1) {
                     perror("Receiving data failed");
@@ -143,7 +127,6 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                 }
                 else {
                     buffer[bytesRead] = '\0';
-                    // std::cout << "Received: " << buffer << std::endl;
                     // buffer is ready for parse here
                     try{
                         clients[i].first.req.reader(buffer, bytesRead);
@@ -156,7 +139,6 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                     // move from read to write sockets if request is done 
                     if (clients[i].first.req.isReadDone())
                     {
-                        // std::cout << "hanaa" << std::endl;
                         FD_CLR(clients[i].first.get_fd(), &io.readSockets);
                         FD_SET(clients[i].first.get_fd(), &io.writeSockets);
                     }
@@ -175,38 +157,12 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                 }
                 if (!clients[i].first.res.clear_client)
                     sendresp(clients[i].first.res);
-                // ft_response(clients[i].first, clients[i].second);
-                // std::cout << "write" << std::endl;
-                // const char* responseHeader = "HTTP/1.1 204 No Content\r\n\r\n";
-                // std::string response = clients[i].first.res.get_response();
-                // if (send(clients[i].first.get_fd(), response.c_str() , response.size(), 0) < 1 )
-                // {
-                //     perror("Sending response header failed");
-                //     FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
-                //     close(clients[i].first.get_fd()); 
-                //     continue;
-                // }
                 if(clients[i].first.res.clear_client)
-                {
-                    //  for (size_t i = 0; i < clients.size(); i++)
-                    // {
-                    //     std::cout << "-->" << clients[i].first.res.fd_res.width() << std::endl;
-                    //     std::cout << "clients[" << i << "].first.get_fd() = " << clients[i].first.get_fd() << std::endl;
-                    // }
-                    // // std::cout << "clear client  url :::: "<< clients[i].first.req.getUrl() << std::endl;          
+                {        
                     clients[i].first.res.fd_res.close();
                     FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
                     close(clients[i].first.get_fd());
                     clients.erase(clients.begin() + i);
-                    //print vector clients
-                //    for (size_t i = 0; i < clients.size(); i++)
-                //     {
-                //         std::cout << "**-->" << clients[i].first.res.fd_res.width() << std::endl;
-                //         std::cout << "clients[" << i << "].first.get_fd() = " << clients[i].first.get_fd() << std::endl;
-                //         std::cout << "clients[" << i << "].first.get_fd() ===== PATH " << clients[i].first.req.getUrl()
-                //          << std::endl;
-
-                //     }
 
                     i--;
                 }
@@ -220,28 +176,19 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
 void Multiplexing::handleNewConnection(Socket& serverSocket, Server_storage server)
 {
     Client client;
-
-
     client.res.clear_client = false;
     client.res.check_res = false;
-    //client.res.i = 0;
-    // std::cout << client.req.getChunkSize() << std::endl;
     struct sockaddr_in address = serverSocket.get_address();
     socklen_t clientAddrLen = sizeof(address);
     int clientSocket = accept(serverSocket.get_fd(), (struct sockaddr *)&address, &clientAddrLen);
     client.set_fd(clientSocket);
-    std::cout << "handleNewConnection\n" << client.get_fd() << " ----->\n " << client.req.getUrl()<< "===>\n" << client.res.check_res << std::endl;
     if (clientSocket == -1)
-    {
         perror("Accepting connection failed");
-    }
     else
     {
         FD_SET(clientSocket, &io.readSockets);
         this->clients.push_back(std::make_pair(client, server));
         maxFd = std::max(maxFd, clientSocket);
-        // std::cout << "Accepted client connection from " << inet_ntoa(client.get_address().sin_addr) << std::endl;
-        // std::cout << clients.size() << std::endl;
     }
 }
 

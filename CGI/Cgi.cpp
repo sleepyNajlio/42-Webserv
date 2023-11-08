@@ -62,7 +62,7 @@ std::string get_name(std::string filename)
 
     while(std::getline(temp, name, '/'))
     {
-        // std::cout << name << std::endl;
+        
     }
     return name;
 }

@@ -91,17 +91,12 @@ void Response::errPage(Server_storage server ,int code)
 	{
         path = errors.find(code)->second;
         this->fd_res_filename = path;
-        // std::cout << "path = " << path << std::endl;
         fd_res.open(path, std::ios::in | std::ios::binary | std::ios::ate);
         fd_res.seekg(0, std::ios::end);
         content_length = fd_res.tellg();
         fd_res.seekg(0, std::ios::beg);
         if (fd_res.is_open())
-		{
-            this->head = "HTTP/1.1 " + std::to_string(code) +  "\r\nContent-Type: text/html\r\nContent-Length: " 
-            + std::to_string(content_length) + "\r\n\r\n" ;
-            // this->response = this->head;
-        }
+            this->head = "HTTP/1.1 " + std::to_string(code) +  "\r\nContent-Type: text/html\r\nContent-Length: " + std::to_string(content_length) + "\r\n\r\n" ;
         else
             generateErrorPage(code);
 		return;
@@ -154,7 +149,6 @@ void    Response::open_file(Server_storage &server, std::string file)
     fd_res.open(file, std::ios::in | std::ios::binary | std::ios::ate);
 	fd_res.seekg(0, std::ios::end);
 	size = fd_res.tellg();
-    // std::cout << "----->size = " << size << std::endl;
 	fd_res.seekg(0, std::ios::beg);
 	if (!fd_res.is_open())
     {
@@ -243,17 +237,23 @@ void	Response::ft_delete(Request &request,Server_storage &server )
 
 static bool slashChecker(std::string path)
 {
-    // std::cout << path[path.size() - 1] << std::endl;
     if (path[path.size() - 1] == '/')
         return 1;
     else
         return 0;
 }
 
+std::string get_filename(std::string filename)
+{
+    std::istringstream temp(filename);
+    std::string name;
+
+    while(std::getline(temp, name, '/')){}
+    return name;
+}
+
 void Response::ft_Post(Request &request, Server_storage &server)
 {
-    (void)server;
-
     // if (access(request.getUrl().c_str(), F_OK) == -1)
     // {
     //     std::cout << "error 404" << std::endl;
@@ -262,27 +262,18 @@ void Response::ft_Post(Request &request, Server_storage &server)
     if (locIt->loca_upload)
     {
         // check if dir
-        std::cout << "its a fileee" << std::endl;
-        if (!isDir(request.getUrl()))
+        if (!slashChecker(request.getUrl()))
         {
-            std::cout << "renamingg" << std::endl;
-            std::string name = "./uploads" + request.getUrl();
-
-            std::cout << name << " to  " << request.getRandomStr().c_str() << std::endl;
+            std::string filename = get_filename(request.getUrl());
+            std::string name = "./uploads/" + filename;
             if (std::rename(request.randomstr.c_str(), name.c_str()) != 0) 
-                std::perror("Error renaming file");
-            else
-            {
-                std::cout << "------------>lentgh = "<<request.contentLength <<"file uploaded" << std::endl;
-                head = "HTTP/1.1 201 Created \r\n Content-Type: " + get_content_type(request.getUrl()) + "\r\n"
-                + "Content-Length: 0\r\n\r\n";
-
-            }
+                std::remove(request.randomstr.c_str());
+            head = "HTTP/1.1 201 Created \r\n Content-Type: " + get_content_type(request.getUrl()) + "\r\nContent-Length: 0\r\n\r\n";
         }
         else
         {
-            std::cout << "error 403" << std::endl;
-            head = ""; // 403
+            std::remove(request.randomstr.c_str());
+            errPage(server,403);
         }
     }
     else if (isDir(request.getUrl()))

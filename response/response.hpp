@@ -13,6 +13,7 @@
 #include "../Conf/incs/conf_parser.hpp"
 #include "../CGI/Cgi.hpp"
 #include <dirent.h>
+#include <filesystem>
 
 class Cgi;
 class Response {   
