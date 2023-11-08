@@ -15,8 +15,7 @@
 #include <dirent.h>
 
 class Cgi;
-class Response {
-    private:    
+class Response {   
 
     public:
         int             status_code;
@@ -34,6 +33,7 @@ class Response {
     std::vector<Location_storage>::const_iterator   locIt;
     std::map<int, std::string>                      status_code_map;
     std::fstream                                    fd_res;
+    std::string                                     method;
 
 
     Response();
@@ -58,7 +58,6 @@ class Response {
             body = other.body;
             content_lenght = other.content_lenght;
             fd_res_filename = other.fd_res_filename;
-            std::cout << "fd_res_filename: " << other.fd_res_filename << std::endl;
             fd_res.open(other.fd_res_filename, std::ios::in | std::ios::binary | std::ios::ate);
             fd_res << other.fd_res.rdbuf();
             bytes_sent = other.bytes_sent;

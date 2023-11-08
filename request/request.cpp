@@ -165,27 +165,27 @@ void Request::reader(unsigned char *buffer, size_t bytesRead)
         this->headerString += "\n";
         this->parse_headers(this->headerString);
 
-        std::cout << "header done" << std::endl;
+        // std::cout << "header done" << std::endl;
         if (newBuffer)
             frstprtbod = true;
         this->headerDone = true;
 
     }
-    if (this->headerDone == true && this->method == "POST")
+    if (this->headerDone == true && this->method == "POST" && newBuffer)
     {
         // get the beginning of the body
         unsigned int len = bytesRead;
         if (frstprtbod)
             len = len - (newBuffer - buffer);
-         std::cout << "starting body"<< std::endl;
+        //  std::cout << "starting body"<< std::endl;
         this->parse_body(newBuffer, len);
-         std::cout << this->getBody() << std::endl;
+        //  std::cout << this->getBody() << std::endl;
          
     }
     else if (this->headerDone == true && this->method != "POST")
     {
         this->readDone = true;
-        std::cout << "done" << std::endl;
+        // std::cout << "done" << std::endl;
     }
 }
 
@@ -203,7 +203,7 @@ void Request::parse_body(unsigned char *buffer, size_t bytesRead)
         {
             this->readDone = true;
             close(body);
-            std::cout << "done" << std::endl;
+            // std::cout << "done" << std::endl;
         }
         else if (bytesSent > contentLength)
             throw std::runtime_error("Content-Length exceeded");
@@ -216,13 +216,13 @@ void Request::parse_body(unsigned char *buffer, size_t bytesRead)
         {
             this->readDone = true;
             close(body);
-            std::cout << "done" << std::endl;
+            // std::cout << "done" << std::endl;
         }
     }
     else if (method != "POST")
     {
         this->readDone = true;
-        std::cout << "done" << std::endl;
+        // std::cout << "done" << std::endl;
     }
     else
         throw std::runtime_error("Content-Length or Transfer-Encoding not found");
@@ -278,7 +278,7 @@ void test_chunk(unsigned char *buffer, size_t bytesRead, bool &readDone, int bod
     {
         if (memmem(buffer, bytesRead, "\r\n", 2) != NULL && verif_chunk((unsigned char *) memmem(buffer, bytesRead, "\r\n", 2) + 2))
         {
-            std::cout << "here" << std::endl;
+            // std::cout << "here" << std::endl;
             int first = (unsigned char *)memmem(buffer, bytesRead, "\r\n", 2) - buffer;
             int second = bytesRead - first;
             write(body, buffer, first);
@@ -304,11 +304,11 @@ void test_chunk(unsigned char *buffer, size_t bytesRead, bool &readDone, int bod
     }
     else
     {
-        std::cout << "akhir buffer" << std::endl;
+        // std::cout << "akhir buffer" << std::endl;
         bytesRead = bytesRead - sizeof("\r\n0\r\n\r\n") + 1;
         if (write(body, buffer, bytesRead) == -1 )
             throw std::runtime_error("Writing to file failed 4");
-        std::cout << "done" << std::endl;
+        // std::cout << "done" << std::endl;
         readDone = true;
     }
     // std::cout << "buffer: " << buffer << std::endl;

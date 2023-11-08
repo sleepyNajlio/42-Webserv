@@ -23,6 +23,7 @@ void sendresp(Response &resp)
     if(resp.head.size() != 0)
     {
         std::cout << "head sent" << std::endl;
+
         rc = send(resp.fd_sok, resp.head.c_str(), resp.head.size(), 0) ;
         if(resp.bytes_sent < 0)
         {
@@ -33,32 +34,37 @@ void sendresp(Response &resp)
         resp.bytes_sent += rc;
         resp.head = "";
     }
-    
-        if (resp.response.size() != 0)
+    if (resp.method != "GET")
+    {
+        std::cout << "not get " << std::endl;
+        resp.clear_client = true;
+        return ;
+    }
+    if (resp.response.size() != 0)
+    {
+        
+        std::cout << "scd send" << std::endl;
+        
+        rc = send(resp.fd_sok, resp.response.c_str(), resp.response.size(), 0);
+        if (rc <= 0 )
         {
-            
-            std::cout << "scd send" << std::endl;
-            
-            rc = send(resp.fd_sok, resp.response.c_str(), resp.response.size(), 0);
-            if (rc <= 0 )
-            {
-                std::cout << "error send" << std::endl;
-                resp.clear_client = true;
-                return;
-            }
-            resp.bytes_sent += rc;
-            resp.response = "";
+            std::cout << "error send" << std::endl;
+            resp.clear_client = true;
+            return;
         }
+        resp.bytes_sent += rc;
+        resp.response = "";
+    }
     char buffer[2048];
     resp.fd_res.read(buffer, 2048);
     size_t buffer_size = resp.fd_res.gcount();
 
     if (buffer_size)
     {
-            std::cout << "frst send" << std::endl;
+            // std::cout << "frst send" << std::endl;
 
             rc = send(resp.fd_sok, buffer, buffer_size, 0);
-            std::cout << "comment" << std::endl;
+            // std::cout << "comment" << std::endl;
 
             if (rc <= 0 )
             {
@@ -68,13 +74,14 @@ void sendresp(Response &resp)
             }
             resp.bytes_sent += rc;
         bzero((buffer), 2048);
-        std::cout << "---------->>>>>>resp.bytes_sent = " << resp.bytes_sent << "----contentTrack = " << resp.contentTrack  << std::endl;
+        // std::cout << "---------->>>>>>resp.bytes_sent = " << resp.bytes_sent << "----contentTrack = " << resp.contentTrack  << std::endl;
     }
     if (resp.bytes_sent == resp.contentTrack)
     {
-        std::cout << "end of file" << std::endl;
+        // std::cout << "end of file" << std::endl;
         resp.clear_client = true;
     }
+
 
 
 }
@@ -107,7 +114,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
         {
             if (FD_ISSET(it->second.getFd(), &io.tmpReadSockets))
             {
-                std::cout << "new client" << std::endl;
+                // std::cout << "new client" << std::endl;
                 handleNewConnection(it->first, it->second);
             }
         }
@@ -136,7 +143,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                 }
                 else {
                     buffer[bytesRead] = '\0';
-                    std::cout << "Received: " << buffer << std::endl;
+                    // std::cout << "Received: " << buffer << std::endl;
                     // buffer is ready for parse here
                     try{
                         clients[i].first.req.reader(buffer, bytesRead);
@@ -149,7 +156,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                     // move from read to write sockets if request is done 
                     if (clients[i].first.req.isReadDone())
                     {
-                        std::cout << "hanaa" << std::endl;
+                        // std::cout << "hanaa" << std::endl;
                         FD_CLR(clients[i].first.get_fd(), &io.readSockets);
                         FD_SET(clients[i].first.get_fd(), &io.writeSockets);
                     }
@@ -162,6 +169,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                 
                 if(!clients[i].first.res.check_res)
                 {
+                    std::cout << "init response" << std::endl;
                     clients[i].first.res.check_res = true;
                     clients[i].first.res.init_response(clients[i].first.req , clients[i].second);
                 }
@@ -180,25 +188,25 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                 // }
                 if(clients[i].first.res.clear_client)
                 {
-                     for (size_t i = 0; i < clients.size(); i++)
-                    {
-                        std::cout << "-->" << clients[i].first.res.fd_res.width() << std::endl;
-                        std::cout << "clients[" << i << "].first.get_fd() = " << clients[i].first.get_fd() << std::endl;
-                    }
-                    std::cout << "clear client  url :::: "<< clients[i].first.req.getUrl() << std::endl;          
+                    //  for (size_t i = 0; i < clients.size(); i++)
+                    // {
+                    //     std::cout << "-->" << clients[i].first.res.fd_res.width() << std::endl;
+                    //     std::cout << "clients[" << i << "].first.get_fd() = " << clients[i].first.get_fd() << std::endl;
+                    // }
+                    // // std::cout << "clear client  url :::: "<< clients[i].first.req.getUrl() << std::endl;          
                     clients[i].first.res.fd_res.close();
                     FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
                     close(clients[i].first.get_fd());
                     clients.erase(clients.begin() + i);
                     //print vector clients
-                   for (size_t i = 0; i < clients.size(); i++)
-                    {
-                        std::cout << "**-->" << clients[i].first.res.fd_res.width() << std::endl;
-                        std::cout << "clients[" << i << "].first.get_fd() = " << clients[i].first.get_fd() << std::endl;
-                        std::cout << "clients[" << i << "].first.get_fd() ===== PATH " << clients[i].first.req.getUrl()
-                         << std::endl;
+                //    for (size_t i = 0; i < clients.size(); i++)
+                //     {
+                //         std::cout << "**-->" << clients[i].first.res.fd_res.width() << std::endl;
+                //         std::cout << "clients[" << i << "].first.get_fd() = " << clients[i].first.get_fd() << std::endl;
+                //         std::cout << "clients[" << i << "].first.get_fd() ===== PATH " << clients[i].first.req.getUrl()
+                //          << std::endl;
 
-                    }
+                //     }
 
                     i--;
                 }

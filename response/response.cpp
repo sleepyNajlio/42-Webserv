@@ -91,7 +91,7 @@ void Response::errPage(Server_storage server ,int code)
 	{
         path = errors.find(code)->second;
         this->fd_res_filename = path;
-        std::cout << "path = " << path << std::endl;
+        // std::cout << "path = " << path << std::endl;
         fd_res.open(path, std::ios::in | std::ios::binary | std::ios::ate);
         fd_res.seekg(0, std::ios::end);
         content_length = fd_res.tellg();
@@ -154,7 +154,7 @@ void    Response::open_file(Server_storage &server, std::string file)
     fd_res.open(file, std::ios::in | std::ios::binary | std::ios::ate);
 	fd_res.seekg(0, std::ios::end);
 	size = fd_res.tellg();
-    std::cout << "----->size = " << size << std::endl;
+    // std::cout << "----->size = " << size << std::endl;
 	fd_res.seekg(0, std::ios::beg);
 	if (!fd_res.is_open())
     {
@@ -200,7 +200,7 @@ void    Response::ft_Get(Request &request, Server_storage &server)
     }
     else
     {
-        std::cout << "file :::"<< file << std::endl;
+        // std::cout << "file :::"<< file << std::endl;
         std::ifstream file1(file);
 
         //-------->CGI HANDLER
@@ -238,7 +238,7 @@ void	Response::ft_delete(Request &request,Server_storage &server )
 
 static bool slashChecker(std::string path)
 {
-    std::cout << path[path.size() - 1] << std::endl;
+    // std::cout << path[path.size() - 1] << std::endl;
     if (path[path.size() - 1] == '/')
         return 1;
     else
@@ -247,22 +247,108 @@ static bool slashChecker(std::string path)
 
 void Response::ft_Post(Request &request, Server_storage &server)
 {
-      (void)server;
-      std::cout << "***********************" << std::endl;
-            slashChecker(request.getUrl());
-        if (locIt->loca_upload)
+    (void)server;
+
+    // if (access(request.getUrl().c_str(), F_OK) == -1)
+    // {
+    //     std::cout << "error 404" << std::endl;
+    //     head = ""; // 404
+    // }
+    if (locIt->loca_upload)
+    {
+        // check if dir
+        std::cout << "its a fileee" << std::endl;
+        if (!isDir(request.getUrl()))
         {
+            std::cout << "renamingg" << std::endl;
             std::string name = "./uploads" + request.getUrl();
             if (std::rename(request.getRandomStr().c_str(), name.c_str()) != 0) 
             {
                 std::perror("Error renaming file");
                 head = ""; // 201
             }
+            else
+            {
+                std::cout << "file uploaded" << std::endl;
+                head = "HTTP/1.1 201 Created \r\n Content-Type: " + get_content_type(request.getUrl()) + "\r\n"
+                + "Content-Length: " + ft_to_string(request.contentLength) + "\r\n\r\n";
+
+            }
         }
-        else if (isDir(request.getUrl()))
+        else
         {
-            slashChecker(request.getUrl());
+            std::cout << "error 403" << std::endl;
+            head = ""; // 403
         }
+    }
+    else if (isDir(request.getUrl()))
+    {
+        if (slashChecker(request.getUrl()))
+        {
+            if (locIt->getLocaIndex() != "")
+            {
+                if (get_ex(request.getUrl()) == "py" || get_ex(request.getUrl()) == "php")
+                {
+                    // cgi
+                }
+                else
+                {
+                    std::cout << "error 403" << std::endl;
+                    head = ""; // 403
+                }
+            }
+            else
+            {
+                std::cout << "error 403" << std::endl;
+                head = ""; // 403
+            }
+        }
+        else
+        {
+            std::cout << "error 301" << std::endl;
+            head = ""; // 301
+        }
+    }
+    else
+    {
+        if (get_ex(request.getUrl()) == "py" || get_ex(request.getUrl()) == "php")
+        {
+            // cgi
+        }
+        else
+        {
+            std::cout << "error 403" << std::endl;
+            head = ""; // 403
+        }
+    }
+
+    // else if (isDir(request.getUrl()))
+    // {
+    //     if (!slashChecker(request.getUrl()))
+    //     {
+    //         //  add / to the end of the url
+    //         std::cout << "error 301" << std::endl;
+    //         head = ""; // 301
+    //     }
+    //     else if (locIt->getLocaIndex())
+    //     {
+    //         // cgi
+            
+            
+    //     }
+    //     else
+    //     {
+    //         std::cout << "error 403" << std::endl;
+    //         head = ""; // 403
+    //     }
+    //     slashChecker(request.getUrl());
+    // }
+    // else if (access(request.getUrl().c_str(), F_OK) == -1)
+    // {
+    //     std::cout << "error 404" << std::endl;
+    //     head = ""; // 404
+    // }
+
 
             /*
             if (slashChecker(server.locations.getUpload()))
@@ -297,16 +383,18 @@ void   Response::init_response(Request &request , Server_storage &server)
 {
     locIt = locationMatch(server, request.getUrl());
     storage_int allowedMethods = locIt->getLocaAllowedMethods();
-            std::cout << "IM hereeee-------------" << std::cout;
+            // std::cout << "IM hereeee-------------" << std::cout;
     if (allowedMeth(allowedMethods, request.getMethod()))
     {
-        std::cout << request.getMethod() << std::endl;
+        // std::cout << request.getMethod() << std::endl;
+        method = request.getMethod();
         if (request.getMethod() == "GET")
             ft_Get(request, server);
         else if (request.getMethod() == "POST")
-         {
-            std::cout << "IM hereeee-------------" << std::cout;
-               ft_Post(request,server);}
+        {
+            ft_Post(request,server);
+            std::cout << "IM hereeee-------------" << std::endl;
+        }
         else if (request.getMethod() == "DELETE")
             ft_delete(request , server);
     }

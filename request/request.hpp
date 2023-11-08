@@ -22,7 +22,6 @@ class Request{
         bool readDone;
         bool isChunked;
         size_t bytesSent;
-        size_t contentLength;
         std::string ContentType;
         std::string filename ;
         std::string randomstr;
@@ -31,6 +30,7 @@ class Request{
         int chunkSize;
 
     public:
+        size_t contentLength;
         std::string query;
        
         Request();

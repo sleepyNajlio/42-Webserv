@@ -62,7 +62,7 @@ std::string get_name(std::string filename)
 
     while(std::getline(temp, name, '/'))
     {
-        std::cout << name << std::endl;
+        // std::cout << name << std::endl;
     }
     return name;
 }
@@ -71,7 +71,7 @@ int Cgi::execute_cgi(std::string filename)
     int pid;
     int fd[2];
 
-    std::cout << " filename = " <<  filename << std::endl;
+    // std::cout << " filename = " <<  filename << std::endl;
     this->name = get_name(filename);
     //std::cout << this->filename << std::endl;
     if (pipe(fd) == -1)
@@ -109,7 +109,7 @@ int Cgi::execute_cgi(std::string filename)
         while (true)
         {
             pid_t result = waitpid(pid, &status, WNOHANG);
-            std::cout << result << std::endl;
+            // std::cout << result << std::endl;
             if (result == -1)
                 return 500;
             else
