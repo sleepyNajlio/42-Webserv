@@ -140,7 +140,7 @@ void Response::listDir(std::string file, Request &request, Server_storage &serve
 					         ft_to_string(output.size()) +
 					         "\r\n\r\n";
         this->response = header + output;  
-        clear_client = true;
+        // clear_client = true; // client mazal masiftnalo
 	}
 	else
         errPage(server,403);
@@ -181,20 +181,25 @@ void    Response::ft_Get(Request &request, Server_storage &server)
     std::string file;
     (void) server;
 	file = request.getUrl();
+
 	if (locIt->getLocaPath() != "/")
-		file.replace(0, locIt->getLocaPath().length(), locIt->getLocaRoot());
+		file.replace(0, locIt->getLocaPath().length(), "");
 	else
-		file.replace(0, locIt->getLocaPath().length() - 1, locIt->getLocaRoot());
+		file.replace(0, locIt->getLocaPath().length() - 1, "");
+    file = locIt->getLocaRoot() + locIt->getLocaPath() + file;
     file = delRepSlash(file);
+    std::cout << "file :::"<< file << std::endl;
 
     if (isDir(file))
     {
+        // hna tchek for locIt->getLocaRoot() + locIt->getLocaPath() + locIt->getLocaIndex() if accessable
         if (locIt->getLocaAutoindex())
         {
             listDir(file, request, server);
         }
         else
         {
+            errPage(server,403);
             std::cout << "index not found" << std::endl;
         }
     }
