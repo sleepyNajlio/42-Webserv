@@ -347,6 +347,7 @@ void Response::ft_Post(Request &request, Server_storage &server)
 void Response::init_response(Request &request, Server_storage &server)
 {
     locIt = locationMatch(server, request.getUrl());
+    std::cout << locIt->getLocaPath() << std::endl;
     storage_int allowedMethods = locIt->getLocaAllowedMethods();
 
     if (status_code != 0)

@@ -32,8 +32,8 @@ static std::string newpath(std::string path)
 	while (path.find("/", pos + 1) != std::string::npos)
 		pos = path.find("/", pos + 1);
 	path = path.substr(0, pos);
-	if (path.empty())
-		return ("/");
+	// if (path.empty())
+	// 	return ("/");
 	return (path);
 }
 
@@ -58,14 +58,14 @@ std::vector<Location_storage>::const_iterator locationMatch(Server_storage &serv
 			}
 			it++;
 		}
-		if (path == "/")
+		if (path == "")
 		{
 			break;
 		}
 		path = newpath(path);
 		std::cout << "newpath: " << path << std::endl;
 	}
-
+	it = serv.getLocations().begin();
 	return (it);
 }
 
