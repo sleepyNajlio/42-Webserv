@@ -1,16 +1,18 @@
 #include "inc/Client.hpp"
 
-Client::Client() : client_fd(-1)  {
-        locIt = std::vector<Location_storage>::const_iterator();
-        res = Response(); 
-        req = Request(); 
-    }
+Client::Client() : client_fd(-1)
+{
+    locIt = std::vector<Location_storage>::const_iterator();
+    res = Response();
+    req = Request();
+}
 
-Client::Client(const Client& other) {
+Client::Client(const Client &other)
+{
     *this = other;
 }
 
-Client& Client::operator=(const Client& other) 
+Client &Client::operator=(const Client &other)
 {
     if (this == &other)
         return *this;
@@ -22,7 +24,7 @@ Client& Client::operator=(const Client& other)
     return *this;
 }
 
-Client::~Client(){}
+Client::~Client() {}
 
 Request Client::get_request() const
 {

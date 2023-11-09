@@ -1,15 +1,15 @@
 #include "response.hpp"
 
-bool allowedMeth(storage_int& allowedMethods, std::string method)
+bool allowedMeth(storage_int &allowedMethods, std::string method)
 {
 
-    if (allowedMethods[0] == 1 && method == "GET")
-        return (true);
-    else if (allowedMethods[1] == 1 && method == "POST")
-        return (true);
-    else if (allowedMethods[2] == 1 && method == "DELETE")
-        return (true);
-    return (false);
+	if (allowedMethods[0] == 1 && method == "GET")
+		return (true);
+	else if (allowedMethods[1] == 1 && method == "POST")
+		return (true);
+	else if (allowedMethods[2] == 1 && method == "DELETE")
+		return (true);
+	return (false);
 }
 
 bool isDir(std::string path)
@@ -19,7 +19,7 @@ bool isDir(std::string path)
 	{
 		if (S_ISDIR(buffer.st_mode))
 		{
-			// std::cout << path << " is a directory" << std::endl;
+
 			return (1);
 		}
 	}
@@ -46,15 +46,15 @@ std::vector<Location_storage>::const_iterator locationMatch(Server_storage &serv
 		while (it != serv.getLocations().end())
 		{
 			if (it->getLocaPath() == path)
-            {
+			{
 				return (it);
-            }
+			}
 			it++;
 		}
 		if (path == "/")
-		{	
-            break;
-        }
+		{
+			break;
+		}
 		path = newpath(path);
 	}
 

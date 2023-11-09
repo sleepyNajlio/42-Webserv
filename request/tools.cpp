@@ -1,6 +1,7 @@
-#include    "request.hpp"
+#include "request.hpp"
 
-Request::Request() {
+Request::Request()
+{
     this->method = "";
     this->url = "";
     this->httpVersion = "";
@@ -18,13 +19,15 @@ Request::Request() {
     this->body = -1;
 }
 
-Request::Request(const Request& other) {
+Request::Request(const Request &other)
+{
     *this = other;
 }
 
-Request& Request::operator=(const Request& other) {
-    if (this == &other) 
-      return *this;
+Request &Request::operator=(const Request &other)
+{
+    if (this == &other)
+        return *this;
 
     method = other.method;
     url = other.url;
@@ -45,88 +48,106 @@ Request& Request::operator=(const Request& other) {
     query = other.query;
     filename = other.filename;
 
-
     return *this;
 }
 
-void    Request::setHeaderDone(bool done){
-        this->headerDone = done;
+void Request::setHeaderDone(bool done)
+{
+    this->headerDone = done;
 }
 
-void    Request::setReadDone(bool done){
-        this->readDone = done;
+void Request::setReadDone(bool done)
+{
+    this->readDone = done;
 }
 
-void    Request::setMethod(const std::string& methode){
-        this->method = methode;
+void Request::setMethod(const std::string &methode)
+{
+    this->method = methode;
 }
-void    Request::setUrl(const std::string& url){
-        this->url = url;
+void Request::setUrl(const std::string &url)
+{
+    this->url = url;
 }
-void    Request::sethttpVersion(const std::string& httpVersion){
-        this->httpVersion = httpVersion;
+void Request::sethttpVersion(const std::string &httpVersion)
+{
+    this->httpVersion = httpVersion;
 }
 
-void Request::setChunkSize(const int chunkSize){
+void Request::setChunkSize(const int chunkSize)
+{
     this->chunkSize = chunkSize;
 }
 
-int Request::getChunkSize() const{
+int Request::getChunkSize() const
+{
     return chunkSize;
 }
 
-std::string Request::getMethod() const {
+std::string Request::getMethod() const
+{
     return this->method;
 }
-std::string Request::getUrl() const {
+std::string Request::getUrl() const
+{
     return this->url;
 }
-std::string Request::gethttpVersion() const {
+std::string Request::gethttpVersion() const
+{
     return this->httpVersion;
 }
 
-// ==============================================================
-
-void Request::setBody(const int body){
+void Request::setBody(const int body)
+{
     this->body = body;
 }
 
-void Request::setServerName(const std::string& serverName){
+void Request::setServerName(const std::string &serverName)
+{
     this->serverName = serverName;
 }
 
-void Request::setLocationPath(const std::string& path){
+void Request::setLocationPath(const std::string &path)
+{
     this->locPath = path;
 }
 
-void Request::setRoot(const std::string& path){
+void Request::setRoot(const std::string &path)
+{
     this->root = path;
 }
 
-int Request::getBody() const{
+int Request::getBody() const
+{
     return body;
 }
 
-std::string Request::getServerName() const{
+std::string Request::getServerName() const
+{
     return serverName;
 }
 
-std::string Request::getLocationPath() const{
+std::string Request::getLocationPath() const
+{
     return locPath;
 }
 
-std::string Request::getRoot() const{
+std::string Request::getRoot() const
+{
     return root;
 }
 
-std::string Request::getRandomStr() const{
+std::string Request::getRandomStr() const
+{
     return randomstr;
 }
 
-bool Request::isHeaderDone() const{
+bool Request::isHeaderDone() const
+{
     return headerDone;
 }
 
-bool Request::isReadDone() const{
+bool Request::isReadDone() const
+{
     return readDone;
 }

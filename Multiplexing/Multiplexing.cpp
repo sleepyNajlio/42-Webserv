@@ -22,7 +22,7 @@ void sendresp(Response &resp)
     if(resp.head.size() != 0)
     {
         rc = send(resp.fd_sok, resp.head.c_str(), resp.head.size(), 0) ;
-      //  std::cout << resp.head << std::endl;
+
         if(resp.bytes_sent < 0)
         {
             resp.clear_client = true;
@@ -33,7 +33,7 @@ void sendresp(Response &resp)
     }
 
     //send the response stored in string 
-    if (resp.response.size() != 0)
+    else if (resp.response.size() != 0)
     {
         rc = send(resp.fd_sok, resp.response.c_str(), resp.response.size(), 0);
         if (rc <= 0 )
@@ -92,7 +92,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
         {
             if (FD_ISSET(it->second.getFd(), &io.tmpReadSockets))
             {
-                // std::cout << "new client" << std::endl;
+
                 handleNewConnection(it->first, it->second);
             }
         }
@@ -145,7 +145,6 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                 
                 if(!clients[i].first.res.check_res)
                 {
-                    std::cout << "init response" << std::endl;
                     clients[i].first.res.check_res = true;
                     clients[i].first.res.init_response(clients[i].first.req , clients[i].second);
                 }

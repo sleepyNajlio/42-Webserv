@@ -30,15 +30,15 @@ void parseServer(int argc, char **argv, Conf_parser &_parser)
         std::cerr << "Invalid number of arguments" << std::endl;
         return;
     }
-    catch(Conf_reader::InvalidFileException &e)
+    catch (Conf_reader::InvalidFileException &e)
     {
         std::cerr << e.what() << std::endl;
     }
-    catch(Conf_parser::OutOfServerBlocks &e)
+    catch (Conf_parser::OutOfServerBlocks &e)
     {
         std::cerr << e.what() << std::endl;
     }
-    catch(Conf_parser::ErrorEncountered &e)
+    catch (Conf_parser::ErrorEncountered &e)
     {
         std::cerr << e.what() << std::endl;
     }

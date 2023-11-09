@@ -165,9 +165,9 @@ void Server_storage::setErrorPages(std::vector<std::string> &str)
 {
 	if (str.empty())
 		return;
-	// std::cout << str [0] << std::endl;
-	// if (str.size() % 2 != 0)
-	// 	throw ExceptionMsg ("Error initializer failed");
+
+
+
 	for (size_t i = 0; i < str.size() - 1; i++)
 	{
 		for (size_t j = 0; j < str[i].size(); j++) {
@@ -177,13 +177,13 @@ void Server_storage::setErrorPages(std::vector<std::string> &str)
 		if (str[i].size() != 3)
 			throw ExceptionMsg("Error code is invalid");
 		int code_error = convertStrToInt(str[i]);
-		// re test it -----------//
+
 		if (status(code_error)  == "Undefined" || code_error < 400)
 			throw ExceptionMsg ("Incorrect error code: " + str[i]);
-		// ----------------------//
+
 		i++;
 		std::string path = str[i];
-	//		std::cout << "never get here !" << std::endl;
+
 		removeDelim(path);
 		if (Conf_reader::identifyPath(path) != 2)
 		{
@@ -213,7 +213,7 @@ void Server_storage::setLocation(std::string path, std::vector<std::string> vec)
 	new_location.setLocaPath(path);
 	for (size_t i = 0; i < vec.size(); i++)
 	{
-		// std::cout << vec[i] << " | " << vec[i + 1] << std::endl;
+
 		
 		if (vec[i] == "root" && (i + 1) < vec.size())
 		{

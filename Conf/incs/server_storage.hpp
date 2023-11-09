@@ -3,15 +3,15 @@
 
 # include "location_storage.hpp"
 # include "conf_reader.hpp"
-//# include <netinet/in.h>
+
 # include <unistd.h>
 # include <arpa/inet.h>
 # include <map>
 
 class Location_storage;
-//////////////////////////////////////
+
 std::string status(int); // for test //
-//////////////////////////////////////
+
 
 class Server_storage
 {

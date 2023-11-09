@@ -4,43 +4,42 @@ std::string get_content_type(std::string path)
 {
 	size_t p = path.find_last_of(".");
 	std::string ext;
-	if(p != std::string::npos)
+	if (p != std::string::npos)
 	{
 		ext = path.substr(p, path.length() - p);
 		if (!ext.empty())
 		{
-			if (ext ==  ".css")
+			if (ext == ".css")
 				return "text/css";
-			if (ext ==  ".csv")
+			if (ext == ".csv")
 				return "text/csv";
-			if (ext ==  ".gif")
+			if (ext == ".gif")
 				return "image/gif";
-			if (ext ==  ".htm")
+			if (ext == ".htm")
 				return "text/html";
-			if (ext ==  ".html")
+			if (ext == ".html")
 				return "text/html";
-			if (ext ==  ".ico")
+			if (ext == ".ico")
 				return "image/x-icon";
-			if (ext ==  ".jpeg")
+			if (ext == ".jpeg")
 				return "image/jpeg";
-			if (ext ==  ".jpg")
+			if (ext == ".jpg")
 				return "image/jpeg";
-			if (ext ==  ".js")
+			if (ext == ".js")
 				return "application/javascript";
-			if (ext ==  ".json")
+			if (ext == ".json")
 				return "application/json";
-			if (ext ==  ".png")
+			if (ext == ".png")
 				return "image/png";
-			if (ext ==  ".pdf")
+			if (ext == ".pdf")
 				return "application/pdf";
-			if (ext ==  ".svg")
+			if (ext == ".svg")
 				return "image/svg+xml";
-			if (ext ==  ".txt")
+			if (ext == ".txt")
 				return "text/plain";
-			if (ext ==  ".mp4")
+			if (ext == ".mp4")
 				return "video/mp4";
 		}
-
 	}
 	return "application/octet-stream";
 }

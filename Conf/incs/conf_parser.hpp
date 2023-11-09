@@ -1,60 +1,60 @@
 #ifndef CONF_PARSER_HPP
-# define CONF_PARSER_HPP
+#define CONF_PARSER_HPP
 
-# include <iostream>
-# include <vector>
-# include "server_storage.hpp"
+#include <iostream>
+#include <vector>
+#include "server_storage.hpp"
 
 class Server_storage;
 
-typedef std::vector<std::string> storage;      
+typedef std::vector<std::string> storage;
 
 class Conf_parser
 {
-    private:
-        int servers_nbr;
-        storage block_conf;
-        std::vector<Server_storage>	servers;
+private:
+    int servers_nbr;
+    storage block_conf;
+    std::vector<Server_storage> servers;
 
+public:
+    Conf_parser();
+    ~Conf_parser();
+
+    void store_server(std::string _file);
+    void extract_server_blocks(std::string _file);
+    void Server_creator(std::string &config, Server_storage &server);
+    void checkServers();
+    int strCmp(std::string str1, std::string str2, size_t pos);
+
+    void delete_spaces(std::string &_file);
+    std::string first_word(std::string::size_type _start, std::string _file);
+
+    std::string::size_type begin_serv(std::string::size_type _start, std::string _file);
+    std::string::size_type end_serv(std::string::size_type _start, std::string _file);
+
+    const std::vector<Server_storage> &getServers() const
+    {
+        return (this->servers);
+    };
+    int getServers_nbr() const;
+
+    class OutOfServerBlocks : public std::exception
+    {
     public:
-        Conf_parser();
-        ~Conf_parser();
-
-        void store_server(std::string _file);
-        void extract_server_blocks(std::string _file);
-        void Server_creator(std::string &config, Server_storage &server);
-        void checkServers();
-        int	strCmp(std::string str1, std::string str2, size_t pos);
-
-        void delete_spaces(std::string &_file);
-        std::string first_word(std::string::size_type _start, std::string _file);
-
-        std::string::size_type begin_serv(std::string::size_type _start, std::string _file);
-        std::string::size_type end_serv(std::string::size_type _start, std::string _file);
-
-        const std::vector<Server_storage> &getServers() const
+        virtual const char *what() const throw()
         {
-            return (this->servers);
-        };
-        int getServers_nbr() const;
+            return ("Invalid file: charachters out of server block");
+        }
+    };
 
-        class OutOfServerBlocks : public std::exception
+    class ErrorEncountered : public std::exception
+    {
+    public:
+        virtual const char *what() const throw()
         {
-            public:
-                virtual const char * what() const throw()
-                {
-                    return ("Invalid file: charachters out of server block");
-                }
-        };
-
-        class ErrorEncountered : public std::exception
-        {
-            public:
-                virtual const char * what() const throw()
-                {
-                    return ("Error Encountered during parsing");
-                }
-        };
+            return ("Error Encountered during parsing");
+        }
+    };
 };
 void parseServer(int argc, char **argv, Conf_parser &_parser);
 
