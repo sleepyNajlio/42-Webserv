@@ -316,7 +316,6 @@ void Server_storage::setLocation(std::string path, std::vector<std::string> vec)
 		else if (vec[i] == "upload" && (i + 1) < vec.size())
 		{
 			removeDelim(vec[++i]);
-			std::cout << vec[i ] << std::endl;
 			if(vec[i] == "on")
 				new_location.loca_upload = true;
 			else if(vec[i ] == "off")

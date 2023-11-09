@@ -205,10 +205,19 @@ void    Response::ft_Get(Request &request, Server_storage &server)
                 errPage(server,500);
             else
             {
-                //this->head     = cgi.head;
-                this->response = cgi.response;
-                
-                this->head = cgi.head + "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + ft_to_string(this->response.size()) + "\r\n\r\n";
+                if(request.ex == "py")
+                {
+                    this->head = cgi.head + "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
+                    this->response = cgi.response;
+                }
+                else
+                {
+                    this->head = cgi.head;
+                    this->response = cgi.response;
+                }
+                std::cout << "head = \n"<<this->head << std::endl;
+                std::cout <<"-----------------------------------------------------" << std::endl;
+                std::cout << "body ="<< response << std::endl;
             }
         }
         else if (file1.good())

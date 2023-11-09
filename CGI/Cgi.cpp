@@ -130,6 +130,19 @@ int Cgi::execute_cgi(std::string filename , std::string ex)
         {
             memset(buff, 0, 2048);     
             rbytes = read(fd[0], buff, 2048);
+            if(ex == "php")
+            {
+                std::string temp = buff;
+                if(temp.find("\r\n\r\n"))
+                {
+                    this->head += "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + std::to_string(temp.substr(temp.find("\r\n\r\n")+4).size()) + "\r\n";
+                    this->head += temp.substr(0,temp.find("\r\n\r\n"));
+                }
+                if(temp.find("\r\n\r\n"))
+                    this->response += temp.substr(temp.find("\r\n\r\n")+4);
+                else
+                 this->response += buff;
+            }
             buff[rbytes] = 0;
             response += buff;
         }

@@ -22,7 +22,7 @@ void sendresp(Response &resp)
     if(resp.head.size() != 0)
     {
         rc = send(resp.fd_sok, resp.head.c_str(), resp.head.size(), 0) ;
-        std::cout << resp.head << std::endl;
+      //  std::cout << resp.head << std::endl;
         if(resp.bytes_sent < 0)
         {
             resp.clear_client = true;
