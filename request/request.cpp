@@ -31,6 +31,8 @@ void Request::pLine(std::string line)
     std::istringstream temp(this->getUrl());
 	std::getline(temp, path, '?');
 	temp >> this->query;
+    std::cout << "Q =========================== "<<this->query << std::endl;
+    std::cout << "path =================================== "<<path << std::endl;
     setUrl(path);
 
     if(stream.fail())

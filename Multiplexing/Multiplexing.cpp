@@ -128,6 +128,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                         std::string exceptionMessage = exp.what();
                         clients[i].first.res.set_status_code(std::atoi(exceptionMessage.c_str()));
 						// error page call !!
+                        clients[i].first.req.setReadDone(true);
                     }
                     // move from read to write sockets if request is done 
                     if (clients[i].first.req.isReadDone())

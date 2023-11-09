@@ -83,6 +83,8 @@ int Cgi::execute_cgi(std::string filename , std::string ex)
     {
         char    **env = getEnv();
         int fdin = open(filename.c_str(), O_RDONLY); 
+        if(fdin < 0)
+            exit(404);
         std::string cgi_path;
         char const *cmd[3];
         if (ex == "py")
