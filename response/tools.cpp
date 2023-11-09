@@ -39,13 +39,20 @@ static std::string newpath(std::string path)
 
 std::vector<Location_storage>::const_iterator locationMatch(Server_storage &serv, std::string path)
 {
+	std::cout << "locationMatch: "<< "path: " << path << std::endl;
 	std::vector<Location_storage>::const_iterator it;
+	std::string locationWithoutSlash;
 	while (1)
 	{
 		it = serv.getLocations().begin();
 		while (it != serv.getLocations().end())
 		{
-			if (it->getLocaPath() == path)
+			// if it->getLocaPath() contains a slash at the end, remove it
+			locationWithoutSlash = it->getLocaPath();
+			if (locationWithoutSlash[locationWithoutSlash.length() - 1] == '/' && locationWithoutSlash.length() > 1)
+				locationWithoutSlash = locationWithoutSlash.substr(0, locationWithoutSlash.length() - 1);
+			std::cout << "locationWithoutSlash: " << locationWithoutSlash << std::endl;
+			if (locationWithoutSlash == path)
 			{
 				return (it);
 			}
@@ -56,6 +63,7 @@ std::vector<Location_storage>::const_iterator locationMatch(Server_storage &serv
 			break;
 		}
 		path = newpath(path);
+		std::cout << "newpath: " << path << std::endl;
 	}
 
 	return (it);

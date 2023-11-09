@@ -175,12 +175,19 @@ void Response::ft_Get(Request &request, Server_storage &server)
     file = request.getUrl();
 
     if (locIt->getLocaPath() != "/")
+    {
+        std::cout << "locIt->getLocaPath() != SLACH " << std::endl;
         file.replace(0, locIt->getLocaPath().length(), locIt->getLocaRoot());
-    else
+    }
+    else {
+        std::cout << "locIt->getLocaPath() == SLACH " << std::endl;
         file.replace(0, locIt->getLocaPath().length() - 1, locIt->getLocaRoot());
+    }
 
     file = delRepSlash(file);
-
+    std::cout << "file: " << file << std::endl;
+    std:: cout << "locIt->getLocaRoot(): " << locIt->getLocaRoot() << std::endl;
+    std::cout << "===============================================" << std::endl;
     if (isDir(file))
     {
         // hna tchek for locIt->getLocaRoot() + locIt->getLocaPath() + locIt->getLocaIndex() if accessable
