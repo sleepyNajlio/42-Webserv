@@ -47,7 +47,7 @@ class Multiplexing {
             }
             return *this;
         }
-
+        void deleteTempFile(Client &client);
         struct ioSets getIoSets() const;
         void setupServer(std::vector <std::pair <Socket , Server_storage > > _server);
         void handleNewConnection(Socket& serverSocket, Server_storage server);

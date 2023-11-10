@@ -70,6 +70,14 @@ void sendresp(Response &resp)
 	
 }
 
+void Multiplexing::deleteTempFile(Client &client)
+{
+    if (access(client.req.randomstr.c_str(), F_OK) != -1)
+        remove(client.req.randomstr.c_str());
+    else
+        std::cout << "Error deleting temp file" << std::endl;
+}
+
 
 void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage > > _server)
 {
@@ -155,6 +163,8 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                     clients[i].first.res.fd_res.close();
                     FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
                     close(clients[i].first.get_fd());
+                    std::cout << "body fd" << clients[i].first.req.getBody() << "temp file: " << clients[i].first.req.randomstr << std::endl;
+                    // deleteTempFile(clients[i].first);
                     clients.erase(clients.begin() + i);
 
                     i--;

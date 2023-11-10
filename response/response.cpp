@@ -80,7 +80,10 @@ void Response::generateErrorPage(int code)
     std::string errorPageBody = "<!DOCTYPE html>\n";
     errorPageBody += "<html>\n";
     errorPageBody += "<head>\n";
-    errorPageBody += "<title>Error " + std::to_string(code) + ": " + errorMessage + "</title>\n";
+    if (code == 204)
+        errorPageBody += "<title>Success " + std::to_string(code) + ": " + errorMessage + "</title>\n";
+    else
+        errorPageBody += "<title>Error " + std::to_string(code) + ": " + errorMessage + "</title>\n";
     errorPageBody += "<style>\n";
     errorPageBody += "body {display: flex; justify-content: center; align-items:center; flex-direction: column; font-family: Arial, sans-serif; margin: 0; padding: 20px;}\n";
     errorPageBody += "h1 {font-size: 24px;}\n";
@@ -88,11 +91,16 @@ void Response::generateErrorPage(int code)
     errorPageBody += "</style>\n";
     errorPageBody += "</head>\n";
     errorPageBody += "<body>\n";
-    errorPageBody += "<h1>Error " + std::to_string(code) + ": " + errorMessage + "</h1>\n";
+    if (code == 204)
+        errorPageBody += "<h1>Success " + std::to_string(code) + ": " + errorMessage + "</h1>\n";
+    else
+        errorPageBody += "<h1>Error " + std::to_string(code) + ": " + errorMessage + "</h1>\n";
     errorPageBody += "<p>" + std::to_string(code) + "</p>\n";
     errorPageBody += "</body>\n";
     errorPageBody += "</html>";
-    this->response = "HTTP/1.1 " + std::to_string(code) + "\r\nContent-Type: text/html\r\nContent-Length: " + std::to_string(errorPageBody.size()) + "\r\n\r\n" + errorPageBody;
+    contentTrack = errorPageBody.size();
+    this->head = "HTTP/1.1 " + std::to_string(code) + "\r\nContent-Type: text/html\r\nContent-Length: " + std::to_string(errorPageBody.size()) + "\r\n\r\n";
+    this->response = errorPageBody;
 }
 
 void Response::errPage(Server_storage server, int code)
@@ -303,11 +311,31 @@ void Response::ft_Get(Request &request, Server_storage &server)
 
 void Response::ft_delete(Request &request, Server_storage &server)
 {
-    std::string path = "." + request.getUrl();
-    if (access(path.c_str(), W_OK) == -1)
+
+    std::string file;
+	file = request.getUrl();
+
+	if (locIt->getLocaPath() != "/")
+	{
+	    std::cout << "locIt->getLocaPath() != SLACH " << std::endl;
+	    file.replace(0, locIt->getLocaPath().length(), processString(locIt->getLocaRoot() + "/"));
+	}
+	else {
+	    std::cout << "locIt->getLocaPath() == SLACH " << std::endl;
+	    file = locIt->getLocaRoot() + file;
+	}
+
+	file = delRepSlash(file);
+    if (isDir(file))
         errPage(server, 403);
-    else if (std::remove(path.c_str()))
+    else if (access(file.c_str(), F_OK) == -1)
+        errPage(server, 404);
+    else if (access(file.c_str(), W_OK) == -1)
         errPage(server, 403);
+    else if (std::remove(file.c_str()))
+        errPage(server, 403);
+    else
+        errPage(server, 204);
 }
 
 static bool slashChecker(std::string path)
@@ -349,6 +377,7 @@ void Response::ft_Post(Request &request, Server_storage &server)
 	request.ex = get_ex(request.getUrl());
     if (locIt->loca_upload)
     {
+        std::cout << "here1" << std::endl;
         // check if dir
         if (!slashChecker(request.getUrl()))
         {
@@ -408,6 +437,7 @@ void Response::ft_Post(Request &request, Server_storage &server)
     }
     else
     {
+        std::cout << "here3" << std::endl;
         if (get_ex(request.getUrl()) == "py" || get_ex(request.getUrl()) == "php")
         {
 			std::cout << "here " << request.ex << std::endl;
@@ -426,6 +456,8 @@ void Response::ft_Post(Request &request, Server_storage &server)
                 }
 				this->response = cgi.response;
 				this->contentTrack = cgi.response.size();
+                std::cout << cgi.head << std::endl;
+                std::cout << cgi.response << std::endl;
             }
         }
         else
