@@ -39,6 +39,12 @@ std::string processString(const std::string& input) {
 
     // Add a slash at the end if it's not already there
     std::string result = (input.back() == '/') ? input : (input + '/');
+    size_t pos = 0;
+    while ((pos = result.find("//", pos)) != std::string::npos) {
+        result.replace(pos, 2, "/");
+        pos += 1; // Move past the replaced slash
+    }
+    std::cout << "result after fixing slashes" << result << std::endl;
     return result;
 }
 
@@ -195,11 +201,10 @@ void Response::ft_Get(Request &request, Server_storage &server)
 	if (locIt->getLocaPath() != "/")
 	{
 	    std::cout << "locIt->getLocaPath() != SLACH " << std::endl;
-	    file.replace(0, locIt->getLocaPath().length(), locIt->getLocaRoot());
+	    file.replace(0, locIt->getLocaPath().length(), processString(locIt->getLocaRoot() + "/"));
 	}
 	else {
 	    std::cout << "locIt->getLocaPath() == SLACH " << std::endl;
-	    file.replace(0, locIt->getLocaPath().length() - 1, locIt->getLocaRoot());
 	    file = locIt->getLocaRoot();
 	}
 
@@ -258,10 +263,11 @@ void Response::ft_Get(Request &request, Server_storage &server)
 	}
 	else
 	{
+        std::cout << "Hello from handling Files else block: " << file << std::endl;
 		std::ifstream file1(file);
 
 		//-------->CGI HANDLER
-		request.ex = get_ex(request.getUrl());
+		request.ex = get_ex(file);
 		if (!access(file.c_str(), F_OK) && (request.ex == "py" || request.ex == "php"))
 		{
 		    Cgi cgi(request, file);
