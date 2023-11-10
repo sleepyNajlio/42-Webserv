@@ -168,6 +168,13 @@ std::string get_ex(std::string path)
     return ex;
 }
 
+std::string slashAppender(std::string path)
+{
+    if (path[path.size() - 1] != '/')
+        path += "/";
+    return path;
+}
+
 void Response::ft_Get(Request &request, Server_storage &server)
 {
     std::string file;
@@ -182,6 +189,7 @@ void Response::ft_Get(Request &request, Server_storage &server)
     else {
         std::cout << "locIt->getLocaPath() == SLACH " << std::endl;
         file.replace(0, locIt->getLocaPath().length() - 1, locIt->getLocaRoot());
+        file = locIt->getLocaRoot();
     }
 
     file = delRepSlash(file);
@@ -191,41 +199,14 @@ void Response::ft_Get(Request &request, Server_storage &server)
 	request.ex = get_ex(request.getUrl());
     if (isDir(file))
     {
-        // hna tchek for locIt->getLocaRoot() + locIt->getLocaPath() + locIt->getLocaIndex() if accessable
-        if (locIt->getLocaAutoindex())
-            listDir(file, request, server);
-        else
+        if (!locIt->getLocaIndex().empty())
         {
-            if (locIt->getLocaIndex().size() == 0)
-                errPage(server, 403);
-            else if (locIt->getLocaIndex().empty())
-            {
-                Cgi cgi(request, file, request.randomstr);
-                if (cgi.status == 500)
-                    errPage(server, 500);
-                else
-                {
-                    if (request.ex == "py")
-                    {
-                        this->head = cgi.head + "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
-                        this->response = cgi.response;
-                    }
-                    else
-                    {
-                        this->head = cgi.head;
-                        this->response = cgi.response;
-                    }
-                }
-            }
-            else
-                errPage(server, 404);
-        }
-    }
-    else
-    {
-        std::ifstream file1(file);
+            file = locIt->getLocaRoot() +  locIt->getLocaIndex();
+            std::cout << "handlingFile: " << file << std::endl;
+                    std::ifstream file1(locIt->getLocaRoot() +  locIt->getLocaIndex());
 
         //-------->CGI HANDLER
+        request.ex = get_ex(locIt->getLocaIndex());
         if (!access(file.c_str(), F_OK) && (request.ex == "py" || request.ex == "php"))
         {
             Cgi cgi(request, file, request.randomstr);
@@ -252,6 +233,73 @@ void Response::ft_Get(Request &request, Server_storage &server)
             errPage(server, 404);
         else
             errPage(server, 403);
+        }
+        else if (locIt->getLocaAutoindex())
+            listDir(file, request, server);
+        else
+            errPage(server, 403);
+        // hna tchek for locIt->getLocaRoot() + locIt->getLocaPath() + locIt->getLocaIndex() if accessable
+        // if (locIt->getLocaAutoindex())
+        //     listDir(file, request, server);
+        // else
+        // {
+        //     if (locIt->getLocaIndex().size() == 0)
+        //         errPage(server, 403);
+        //     else if (locIt->getLocaIndex().empty())
+        //     {
+        //         Cgi cgi(request, file);
+        //         if (cgi.status == 500)
+        //             errPage(server, 500);
+        //         else
+        //         {
+        //             if (request.ex == "py")
+        //             {
+        //                 this->head = cgi.head + "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
+        //                 this->response = cgi.response;
+        //             }
+        //             else
+        //             {
+        //                 this->head = cgi.head;
+        //                 this->response = cgi.response;
+        //             }
+        //         }
+        //     }
+        //     else
+        //         errPage(server, 404);
+        // }
+
+    }
+    else
+    {
+        // std::ifstream file1(file);
+
+        // //-------->CGI HANDLER
+        // request.ex = get_ex(request.getUrl());
+        // if (!access(file.c_str(), F_OK) && (request.ex == "py" || request.ex == "php"))
+        // {
+        //     Cgi cgi(request, file);
+        //     if (cgi.status == 500)
+        //         errPage(server, 500);
+        //     else
+        //     {
+        //         if (request.ex == "py")
+        //         {
+        //             this->head = cgi.head + "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
+        //             this->response = cgi.response;
+        //         }
+        //         else
+        //         {
+        //             this->head = cgi.head;
+        //             this->response = cgi.response;
+        //         }
+        //     }
+        // }
+        // else if (file1.good())
+        //     open_file(server, file);
+        // else if (access(file.c_str(), F_OK))
+        //     errPage(server, 404);
+        // else
+        //     errPage(server, 403);
     }
 }
 
@@ -425,4 +473,25 @@ void Response::init_response(Request &request, Server_storage &server)
     }
     else
         errPage(server, 405);
+}
+
+
+
+std::string processString(const std::string& input) {
+    // Check if the string is empty
+    if (input.empty()) {
+        return "/";
+    }
+
+    // Add a slash at the end if it's not already there
+    std::string result = (input.back() == '/') ? input : (input + '/');
+
+    // Remove consecutive slashes
+    size_t pos = 0;
+    while ((pos = result.find("//", pos)) != std::string::npos) {
+        result.replace(pos, 2, "/");
+        pos += 1; // Move past the replaced slash
+    }
+
+    return result;
 }

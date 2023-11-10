@@ -82,3 +82,13 @@ std::string delRepSlash(std::string file)
 	}
 	return (file);
 }
+
+
+//get for files logic working
+// directory
+	// if index exists
+		// serve the file, and files logic is already implented, we just need to change how the extension is retrieved
+	// else if the autoindex is on
+		// list Direcotry
+	// else
+		// 403
