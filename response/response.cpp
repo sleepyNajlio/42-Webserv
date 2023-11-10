@@ -172,7 +172,7 @@ void Response::open_file(Server_storage &server, std::string file)
     }
     this->head = "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: " +
                  get_content_type(file) + "\r\nContent-Length: " + ft_to_string(size) + "\r\n\r\n";
-    contentTrack = size + this->head.size();
+    contentTrack = size ;
 }
 
 std::string get_ex(std::string path)
@@ -326,7 +326,22 @@ std::string get_filename(std::string filename)
 
 void Response::ft_Post(Request &request, Server_storage &server)
 {
+	std::string file("");
+	file = request.getUrl();
 
+    if (locIt->getLocaPath() != "/")
+    {
+        std::cout << "locIt->getLocaPath() != SLACH " << std::endl;
+        file.replace(0, locIt->getLocaPath().length(), locIt->getLocaRoot());
+    }
+    else {
+        std::cout << "locIt->getLocaPath() == SLACH " << std::endl;
+        file.replace(0, locIt->getLocaPath().length() - 1, locIt->getLocaRoot());
+    }
+
+    file = delRepSlash(file);
+
+	request.ex = get_ex(request.getUrl());
     if (locIt->loca_upload)
     {
         // check if dir
@@ -352,36 +367,65 @@ void Response::ft_Post(Request &request, Server_storage &server)
             {
                 if (get_ex(request.getUrl()) == "py" || get_ex(request.getUrl()) == "php")
                 {
-                    // cgi
+					std::cout << "here2" << std::endl;
+					Cgi cgi(request, file, request.randomstr);
+					if (cgi.status == 500)
+						errPage(server, 500);
+					else
+					{
+						if (request.ex == "py")
+						{
+							this->head = cgi.head + "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
+						}
+						else
+						{
+							this->head = cgi.head;
+						}
+						this->response = cgi.response;
+						std::cout << cgi.response << std::endl;
+						this->contentTrack = cgi.response.size();
+					}
                 }
                 else
                 {
-                    std::cout << "error 403" << std::endl;
-                    head = ""; // 403
+                    errPage(server, 403);
                 }
             }
             else
             {
-                std::cout << "error 403" << std::endl;
-                head = ""; // 403
+                errPage(server, 403);
             }
         }
         else
         {
-            std::cout << "error 301" << std::endl;
-            head = ""; // 301
+            errPage(server, 301);
         }
     }
     else
     {
         if (get_ex(request.getUrl()) == "py" || get_ex(request.getUrl()) == "php")
         {
-            // cgi
+			std::cout << "here " << request.ex << std::endl;
+			Cgi cgi(request, file, request.randomstr);
+            if (cgi.status == 500)
+                errPage(server, 500);
+            else
+            {
+                if (request.ex == "py")
+                {
+                    this->head = cgi.head + "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
+                }
+                else
+                {
+                    this->head = cgi.head;
+                }
+				this->response = cgi.response;
+				this->contentTrack = cgi.response.size();
+            }
         }
         else
         {
-            std::cout << "error 403" << std::endl;
-            head = ""; // 403
+            errPage(server, 403);
         }
     }
 }

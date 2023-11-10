@@ -7,10 +7,10 @@ std::string    getValue(std::map<std::string, std::string>& headers, const std::
     return "";
 }
 
-Cgi::Cgi(Request &req, const std::string path  ) : req(req), path(path), status(0)
+Cgi::Cgi(Request &req, const std::string path, std::string fp) : req(req), path(path), status(0)
 {
     getEnv();
-    status = execute_cgi(path, req.ex);
+    status = execute_cgi(path, req.ex, fp);
 }
 
 char    **Cgi::env_to_char (std::map<std::string, std::string>& env)
@@ -34,7 +34,7 @@ char    **Cgi::getEnv()
     std::map<std::string, std::string>	headers = req.headers;
 
     env["SERVER_PROTOCOL"] = "HTTP/1.1";
-	env["req_METHOD"] = req.getMethod();
+	env["REQUEST_METHOD"] = req.getMethod();
 	env["PATH_INFO"] = path;
 	env["PATH_TRANSLATED"] = path;
 	env["SCRIPT_NAME"] = path;
@@ -63,17 +63,19 @@ std::string get_name(std::string filename)
     return name;
 }
 
-int Cgi::execute_cgi(std::string filename , std::string ex)
+int Cgi::execute_cgi(std::string filename , std::string ex, std::string fp)
 {
     int pid;
     int fd[2];
 
+	// (void)fp;
     this->name = get_name(filename);
     if (pipe(fd) == -1)
     {
         std::cerr << "failed piping" << std::endl;
         return 500;
     }
+	std::cout << "waa3" << filename.c_str() << std::endl;
     if ((pid = fork()) == -1)
     {
         std::cerr << "failed forking" << std::endl;
@@ -82,9 +84,9 @@ int Cgi::execute_cgi(std::string filename , std::string ex)
     else if (pid == 0)
     {
         char    **env = getEnv();
-        int fdin = open(filename.c_str(), O_RDONLY); 
-        if(fdin < 0)
-            exit(404);
+        int fdin = open(fp.c_str(), O_RDONLY); 
+        // if(fdin < 0)
+        //     exit(404);
         std::string cgi_path;
         char const *cmd[3];
         if (ex == "py")
@@ -93,7 +95,7 @@ int Cgi::execute_cgi(std::string filename , std::string ex)
             cmd[1] = filename.c_str();
             cmd[2] = (char *)0;
             cgi_path = "/usr/bin/python3";
-        } 
+        }
         else
         {
             cmd[0] = "php-cgi";
@@ -102,9 +104,11 @@ int Cgi::execute_cgi(std::string filename , std::string ex)
             cgi_path = "./cgi-bin/php-cgi";
         }
         close(fd[0]);
-		dup2(fdin, 0);
+		if (fdin > 1)
+			dup2(fdin, 0);
         dup2(fd[1], 1);
         close(fd[1]);
+		std::cerr << cmd[0] << " " << cmd[1] << " " << cgi_path << std::endl;
         execve(cgi_path.c_str(),(char *const *) cmd, env);
         std::cerr << strerror(errno) << std::endl;
         exit(EXIT_FAILURE);
@@ -117,6 +121,8 @@ int Cgi::execute_cgi(std::string filename , std::string ex)
             pid_t result = waitpid(pid, &status, WNOHANG);
             if (result == -1)
                 return 500;
+			else if (status == 404)
+				return 404;
             else
             {
                 if (WEXITSTATUS(status) != EXIT_SUCCESS)
@@ -130,8 +136,8 @@ int Cgi::execute_cgi(std::string filename , std::string ex)
         
         if (rbytes != 0)
         {
-            memset(buff, 0, 2048);     
-            rbytes = read(fd[0], buff, 2048);
+			while (memset(buff, 0, 2048) && read(fd[0], buff, 2048) > 0)
+				this->response += buff;
             if(ex == "php")
             {
                 std::string temp = buff;
@@ -145,8 +151,7 @@ int Cgi::execute_cgi(std::string filename , std::string ex)
                 else
                  this->response += buff;
             }
-            buff[rbytes] = 0;
-            response += buff;
+			std::cout << "resp :" << response << std::endl;
         }
         close(fd[0]);
     }

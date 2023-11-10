@@ -65,9 +65,9 @@ void sendresp(Response &resp)
     //if sending response is done
     if (resp.bytes_sent == resp.contentTrack)
        resp.clear_client = true;
-    if (resp.method != "GET" || !resp.contentTrack)
+    if (resp.method != "GET" && !resp.contentTrack)
         resp.clear_client = true;
-
+	
 }
 
 
