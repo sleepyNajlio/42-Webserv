@@ -231,7 +231,7 @@ void Response::ft_Get(Request &request, Server_storage &server)
 			request.ex = get_ex(locIt->getLocaIndex());
 			if (!access(file.c_str(), F_OK) && (request.ex == "py" || request.ex == "php"))
 			{
-				Cgi cgi(request, file);
+				Cgi cgi(request, file, request.randomstr);
 				if (cgi.status == 500)
 					errPage(server, 500);
 				else
@@ -270,7 +270,7 @@ void Response::ft_Get(Request &request, Server_storage &server)
 		request.ex = get_ex(file);
 		if (!access(file.c_str(), F_OK) && (request.ex == "py" || request.ex == "php"))
 		{
-		    Cgi cgi(request, file);
+		    Cgi cgi(request, file, request.randomstr);
 		    if (cgi.status == 500)
 		        errPage(server, 500);
 		    else
