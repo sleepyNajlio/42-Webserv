@@ -109,10 +109,10 @@ void Response::errPage(Server_storage server, int code)
         this->fd_res_filename = path;
         fd_res.open(path, std::ios::in | std::ios::binary | std::ios::ate);
         fd_res.seekg(0, std::ios::end);
-        content_length = fd_res.tellg();
+        contentTrack = fd_res.tellg();
         fd_res.seekg(0, std::ios::beg);
         if (fd_res.is_open())
-            this->head = "HTTP/1.1 " + std::to_string(code) + "\r\nContent-Type: text/html\r\nContent-Length: " + std::to_string(content_length) + "\r\n\r\n";
+            this->head = "HTTP/1.1 " + std::to_string(code) + "\r\nContent-Type: text/html\r\nContent-Length: " + std::to_string(contentTrack) + "\r\n\r\n";
         else
             generateErrorPage(code);
         return;
@@ -177,11 +177,10 @@ void Response::open_file(Server_storage &server, std::string file)
 
 std::string get_ex(std::string path)
 {
-    std::istringstream temp(path);
-    std::string name;
-    std::string ex;
-    std::getline(temp, name, '.');
-    temp >> ex;
+    std::string ex = "";
+    size_t pos = path.find_last_of(".");
+    if (pos != std::string::npos)
+        ex = path.substr(pos + 1);
     return ex;
 }
 
@@ -205,7 +204,7 @@ void Response::ft_Get(Request &request, Server_storage &server)
 	}
 	else {
 	    std::cout << "locIt->getLocaPath() == SLACH " << std::endl;
-	    file = locIt->getLocaRoot();
+	    file = locIt->getLocaRoot() + file;
 	}
 
 	file = delRepSlash(file);
@@ -224,7 +223,7 @@ void Response::ft_Get(Request &request, Server_storage &server)
 	{
 		if (!locIt->getLocaIndex().empty())
 		{
-			file = processString(locIt->getLocaRoot() + "/") +  locIt->getLocaIndex();
+			file = processString(file + "/") +  locIt->getLocaIndex();
 			std::cout << "handlingFile: " << file << std::endl;
 			std::ifstream file1(processString(locIt->getLocaRoot() + "/") +  locIt->getLocaIndex());
 
@@ -268,6 +267,7 @@ void Response::ft_Get(Request &request, Server_storage &server)
 
 		//-------->CGI HANDLER
 		request.ex = get_ex(file);
+        std::cout << "request.ex: " << request.ex << std::endl;
 		if (!access(file.c_str(), F_OK) && (request.ex == "py" || request.ex == "php"))
 		{
 			std::cout << "run cgi" << std::endl;
@@ -298,6 +298,7 @@ void Response::ft_Get(Request &request, Server_storage &server)
 		else
 		    errPage(server, 403);
 	}
+    std::cout << "response: " << this->head << "\n" << this->response << std::endl;
 }
 
 void Response::ft_delete(Request &request, Server_storage &server)
@@ -455,6 +456,7 @@ void Response::init_response(Request &request, Server_storage &server)
     {
 
         method = request.getMethod();
+        std::cout << "redirect : " << locIt->getLocaRedirect() << std::endl;
         if (locIt->getLocaRedirect().size() != 0)
         {
             head = "HTTP/1.1 301 Moved Permanently\r\nLocation: " + locIt->getLocaRedirect() + "\r\n\r\n";
