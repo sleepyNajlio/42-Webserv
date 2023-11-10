@@ -28,7 +28,6 @@ void sendresp(Response &resp)
             resp.clear_client = true;
             return;
         }
-        resp.bytes_sent += rc;
         resp.head = "";
     }
 
@@ -52,6 +51,7 @@ void sendresp(Response &resp)
 
     if (buffer_size)
     {
+		std::cout << "hna" << std::endl;
             rc = send(resp.fd_sok, buffer, buffer_size, 0);
             if (rc <= 0 )
             {
@@ -61,7 +61,7 @@ void sendresp(Response &resp)
             resp.bytes_sent += rc;
         bzero((buffer), 2048);
     }
-    
+    std::cout << resp.bytes_sent << " " << resp.contentTrack << " " << std::endl ;
     //if sending response is done
     if (resp.bytes_sent == resp.contentTrack)
        resp.clear_client = true;

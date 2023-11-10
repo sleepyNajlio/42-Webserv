@@ -92,7 +92,7 @@ int Cgi::execute_cgi(std::string filename , std::string ex)
             cmd[0] = "python-cgi";
             cmd[1] = filename.c_str();
             cmd[2] = (char *)0;
-            cgi_path = "./cgi-bin/python-cgi";
+            cgi_path = "/usr/bin/python3";
         } 
         else
         {

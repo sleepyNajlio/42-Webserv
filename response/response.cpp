@@ -223,13 +223,14 @@ void Response::ft_Get(Request &request, Server_storage &server)
                 if (request.ex == "py")
                 {
                     this->head = cgi.head + "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
-                    this->response = cgi.response;
                 }
                 else
                 {
                     this->head = cgi.head;
                     this->response = cgi.response;
                 }
+				this->response = cgi.response;
+				this->contentTrack = cgi.response.size();
             }
         }
         else if (file1.good())
