@@ -219,6 +219,7 @@ void Response::ft_Get(Request &request, Server_storage &server)
 	std::cout << "loca_index: " << locIt->getLocaIndex() << "|" << std::endl;
 	std::cout << "loca_alias: " << locIt->getLocaAlias() << std::endl;
 	std::cout << "=============SAFI INFO RAH SALAW==============" << std::endl;
+
 	if (isDir(file))
 	{
 		if (!locIt->getLocaIndex().empty())
@@ -243,7 +244,6 @@ void Response::ft_Get(Request &request, Server_storage &server)
 					else
 					{
 						this->head = cgi.head;
-						this->response = cgi.response;
 					}
 					this->response = cgi.response;
 					this->contentTrack = cgi.response.size();
@@ -270,21 +270,25 @@ void Response::ft_Get(Request &request, Server_storage &server)
 		request.ex = get_ex(file);
 		if (!access(file.c_str(), F_OK) && (request.ex == "py" || request.ex == "php"))
 		{
+			std::cout << "run cgi" << std::endl;
 		    Cgi cgi(request, file, request.randomstr);
 		    if (cgi.status == 500)
 		        errPage(server, 500);
+			else if (cgi.status == 404)
+				errPage(server, 404);
 		    else
 		    {
 		        if (request.ex == "py")
 		        {
 		            this->head = cgi.head + "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
-		            this->response = cgi.response;
 		        }
 		        else
 		        {
 		            this->head = cgi.head;
-		            this->response = cgi.response;
 		        }
+				this->response = cgi.response;
+				std::cout << this->response << std::endl;
+				this->contentTrack = cgi.response.size();
 		    }
 		}
 		else if (file1.good())
