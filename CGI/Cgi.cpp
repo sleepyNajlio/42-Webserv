@@ -68,14 +68,12 @@ int Cgi::execute_cgi(std::string filename , std::string ex, std::string fp)
     int pid;
     int fd[2];
 
-	// (void)fp;
     this->name = get_name(filename);
     if (pipe(fd) == -1)
     {
         std::cerr << "failed piping" << std::endl;
         return 500;
     }
-	// std::cout << "waa3" << filename.c_str() << std::endl;
     if ((pid = fork()) == -1)
     {
         std::cerr << "failed forking" << std::endl;
@@ -94,7 +92,7 @@ int Cgi::execute_cgi(std::string filename , std::string ex, std::string fp)
             cmd[0] = "python-cgi";
             cmd[1] = filename.c_str();
             cmd[2] = (char *)0;
-            cgi_path = "/usr/bin/python3";
+            cgi_path = "./cgi-bin/python-cgi";
         }
         else
         {
@@ -122,22 +120,21 @@ int Cgi::execute_cgi(std::string filename , std::string ex, std::string fp)
             pid_t result = waitpid(pid, &status, WNOHANG);
             if (result == -1)
                 return 500;
-			else if (status == 404)
-				return 404;
             else if (result == 0)
             {
                 time_t  currentTime = time(NULL);
                 if (currentTime - startTime > 2)
                 {
-                    // std::cout << pid << "wake the up" << std::endl;
+                    std::cout << "===================> test  in timeout case " <<  std::endl;
                     kill(pid, SIGKILL);
-                    return 502;
+                    return 408;
                 }
             }
             else
             {
+                 std::cout << "hiiiiii_ !"<< std::endl;
                 if (WEXITSTATUS(status) != EXIT_SUCCESS)
-                    return 500;
+                    return 512;
                 break;
             }
             usleep(10000);
@@ -151,18 +148,13 @@ int Cgi::execute_cgi(std::string filename , std::string ex, std::string fp)
 				this->response += buff;
             if(ex == "php")
             {
-                std::string temp = buff;
+                std::string temp = response;
                 if(temp.find("\r\n\r\n"))
                 {
-                    this->head += "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + std::to_string(temp.substr(temp.find("\r\n\r\n")+4).size()) + "\r\n";
-                    this->head += temp.substr(0,temp.find("\r\n\r\n"));
+                    this->head += "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + std::to_string(temp.substr(temp.find("\r\n\r\n")+4).size()) + "\r\n" + temp.substr(0,temp.find("\r\n\r\n") + 4);
+                    this->response = temp.substr(temp.find("\r\n\r\n")+4);
                 }
-                if(temp.find("\r\n\r\n"))
-                    this->response += temp.substr(temp.find("\r\n\r\n")+4);
-                else
-                 this->response += buff;
             }
-			// std::cout << "resp :" << response << std::endl;
         }
         close(fd[0]);
     }

@@ -68,7 +68,6 @@ std::vector<Location_storage>::const_iterator locationMatch(Server_storage &serv
 			locationWithoutSlash = it->getLocaPath();
 			if (locationWithoutSlash[locationWithoutSlash.length() - 1] == '/' && locationWithoutSlash.length() > 1)
 				locationWithoutSlash = locationWithoutSlash.substr(0, locationWithoutSlash.length() - 1);
-			std::cout << "locationWithoutSlash: " << locationWithoutSlash << std::endl;
 			if (locationWithoutSlash == path)
 			{
 				return (it);

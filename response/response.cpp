@@ -156,7 +156,7 @@ void Response::generateErrorPage(int code)
     this->head = "HTTP/1.1 " + ft_to_string(code) + " " + initStatusCodeMap(code) + "\r\nContent-Type: text/html\r\nContent-Length: " + ft_to_string(errorPageBody.size()) + "\r\n\r\n";
     this->response = errorPageBody;
 
-    // std::cout << "response: " << this->head << "\n" << this->response << std::endl;
+     std::cout << "head : " << this->head << "\n response :" << this->response << std::endl;
 }
 
 void Response::errPage(Server_storage server, int code)
@@ -344,7 +344,10 @@ void Response::ft_Get(Request &request, Server_storage &server)
 		        }
 		        else
 		        {
-		            this->head = cgi.head;
+                    if(cgi.status == 408)
+                         this->head = "HTTP/1.1 408 Request Timeout\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
+		            else
+                        this->head = cgi.head;
 		        }
 				this->response = cgi.response;
 				// std::cout << this->response << std::endl;
