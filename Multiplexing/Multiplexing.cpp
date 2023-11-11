@@ -49,7 +49,6 @@ void sendresp(Response &resp)
     // open file if not opened
     if (!resp.fd_res.is_open() && resp.fd_res_filename.size() != 0)
     {
-        std::cout << "open " << resp.fd_res_filename << std::endl;
         resp.fd_res.open(resp.fd_res_filename, std::ios::in | std::ios::binary | std::ios::ate);
         if (!resp.fd_res.is_open())
         {
@@ -76,7 +75,7 @@ void sendresp(Response &resp)
             resp.bytes_sent += rc;
         bzero((buffer), 2048);
     }
-    std::cout << resp.bytes_sent << " " << resp.contentTrack << " " << std::endl ;
+    // std::cout << resp.bytes_sent << " " << resp.contentTrack << " " << std::endl ;
     resp.fd_res.close();
     //if sending response is done
     if (resp.bytes_sent == resp.contentTrack)

@@ -97,7 +97,7 @@ std::string processString(const std::string& input) {
         result.replace(pos, 2, "/");
         pos += 1; // Move past the replaced slash
     }
-    std::cout << "result after fixing slashes" << result << std::endl;
+    // std::cout << "result after fixing slashes" << result << std::endl;
     return result;
 }
 
@@ -156,7 +156,7 @@ void Response::generateErrorPage(int code)
     this->head = "HTTP/1.1 " + ft_to_string(code) + " " + initStatusCodeMap(code) + "\r\nContent-Type: text/html\r\nContent-Length: " + ft_to_string(errorPageBody.size()) + "\r\n\r\n";
     this->response = errorPageBody;
 
-     std::cout << "head : " << this->head << "\n response :" << this->response << std::endl;
+    //  std::cout << "head : " << this->head << "\n response :" << this->response << std::endl;
 }
 
 void Response::errPage(Server_storage server, int code)
@@ -270,11 +270,9 @@ void Response::ft_Get(Request &request, Server_storage &server)
 
 	if (locIt->getLocaPath() != "/")
 	{
-	    // std::cout << "locIt->getLocaPath() != SLACH " << std::endl;
 	    file.replace(0, locIt->getLocaPath().length(), processString(locIt->getLocaRoot() + "/"));
 	}
 	else {
-	    std::cout << "locIt->getLocaPath() == SLACH " << std::endl;
 	    file = locIt->getLocaRoot() + file;
 	}
 
@@ -323,7 +321,6 @@ void Response::ft_Get(Request &request, Server_storage &server)
 	}
 	else
 	{
-        std::cout << "Hello from handling Files else block: " << file << std::endl;
 		std::ifstream file1(file);
 
 		//-------->CGI HANDLER
@@ -350,7 +347,6 @@ void Response::ft_Get(Request &request, Server_storage &server)
                         this->head = cgi.head;
 		        }
 				this->response = cgi.response;
-				// std::cout << this->response << std::endl;
 				this->contentTrack = cgi.response.size();
 		    }
 		}
@@ -361,7 +357,6 @@ void Response::ft_Get(Request &request, Server_storage &server)
 		else
 		    errPage(server, 403);
 	}
-    // std::cout << "response: " << this->head << "\n" << this->response << std::endl;
 }
 
 
@@ -424,31 +419,17 @@ std::string get_filename(std::string filename)
 
 void Response::ft_Post(Request &request, Server_storage &server)
 {
-    // std::cout << "==============FT_POST================" << std::endl;
 	std::string file("");
 	file = request.getUrl();
 
 	if (locIt->getLocaPath() != "/")
 	{
-	    // std::cout << "locIt->getLocaPath() != SLACH " << std::endl;
 	    file.replace(0, locIt->getLocaPath().length(), processString(locIt->getLocaRoot() + "/"));
 	}
 	else {
-	    // std::cout << "locIt->getLocaPath() == SLACH " << std::endl;
 	    file = locIt->getLocaRoot() + file;
 	}
 
-	// std::cout << "file: " << file << std::endl;
-	// std:: cout << "locIt->getLocaRoot(): " << locIt->getLocaRoot() << std::endl;
-	// std::cout << "===============================================" << std::endl;
-	// std::cout << "============location POST INFO===========:"  << std::endl;
-	// std::cout << "loca_path: " << locIt->getLocaPath() << std::endl;
-	// std::cout << "loca_root: " << locIt->getLocaRoot() << std::endl;
-	// std::cout << "loca_autoindex: " << locIt->getLocaAutoindex() << std::endl;
-	// std::cout << "loca_index: " << locIt->getLocaIndex() << "|" << std::endl;
-	// std::cout << "loca_alias: " << locIt->getLocaAlias() << std::endl;
-    // std::cout << "loca_upload: " << locIt->loca_upload << std::endl;
-	// std::cout << "=============SAFI INFO RAH SALAW==============" << std::endl;
     file = delRepSlash(file);
 
 	request.ex = get_ex(request.getUrl());
@@ -457,7 +438,6 @@ void Response::ft_Post(Request &request, Server_storage &server)
         // check if dir
         std::string filename = request.randomstr.substr(8, request.randomstr.size()) + get_file_extension(request.headers.find("Content-Type")->second);
         std::string name = processString(locIt->getLocaRoot() + "/uploads/");
-        // std::cout << "name:  " << name << std::endl;
         if (access(name.c_str(), F_OK) == -1)
         {
             errPage(server, 409);
@@ -467,19 +447,15 @@ void Response::ft_Post(Request &request, Server_storage &server)
         if (std::rename(request.randomstr.c_str(), name.c_str()) != 0)
             std::remove(request.randomstr.c_str());
         head = "HTTP/1.1 201 Created \r\nContent-Type: " + get_content_type(request.getUrl()) + "\r\nContent-Length: 0\r\nLocation: " + processString(locIt->getLocaPath() + "/uploads/") + filename + "\r\n\r\n" ;
-        // std::cout << "fileName: " << name << std::endl;
-        // std::cout << "file Location: " << processString(locIt->getLocaPath() + "/uploads/" + filename) << std::endl;
     }
     else if (isDir(request.getUrl()))
     {
-        // std::cout << "Hello from ft_Post: idDir" << std::endl;
         if (slashChecker(request.getUrl()))
         {
             if (locIt->getLocaIndex() != "")
             {
                 if (get_ex(request.getUrl()) == "py" || get_ex(request.getUrl()) == "php")
                 {
-					// std::cout << "here2" << std::endl;
 					Cgi cgi(request, file, request.randomstr);
 					if (cgi.status == 500)
 						errPage(server, 500);
@@ -494,7 +470,6 @@ void Response::ft_Post(Request &request, Server_storage &server)
 							this->head = cgi.head;
 						}
 						this->response = cgi.response;
-						// std::cout << cgi.response << std::endl;
 						this->contentTrack = cgi.response.size();
 					}
                 }
@@ -515,10 +490,9 @@ void Response::ft_Post(Request &request, Server_storage &server)
     }
     else
     {
-        std::cout << "here3" << std::endl;
+        // file case
         if (get_ex(request.getUrl()) == "py" || get_ex(request.getUrl()) == "php")
         {
-			std::cout << "here " << request.ex << std::endl;
 			Cgi cgi(request, file, request.randomstr);
             if (cgi.status == 500)
                 errPage(server, 500);
@@ -534,8 +508,6 @@ void Response::ft_Post(Request &request, Server_storage &server)
                 }
 				this->response = cgi.response;
 				this->contentTrack = cgi.response.size();
-                std::cout << cgi.head << std::endl;
-                std::cout << cgi.response << std::endl;
             }
         }
         else
@@ -554,7 +526,6 @@ void Response::init_response(Request &request, Server_storage &server)
         errPage(server, 404);
         return;
     }
-    std::cout << locIt->getLocaPath() << std::endl;
     storage_int allowedMethods = locIt->getLocaAllowedMethods();
 
     if (status_code != 0)
@@ -567,7 +538,6 @@ void Response::init_response(Request &request, Server_storage &server)
     {
 
         method = request.getMethod();
-        std::cout << "redirect : " << locIt->getLocaRedirect() << std::endl;
         if (locIt->getLocaRedirect().size() != 0)
         {
             head = "HTTP/1.1 301 Moved Permanently\r\nLocation: " + locIt->getLocaRedirect() + "\r\n\r\n";

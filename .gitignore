@@ -3,3 +3,4 @@ uploads
 TODO
 var
 .DS_Store
+.vscode

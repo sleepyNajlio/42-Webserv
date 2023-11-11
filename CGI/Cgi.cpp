@@ -132,7 +132,7 @@ int Cgi::execute_cgi(std::string filename , std::string ex, std::string fp)
             }
             else
             {
-                 std::cout << "hiiiiii_ !"<< std::endl;
+                //  std::cout << "hiiiiii_ !"<< std::endl;
                 if (WEXITSTATUS(status) != EXIT_SUCCESS)
                     return 512;
                 break;
