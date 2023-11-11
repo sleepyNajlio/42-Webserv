@@ -26,6 +26,23 @@ bool isDir(std::string path)
 	return (0);
 }
 
+bool isDirectoryEmpty(std::string path) 
+{
+    DIR* directory = opendir(path.c_str());
+
+    if (directory != NULL) {
+        while (struct dirent* entry = readdir(directory)) {
+            if (std::strcmp(entry->d_name, ".") != 0 && std::strcmp(entry->d_name, "..") != 0) {
+                closedir(directory);
+                return false;  
+            }
+        }
+        closedir(directory);
+        return true;  
+    } 
+    return false;  
+}
+
 static std::string newpath(std::string path)
 {
 	size_t pos = -1;
@@ -51,7 +68,6 @@ std::vector<Location_storage>::const_iterator locationMatch(Server_storage &serv
 			locationWithoutSlash = it->getLocaPath();
 			if (locationWithoutSlash[locationWithoutSlash.length() - 1] == '/' && locationWithoutSlash.length() > 1)
 				locationWithoutSlash = locationWithoutSlash.substr(0, locationWithoutSlash.length() - 1);
-			std::cout << "locationWithoutSlash: " << locationWithoutSlash << std::endl;
 			if (locationWithoutSlash == path)
 			{
 				return (it);

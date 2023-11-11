@@ -75,7 +75,7 @@ public:
     void ft_Get(Request &request, Server_storage &server);
     void ft_Post(Request &request, Server_storage &server);
     void ft_delete(Request &request, Server_storage &server);
-
+    std::string urlAlias;
     // senders
     void ft_sendResponse();
     void ft_sendHeader();
