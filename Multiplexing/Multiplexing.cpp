@@ -44,6 +44,21 @@ void sendresp(Response &resp)
         resp.response = "";
     }
 
+
+    // {file case}
+    // open file if not opened
+    if (!resp.fd_res.is_open() && resp.fd_res_filename.size() != 0)
+    {
+        std::cout << "open " << resp.fd_res_filename << std::endl;
+        resp.fd_res.open(resp.fd_res_filename, std::ios::in | std::ios::binary | std::ios::ate);
+        if (!resp.fd_res.is_open())
+        {
+            resp.clear_client = true;
+            return;
+        }
+        // move the file pointer to the position where it was left (bytes_sent)
+        resp.fd_res.seekg(resp.bytes_sent, std::ios::beg);
+    }
     //send the response stored in file
     char buffer[2048];
     resp.fd_res.read(buffer, 2048);
@@ -62,6 +77,7 @@ void sendresp(Response &resp)
         bzero((buffer), 2048);
     }
     std::cout << resp.bytes_sent << " " << resp.contentTrack << " " << std::endl ;
+    resp.fd_res.close();
     //if sending response is done
     if (resp.bytes_sent == resp.contentTrack)
        resp.clear_client = true;
