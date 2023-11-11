@@ -116,6 +116,7 @@ int Cgi::execute_cgi(std::string filename , std::string ex, std::string fp)
     else
     {
         close(fd[1]);
+        time_t startTime = time(NULL);
         while (true)
         {
             pid_t result = waitpid(pid, &status, WNOHANG);
@@ -123,6 +124,16 @@ int Cgi::execute_cgi(std::string filename , std::string ex, std::string fp)
                 return 500;
 			else if (status == 404)
 				return 404;
+            else if (result == 0)
+            {
+                time_t  currentTime = time(NULL);
+                if (currentTime - startTime > 2)
+                {
+                    std::cout << pid << "wake the up" << std::endl;
+                    kill(pid, SIGKILL);
+                    return 502;
+                }
+            }
             else
             {
                 if (WEXITSTATUS(status) != EXIT_SUCCESS)
