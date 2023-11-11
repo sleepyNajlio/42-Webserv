@@ -85,7 +85,7 @@ void Conf_parser::extract_server_blocks(std::string _file)
         _end = end_serv(_start, _file);
         block_conf.push_back(_file.substr(_start, _end - _start + 1));
         servers_nbr++;
-        _start = _end + 1;
+        _start = _end + 2;
     }
 }
 

@@ -133,9 +133,9 @@ void Response::generateErrorPage(int code)
     errorPageBody += "<html>\n";
     errorPageBody += "<head>\n";
     if (code == 204)
-        errorPageBody += "<title>Success " + std::to_string(code) + ": " + errorMessage + "</title>\n";
+        errorPageBody += "<title>Success " + ft_to_string(code) + ": " + errorMessage + "</title>\n";
     else
-        errorPageBody += "<title>Error " + std::to_string(code) + ": " + errorMessage + "</title>\n";
+        errorPageBody += "<title>Error " + ft_to_string(code) + ": " + errorMessage + "</title>\n";
     errorPageBody += "<style>\n";
     errorPageBody += "body {display: flex; justify-content: center; align-items:center; flex-direction: column; font-family: Arial, sans-serif; margin: 0; padding: 20px;}\n";
     errorPageBody += "h1 {font-size: 24px;}\n";
@@ -144,14 +144,14 @@ void Response::generateErrorPage(int code)
     errorPageBody += "</head>\n";
     errorPageBody += "<body>\n";
     if (code == 204)
-        errorPageBody += "<h1>Success " + std::to_string(code) + ": " + errorMessage + "</h1>\n";
+        errorPageBody += "<h1>Success " + ft_to_string(code) + ": " + errorMessage + "</h1>\n";
     else
-        errorPageBody += "<h1>Error " + std::to_string(code) + ": " + errorMessage + "</h1>\n";
-    errorPageBody += "<p>" + std::to_string(code) + "</p>\n";
+        errorPageBody += "<h1>Error " + ft_to_string(code) + ": " + errorMessage + "</h1>\n";
+    errorPageBody += "<p>" + ft_to_string(code) + "</p>\n";
     errorPageBody += "</body>\n";
     errorPageBody += "</html>";
     contentTrack = errorPageBody.size();
-    this->head = "HTTP/1.1 " + std::to_string(code) + "\r\nContent-Type: text/html\r\nContent-Length: " + std::to_string(errorPageBody.size()) + "\r\n\r\n";
+    this->head = "HTTP/1.1 " + ft_to_string(code) + "\r\nContent-Type: text/html\r\nContent-Length: " + ft_to_string(errorPageBody.size()) + "\r\n\r\n";
     this->response = errorPageBody;
 }
 
@@ -172,7 +172,7 @@ void Response::errPage(Server_storage server, int code)
         contentTrack = fd_res.tellg();
         fd_res.seekg(0, std::ios::beg);
         if (fd_res.is_open())
-            this->head = "HTTP/1.1 " + std::to_string(code) + "\r\nContent-Type: text/html\r\nContent-Length: " + std::to_string(contentTrack) + "\r\n\r\n";
+            this->head = "HTTP/1.1 " + ft_to_string(code) + "\r\nContent-Type: text/html\r\nContent-Length: " + ft_to_string(contentTrack) + "\r\n\r\n";
         else
             generateErrorPage(code);
         return;
@@ -203,7 +203,7 @@ void Response::listDir(std::string file, Request &request, Server_storage &serve
         }
         closedir(dir);
         output.append("</ul></body></html>");
-        std::string header = "HTTP/1.1 200 OK\r\n"
+        std::string header = "HTTP/1.1 "+ ft_to_string(status_code) +" OK\r\n"
                              "Connection: close\r\n"
                              "Content-Type: "
                              "text/html\r\n"
@@ -230,7 +230,7 @@ void Response::open_file(Server_storage &server, std::string file)
         errPage(server, 403);
         return;
     }
-    this->head = "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: " +
+    this->head = "HTTP/1.1 "+ ft_to_string(status_code) + " OK\r\nConnection: close\r\nContent-Type: " +
                  get_content_type(file) + "\r\nContent-Length: " + ft_to_string(size) + "\r\n\r\n";
     contentTrack = size ;
 }
@@ -298,7 +298,8 @@ void Response::ft_Get(Request &request, Server_storage &server)
 				{
 					if (request.ex == "py")
 					{
-						this->head = cgi.head + "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
+						this->head = cgi.head + "HTTP/1.1 " + ft_to_string(cgi.status)+ " OK\r\nConnection: close\r\nContent-Length: "
+                                                            + ft_to_string(cgi.response.size()) + "\r\n\r\n";
 					}
 					else
 					{
@@ -340,7 +341,7 @@ void Response::ft_Get(Request &request, Server_storage &server)
 		    {
 		        if (request.ex == "py")
 		        {
-		            this->head = cgi.head + "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
+		            this->head = cgi.head + "HTTP/1.1 " + ft_to_string(cgi.status) + " OK\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
 		        }
 		        else
 		        {
@@ -361,29 +362,32 @@ void Response::ft_Get(Request &request, Server_storage &server)
     std::cout << "response: " << this->head << "\n" << this->response << std::endl;
 }
 
+
+bool isDirectoryEmpty(std::string path);
 void Response::ft_delete(Request &request, Server_storage &server)
 {
-
     std::string file;
 	file = request.getUrl();
-
-	if (locIt->getLocaPath() != "/")
-	{
-	    std::cout << "locIt->getLocaPath() != SLACH " << std::endl;
+    if (locIt->getLocaPath() != "/")
 	    file.replace(0, locIt->getLocaPath().length(), processString(locIt->getLocaRoot() + "/"));
-	}
-	else {
-	    std::cout << "locIt->getLocaPath() == SLACH " << std::endl;
+	else 
 	    file = locIt->getLocaRoot() + file;
-	}
-
-	file = delRepSlash(file);
-    if (isDir(file))
-        errPage(server, 403);
-    else if (access(file.c_str(), F_OK) == -1)
+	
+    file = delRepSlash(file);
+    if (access(file.c_str(), F_OK) == -1)
         errPage(server, 404);
     else if (access(file.c_str(), W_OK) == -1)
         errPage(server, 403);
+    if (isDir(file))
+    {
+        if(isDirectoryEmpty(file))
+        {
+            if(rmdir(file.c_str()))
+                 errPage(server, 403);
+            else 
+                errPage(server, 204);
+        }
+    } 
     else if (std::remove(file.c_str()))
         errPage(server, 403);
     else
