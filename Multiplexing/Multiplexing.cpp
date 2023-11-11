@@ -182,7 +182,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                     FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
                     close(clients[i].first.get_fd());
                     // std::cout << "body fd" << clients[i].first.req.getBody() << "temp file: " << clients[i].first.req.randomstr << std::endl;
-                    // deleteTempFile(clients[i].first);
+                    deleteTempFile(clients[i].first);
                     clients.erase(clients.begin() + i);
 
                     i--;
