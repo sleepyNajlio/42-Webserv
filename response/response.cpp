@@ -168,7 +168,7 @@ void Response::errPage(Server_storage server, int code)
 
     if (code == 301)
     {
-        this->head = "HTTP/1.1 " + ft_to_string(code) + " " + initStatusCodeMap(code) + "\r\nLocation: " + locIt->getLocaRedirect() + "\r\n\r\n";
+        this->head = "HTTP/1.1 " + ft_to_string(code) + " " + initStatusCodeMap(code) + "\r\nLocation: "+ urlAlias + "/" + "\r\n\r\n";
         return;
     }
     if (errors.find(code) != errors.end())
@@ -546,6 +546,7 @@ void Response::ft_Post(Request &request, Server_storage &server)
 void Response::init_response(Request &request, Server_storage &server)
 {
     locIt = locationMatch(server, request.getUrl());
+    urlAlias = request.getUrl();
     if (locIt == server.getLocations().end())
     {
         errPage(server, 404);
