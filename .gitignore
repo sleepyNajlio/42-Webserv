@@ -2,3 +2,5 @@ cache
 webserver
 uploads
 TODO
+var
+.DS_Store
