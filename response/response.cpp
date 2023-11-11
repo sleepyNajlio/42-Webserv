@@ -128,14 +128,15 @@ std::string Response::initStatusCodeMap(int code)
 
 void Response::generateErrorPage(int code)
 {
+    std::cout << "generateErrorPage" << std::endl;
     std::string errorMessage = initStatusCodeMap(code);
     std::string errorPageBody = "<!DOCTYPE html>\n";
     errorPageBody += "<html>\n";
     errorPageBody += "<head>\n";
     if (code == 204)
-        errorPageBody += "<title>Success " + ft_to_string(code) + ": " + errorMessage + "</title>\n";
+        errorPageBody += "<title>" + ft_to_string(204) + " " + errorMessage + "</title>\n";
     else
-        errorPageBody += "<title>Error " + ft_to_string(code) + ": " + errorMessage + "</title>\n";
+        errorPageBody += "<title>Error " + ft_to_string(code) + " " + errorMessage + "</title>\n";
     errorPageBody += "<style>\n";
     errorPageBody += "body {display: flex; justify-content: center; align-items:center; flex-direction: column; font-family: Arial, sans-serif; margin: 0; padding: 20px;}\n";
     errorPageBody += "h1 {font-size: 24px;}\n";
@@ -144,15 +145,17 @@ void Response::generateErrorPage(int code)
     errorPageBody += "</head>\n";
     errorPageBody += "<body>\n";
     if (code == 204)
-        errorPageBody += "<h1>Success " + ft_to_string(code) + ": " + errorMessage + "</h1>\n";
+        errorPageBody += "<h1> " + ft_to_string(code) + " " + errorMessage + "</h1>\n";
     else
-        errorPageBody += "<h1>Error " + ft_to_string(code) + ": " + errorMessage + "</h1>\n";
+        errorPageBody += "<h1>Error " + ft_to_string(code) + " " + errorMessage + "</h1>\n";
     errorPageBody += "<p>" + ft_to_string(code) + "</p>\n";
     errorPageBody += "</body>\n";
     errorPageBody += "</html>";
     contentTrack = errorPageBody.size();
-    this->head = "HTTP/1.1 " + ft_to_string(code) + "\r\nContent-Type: text/html\r\nContent-Length: " + ft_to_string(errorPageBody.size()) + "\r\n\r\n";
+    this->head = "HTTP/1.1 " + ft_to_string(code) + " " + initStatusCodeMap(code) + "\r\nContent-Type: text/html\r\nContent-Length: " + ft_to_string(errorPageBody.size()) + "\r\n\r\n";
     this->response = errorPageBody;
+
+    // std::cout << "response: " << this->head << "\n" << this->response << std::endl;
 }
 
 void Response::errPage(Server_storage server, int code)
@@ -163,8 +166,14 @@ void Response::errPage(Server_storage server, int code)
     std::ifstream::pos_type content_length;
     const std::map<int, std::string> &errors = server.getErrorPages();
 
+    if (code == 301)
+    {
+        this->head = "HTTP/1.1 " + ft_to_string(code) + " " + initStatusCodeMap(code) + "\r\nLocation: " + locIt->getLocaRedirect() + "\r\n\r\n";
+        return;
+    }
     if (errors.find(code) != errors.end())
     {
+        std::cout << "error page found" << std::endl;
         path = errors.find(code)->second;
         this->fd_res_filename = path;
         fd_res.open(path, std::ios::in | std::ios::binary | std::ios::ate);
@@ -172,7 +181,7 @@ void Response::errPage(Server_storage server, int code)
         contentTrack = fd_res.tellg();
         fd_res.seekg(0, std::ios::beg);
         if (fd_res.is_open())
-            this->head = "HTTP/1.1 " + ft_to_string(code) + "\r\nContent-Type: text/html\r\nContent-Length: " + ft_to_string(contentTrack) + "\r\n\r\n";
+            this->head = "HTTP/1.1 " + ft_to_string(code) + " " + initStatusCodeMap(code) + "\r\nContent-Type: text/html\r\nContent-Length: " + ft_to_string(contentTrack) + "\r\n\r\n";
         else
             generateErrorPage(code);
         return;
@@ -203,7 +212,7 @@ void Response::listDir(std::string file, Request &request, Server_storage &serve
         }
         closedir(dir);
         output.append("</ul></body></html>");
-        std::string header = "HTTP/1.1 "+ ft_to_string(status_code) +" OK\r\n"
+        std::string header = "HTTP/1.1 "+ ft_to_string(200) +" OK\r\n"
                              "Connection: close\r\n"
                              "Content-Type: "
                              "text/html\r\n"
@@ -211,6 +220,7 @@ void Response::listDir(std::string file, Request &request, Server_storage &serve
                              ft_to_string(output.size()) +
                              "\r\n\r\n";
         this->response = header + output;
+        this->contentTrack = response.size();
     }
     else
         errPage(server, 403);
@@ -230,7 +240,7 @@ void Response::open_file(Server_storage &server, std::string file)
         errPage(server, 403);
         return;
     }
-    this->head = "HTTP/1.1 "+ ft_to_string(status_code) + " OK\r\nConnection: close\r\nContent-Type: " +
+    this->head = "HTTP/1.1 "+ ft_to_string(200) + " OK\r\nConnection: close\r\nContent-Type: " +
                  get_content_type(file) + "\r\nContent-Length: " + ft_to_string(size) + "\r\n\r\n";
     contentTrack = size ;
 }
@@ -298,7 +308,7 @@ void Response::ft_Get(Request &request, Server_storage &server)
 				{
 					if (request.ex == "py")
 					{
-						this->head = cgi.head + "HTTP/1.1 " + ft_to_string(cgi.status)+ " OK\r\nConnection: close\r\nContent-Length: "
+						this->head = cgi.head + "HTTP/1.1 " + ft_to_string(cgi.status)+ " " + initStatusCodeMap(cgi.status) + "\r\nConnection: close\r\nContent-Length: "
                                                             + ft_to_string(cgi.response.size()) + "\r\n\r\n";
 					}
 					else
@@ -309,12 +319,12 @@ void Response::ft_Get(Request &request, Server_storage &server)
 					this->contentTrack = cgi.response.size();
 				}
 			}
-			else if (file1.good())
-				open_file(server, file);
-			else if (access(file.c_str(), F_OK))
-				errPage(server, 403);
-			else
-				errPage(server, 404);
+		else if (file1.good())
+		    open_file(server, file);
+		else if (access(file.c_str(), F_OK))
+		    errPage(server, 404);
+		else
+		    errPage(server, 403);
 		}
 		else if (locIt->getLocaAutoindex())
 			listDir(file, request, server);
@@ -341,7 +351,7 @@ void Response::ft_Get(Request &request, Server_storage &server)
 		    {
 		        if (request.ex == "py")
 		        {
-		            this->head = cgi.head + "HTTP/1.1 " + ft_to_string(cgi.status) + " OK\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
+		            this->head = cgi.head + "HTTP/1.1 " + ft_to_string(cgi.status) + " " + initStatusCodeMap(cgi.status) + "\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
 		        }
 		        else
 		        {
@@ -355,9 +365,9 @@ void Response::ft_Get(Request &request, Server_storage &server)
 		else if (file1.good())
 		    open_file(server, file);
 		else if (access(file.c_str(), F_OK))
-		    errPage(server, 403);
-		else
 		    errPage(server, 404);
+		else
+		    errPage(server, 403);
 	}
     std::cout << "response: " << this->head << "\n" << this->response << std::endl;
 }
@@ -475,7 +485,7 @@ void Response::ft_Post(Request &request, Server_storage &server)
 					{
 						if (request.ex == "py")
 						{
-							this->head = cgi.head + "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
+							this->head = cgi.head + "HTTP/1.1 "  + ft_to_string(cgi.status) + " " + initStatusCodeMap(cgi.status) + "\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
 						}
 						else
 						{
@@ -488,7 +498,7 @@ void Response::ft_Post(Request &request, Server_storage &server)
                 }
                 else
                 {
-                    errPage(server, 403);
+                    errPage(server, 404);
                 }
             }
             else
@@ -514,7 +524,7 @@ void Response::ft_Post(Request &request, Server_storage &server)
             {
                 if (request.ex == "py")
                 {
-                    this->head = cgi.head + "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
+                    this->head = cgi.head + "HTTP/1.1 "  + ft_to_string(cgi.status) + " " + initStatusCodeMap(cgi.status) + "\r\nConnection: close\r\nContent-Length: " + ft_to_string(cgi.response.size()) + "\r\n\r\n";
                 }
                 else
                 {
