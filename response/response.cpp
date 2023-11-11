@@ -14,6 +14,58 @@ void Response::set_status_code(int status_code)
     this->status_code = status_code;
 }
 
+std::string get_file_extension(const std::string& content_type) {
+    if (content_type == "text/html") return ".html";
+    else if (content_type == "text/css") return ".css";
+    else if (content_type == "text/xml") return ".xml";
+    else if (content_type == "text/csv") return ".csv";
+    else if (content_type == "image/gif") return ".gif";
+    else if (content_type == "image/x-icon") return ".ico";
+    else if (content_type == "image/jpeg") return ".jpg";
+    else if (content_type == "application/javascript") return ".js";
+    else if (content_type == "application/json") return ".json";
+    else if (content_type == "image/png") return ".png";
+    else if (content_type == "application/pdf") return ".pdf";
+    else if (content_type == "image/svg+xml") return ".svg";
+    else if (content_type == "text/plain") return ".txt";
+    else if (content_type == "application/atom+xml") return ".atom";
+    else if (content_type == "application/rss+xml") return ".rss";
+    else if (content_type == "image/webp") return ".webp";
+    else if (content_type == "video/3gpp") return ".3gpp";
+    else if (content_type == "video/mp2t") return ".ts";
+    else if (content_type == "video/mp4") return ".mp4";
+    else if (content_type == "video/mpeg") return ".mpeg";
+    else if (content_type == "video/quicktime") return ".mov";
+    else if (content_type == "video/webm") return ".webm";
+    else if (content_type == "video/x-flv") return ".flv";
+    else if (content_type == "video/x-m4v") return ".m4v";
+    else if (content_type == "video/x-mng") return ".mng";
+    else if (content_type == "video/x-ms-asf") return ".asf";
+    else if (content_type == "video/x-ms-wmv") return ".wmv";
+    else if (content_type == "video/x-msvideo") return ".avi";
+    else if (content_type == "text/mathml") return ".mml";
+    else if (content_type == "text/vnd.sun.j2me.app-descriptor") return ".jad";
+    else if (content_type == "text/vnd.wap.wml") return ".wml";
+    else if (content_type == "text/x-component") return ".htc";
+    else if (content_type == "image/tiff") return ".tiff";
+    else if (content_type == "image/vnd.wap.wbmp") return ".wbmp";
+    else if (content_type == "image/x-jng") return ".jng";
+    else if (content_type == "image/bmp") return ".bmp";
+    else if (content_type == "image/svg+xml-compressed") return ".svgz";
+    else if (content_type == "audio/midi") return ".mid";
+    else if (content_type == "audio/x-midi") return ".midi";
+    else if (content_type == "audio/x-mpeg") return ".mp3";
+    else if (content_type == "audio/ogg") return ".ogg";
+    else if (content_type == "audio/x-realaudio") return ".ra";
+    else if (content_type == "application/x-perl") return ".pl";
+    else if (content_type == "text/x-python") return ".py";
+    else if (content_type == "application/x-httpd-php") return ".php";
+    else if (content_type == "text/x-c++src") return ".cpp";
+    else if (content_type == "text/x-c") return ".cpp";
+    else if (content_type == "text/x-csrc") return ".c";
+    else return "";
+}
+
 int Response::get_status_code() const
 {
     return this->status_code;
@@ -259,9 +311,9 @@ void Response::ft_Get(Request &request, Server_storage &server)
 			else if (file1.good())
 				open_file(server, file);
 			else if (access(file.c_str(), F_OK))
-				errPage(server, 404);
-			else
 				errPage(server, 403);
+			else
+				errPage(server, 404);
 		}
 		else if (locIt->getLocaAutoindex())
 			listDir(file, request, server);
@@ -302,9 +354,9 @@ void Response::ft_Get(Request &request, Server_storage &server)
 		else if (file1.good())
 		    open_file(server, file);
 		else if (access(file.c_str(), F_OK))
-		    errPage(server, 404);
-		else
 		    errPage(server, 403);
+		else
+		    errPage(server, 404);
 	}
     std::cout << "response: " << this->head << "\n" << this->response << std::endl;
 }
@@ -359,42 +411,52 @@ std::string get_filename(std::string filename)
 
 void Response::ft_Post(Request &request, Server_storage &server)
 {
+    std::cout << "==============FT_POST================" << std::endl;
 	std::string file("");
 	file = request.getUrl();
 
-    if (locIt->getLocaPath() != "/")
-    {
-        std::cout << "locIt->getLocaPath() != SLACH " << std::endl;
-        file.replace(0, locIt->getLocaPath().length(), locIt->getLocaRoot());
-    }
-    else {
-        std::cout << "locIt->getLocaPath() == SLACH " << std::endl;
-        file.replace(0, locIt->getLocaPath().length() - 1, locIt->getLocaRoot());
-    }
+	if (locIt->getLocaPath() != "/")
+	{
+	    std::cout << "locIt->getLocaPath() != SLACH " << std::endl;
+	    file.replace(0, locIt->getLocaPath().length(), processString(locIt->getLocaRoot() + "/"));
+	}
+	else {
+	    std::cout << "locIt->getLocaPath() == SLACH " << std::endl;
+	    file = locIt->getLocaRoot() + file;
+	}
 
+	std::cout << "file: " << file << std::endl;
+	std:: cout << "locIt->getLocaRoot(): " << locIt->getLocaRoot() << std::endl;
+	std::cout << "===============================================" << std::endl;
+	std::cout << "============location POST INFO===========:"  << std::endl;
+	std::cout << "loca_path: " << locIt->getLocaPath() << std::endl;
+	std::cout << "loca_root: " << locIt->getLocaRoot() << std::endl;
+	std::cout << "loca_autoindex: " << locIt->getLocaAutoindex() << std::endl;
+	std::cout << "loca_index: " << locIt->getLocaIndex() << "|" << std::endl;
+	std::cout << "loca_alias: " << locIt->getLocaAlias() << std::endl;
+    std::cout << "loca_upload: " << locIt->loca_upload << std::endl;
+	std::cout << "=============SAFI INFO RAH SALAW==============" << std::endl;
     file = delRepSlash(file);
 
 	request.ex = get_ex(request.getUrl());
     if (locIt->loca_upload)
     {
-        std::cout << "here1" << std::endl;
+        std::cout << "Location supports Upload" << std::endl;
+        std::cout << "headers: " << request.headers.find("Content-Type")->second << std::endl;
         // check if dir
-        if (!slashChecker(request.getUrl()))
-        {
-            std::string filename = get_filename(request.getUrl());
-            std::string name = "./uploads/" + filename;
-            if (std::rename(request.randomstr.c_str(), name.c_str()) != 0)
-                std::remove(request.randomstr.c_str());
-            head = "HTTP/1.1 201 Created \r\n Content-Type: " + get_content_type(request.getUrl()) + "\r\nContent-Length: 0\r\n\r\n";
-        }
-        else
-        {
+        std::string filename = request.randomstr.substr(8, request.randomstr.size()) + get_file_extension(request.headers.find("Content-Type")->second);
+        std::string name = processString(locIt->getLocaRoot() + "/uploads/") + filename;
+        std::cout << "ctensiomn" << get_file_extension(request.headers.find("Content-Type")->second) <<  std::endl;
+        std::cout << "random steerrrr: " << request.randomstr << std::endl;
+        if (std::rename(request.randomstr.c_str(), name.c_str()) != 0)
             std::remove(request.randomstr.c_str());
-            errPage(server, 403);
-        }
+        head = "HTTP/1.1 201 Created \r\nContent-Type: " + get_content_type(request.getUrl()) + "\r\nContent-Length: 0\r\nLocation: " + processString(locIt->getLocaPath() + "/uploads/") + filename + "\r\n\r\n" ;
+        std::cout << "fileName: " << name << std::endl;
+        std::cout << "file Location: " << processString(locIt->getLocaPath() + "/uploads/" + filename) << std::endl;
     }
     else if (isDir(request.getUrl()))
     {
+        std::cout << "Hello from ft_Post: idDir" << std::endl;
         if (slashChecker(request.getUrl()))
         {
             if (locIt->getLocaIndex() != "")
