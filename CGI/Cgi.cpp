@@ -75,7 +75,7 @@ int Cgi::execute_cgi(std::string filename , std::string ex, std::string fp)
         std::cerr << "failed piping" << std::endl;
         return 500;
     }
-	std::cout << "waa3" << filename.c_str() << std::endl;
+	// std::cout << "waa3" << filename.c_str() << std::endl;
     if ((pid = fork()) == -1)
     {
         std::cerr << "failed forking" << std::endl;
@@ -129,7 +129,7 @@ int Cgi::execute_cgi(std::string filename , std::string ex, std::string fp)
                 time_t  currentTime = time(NULL);
                 if (currentTime - startTime > 2)
                 {
-                    std::cout << pid << "wake the up" << std::endl;
+                    // std::cout << pid << "wake the up" << std::endl;
                     kill(pid, SIGKILL);
                     return 502;
                 }
@@ -162,7 +162,7 @@ int Cgi::execute_cgi(std::string filename , std::string ex, std::string fp)
                 else
                  this->response += buff;
             }
-			std::cout << "resp :" << response << std::endl;
+			// std::cout << "resp :" << response << std::endl;
         }
         close(fd[0]);
     }

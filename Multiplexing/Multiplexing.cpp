@@ -51,7 +51,7 @@ void sendresp(Response &resp)
 
     if (buffer_size)
     {
-		std::cout << "hna" << std::endl;
+		// std::cout << "hna" << std::endl;
             rc = send(resp.fd_sok, buffer, buffer_size, 0);
             if (rc <= 0 )
             {
@@ -61,7 +61,7 @@ void sendresp(Response &resp)
             resp.bytes_sent += rc;
         bzero((buffer), 2048);
     }
-    std::cout << resp.bytes_sent << " " << resp.contentTrack << " " << std::endl ;
+    // std::cout << resp.bytes_sent << " " << resp.contentTrack << " " << std::endl ;
     //if sending response is done
     if (resp.bytes_sent == resp.contentTrack)
        resp.clear_client = true;
@@ -104,6 +104,8 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                 handleNewConnection(it->first, it->second);
             }
         }
+
+        // std::cout << "Number of clients: " << clients.size() << std::endl;
         // loop through clients and check for events
         for (size_t i = 0; i < clients.size(); i++)
         {
@@ -163,7 +165,7 @@ void Multiplexing::setupServer(std::vector <std::pair <Socket , Server_storage >
                     clients[i].first.res.fd_res.close();
                     FD_CLR(clients[i].first.get_fd(), &io.writeSockets);
                     close(clients[i].first.get_fd());
-                    std::cout << "body fd" << clients[i].first.req.getBody() << "temp file: " << clients[i].first.req.randomstr << std::endl;
+                    // std::cout << "body fd" << clients[i].first.req.getBody() << "temp file: " << clients[i].first.req.randomstr << std::endl;
                     // deleteTempFile(clients[i].first);
                     clients.erase(clients.begin() + i);
 
