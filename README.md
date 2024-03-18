@@ -6,11 +6,15 @@ The **Webserv** project challenges you to build a web server from scratch. Key f
 
 ### Technologies Used
 
-- **C++98**: Implement server logic.
 - **HTTP Protocol**: Understand HTTP/1.1 standard.
 - **Server Setup**: Build a simple HTTP server.
 - **CGI**: Execute external programs for dynamic content.
 - **Select and Non-blocking I/O**: Handle multiple client connections concurrently.
+- <img width='25' height='25' src='https://img.stackshare.io/service/1049/cplusplus.png' alt='C++'/> [C++](http://www.cplusplus.com/) – Languages
+- <img width='25' height='25' src='https://img.stackshare.io/service/991/hwUcGZ41_400x400.jpg' alt='PHP'/> [PHP](http://www.php.net/) – Languages
+- <img width='25' height='25' src='https://img.stackshare.io/service/993/pUBY5pVj.png' alt='Python'/> [Python](https://www.python.org) – Languages
+
+Full tech stack [here](/techstack.md)
 
 ### Getting Started
 
